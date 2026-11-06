@@ -1,6 +1,6 @@
 [English](./README_EN.md) | [中文](./README.md)
 
-<h1 align="center">MEMI輕音 (MemiPlayer)</h1>
+<img width="1299" height="591" alt="22-1" src="https://github.com/user-attachments/assets/f4e201a6-1dc4-4b25-8390-19feb446dd4c" />
 
 <div align="center">
 
