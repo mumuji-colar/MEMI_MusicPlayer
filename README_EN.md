@@ -1,10 +1,10 @@
 [English](./README_EN.md) | [中文](./README.md)
 
-<h1 align="center">MEMI輕音 (MemiPlayer)</h1>
+<img width="1299" height="591" alt="22-1" src="https://github.com/user-attachments/assets/f4e201a6-1dc4-4b25-8390-19feb446dd4c" />
 
 <div align="center">
 
-<h3>✨ A GPLv3 fork of NeriPlayer for Android — Mochi UI redesign, multi-source streaming, word-level lyrics 🎵</h3>
+<h3>✨ A GPLv3 fork of NeriPlayer — Mochi UI redesign, multi-source streaming, word-level lyrics 🎵</h3>
 
 <p>
   <a href="https://github.com/mumuji-colar/MEMI_MusicPlayer/releases">
