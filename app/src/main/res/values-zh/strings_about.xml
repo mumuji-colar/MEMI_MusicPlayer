@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- About -->
+    <string name="about_app_footer">MemiPlayer · GPLv3 · MMC修改版</string>
+    <string name="about_special_thanks">特别鸣谢</string>
+    <string name="about_special_thanks_names">NeriPlayer-cwuo、Mochi-feice11</string>
+    <string name="about_open_source_license">开源许可</string>
+    <string name="about_open_source_license_desc">GNU 通用公共许可证第 3 版 · 点击查看全文</string>
+    <string name="about_license_dialog_title">开源许可</string>
+    <string name="about_license_close">关闭</string>
+    <string name="about_source_code">源代码</string>
+    <string name="about_source_code_desc">github.com/mumuji-colar/MEMI_MusicPlayer · 点击在浏览器中打开</string>
+    <string name="about_license_notice">MEMI輕音（MemiPlayer）是自由软件：你可以根据自由软件基金会发布的 GNU 通用公共许可证第 3 版（或你选择的任何更新版本）的条款重新分发和/或修改它。\n\n本程序分发时希望它有用，但不提供任何担保，甚至不提供适销性或特定用途适用性的默示担保。详见 GNU 通用公共许可证。\n\n本程序基于 NeriPlayer 修改，原项目版权归 NeriPlayer developers 所有，修改部分版权归 MMC 所有。\n\n你应该已经收到一份 GNU 通用公共许可证副本；如果没有，请访问 https://www.gnu.org/licenses/</string>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_background">#FFF4F7F4</color>
+    <color name="widget_text_primary">#FF1C2521</color>
+    <color name="widget_text_secondary">#FF48534D</color>
+    <color name="widget_text_muted">#FF56635B</color>
+    <color name="widget_artwork_placeholder">#FFE1E9E2</color>
+    <color name="widget_primary_control">#FFCEE6D8</color>
+    <color name="widget_primary_control_icon">#FF142B20</color>
+    <color name="widget_progress_track">#331C2521</color>
+
+    <!--
+        桌面长按图标弹出的快捷方式菜单里，四个快捷方式的图标颜色。
+        菜单背景与文字都由桌面绘制、会跟随深浅色，但图标是 App 提供的资源，
+        所以必须自己给一份夜间值，否则深色下仍是纯黑，等于看不见。
+        取值与 Material 的 onSurface 对齐，和桌面自带的「信息 / 删除」图标同一档对比度。
+    -->
+    <color name="launcher_shortcut_icon">#FF1C1B1F</color>
+</resources>

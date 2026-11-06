@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question / 使用咨询
+    url: https://github.com/mumuji-colar/MEMI_MusicPlayer/issues
+    about: 使用方法、设置和兼容性问题请提交到本仓库 Issues（原项目自身的问题请前往上游仓库）/ Ask usage, settings, and compatibility questions in this repository's issues (upstream problems belong to the original repository)

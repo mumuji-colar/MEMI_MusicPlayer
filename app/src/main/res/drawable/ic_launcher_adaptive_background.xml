@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 与 MEMI輕音 图标底色一致，避免遮罩边缘出现色差 -->
+    <solid android:color="#000000" />
+</shape>
