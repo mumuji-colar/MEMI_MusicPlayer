@@ -80,6 +80,7 @@ import moe.ouom.neriplayer.ui.settings.route.AppSettingsHostBindings
 import moe.ouom.neriplayer.ui.component.settings.LanguageSettingItem
 import moe.ouom.neriplayer.ui.effect.glass.LocalAdvancedGlassController
 import moe.ouom.neriplayer.ui.screen.tab.settings.component.LazyAnimatedVisibility
+import moe.ouom.neriplayer.ui.screen.tab.settings.component.SettingsSubPageEntrySection
 import moe.ouom.neriplayer.ui.screen.tab.settings.component.playback.PlaybackServiceIdleShutdownSetting
 import moe.ouom.neriplayer.ui.screen.tab.settings.component.playback.SettingsAudioQualitySection
 import moe.ouom.neriplayer.ui.screen.tab.settings.component.lyrics.SettingsLyricsSection
@@ -1065,6 +1066,21 @@ internal fun SettingsScreen(
                                     highlightTargetId = settingsHighlightTargetId,
                                     highlightPulse = settingsHighlightPulse,
                                     onHighlightFinished = onSettingsHighlightFinished
+                                )
+                            }
+                            // 1.12.2：音效与 USB 独占各自是独立页，不参与分类页拼接，必须显式给出入口
+                            miuixSettingsSectionCardItem("AudioQuality:entries") {
+                                SettingsSubPageEntrySection(
+                                    title = stringResource(CoreCommonR.string.settings_hub_advanced_audio),
+                                    description = stringResource(CoreCommonR.string.settings_hub_advanced_audio_desc),
+                                    entries = listOf(
+                                        SettingsPage.AudioEffects to {
+                                            navigation.activePage = SettingsPage.AudioEffects
+                                        },
+                                        SettingsPage.UsbExclusive to {
+                                            navigation.activePage = SettingsPage.UsbExclusive
+                                        }
+                                    )
                                 )
                             }
                         },

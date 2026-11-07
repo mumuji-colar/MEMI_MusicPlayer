@@ -240,7 +240,27 @@ IllegalArgumentException: Key "GeneralHub:content" was already used.
 - `SettingsAtomicCardCount[Theme]` 4 → 3
 - `atomicSettingsAnchor` 中 `manual:theme_color_spec` 锚点 4 → 3
 - 外观页背景卡起始位置 5 → 4
-- 相关测试期望同步（`SettingsPageTest` 35、`SettingsSearchAnchorIndexTest` 4、`SettingsSearchLocaleTest` 7、`SettingsCardKeyUniquenessTest` 3 = **49 项全绿**）
+- 相关测试期望同步（`SettingsPageTest` 35、`SettingsSearchAnchorIndexTest` 4、`SettingsSearchLocaleTest` 3、`SettingsCardKeyUniquenessTest` 4 = **46 项全绿**）
+
+### 补充修复：三级页入口缺失（真机反馈）
+
+**现象**：真机上「音效」「USB 独占」在设置里找不到，只能靠搜索跳进去。
+
+**根因**：`SettingsHubComposition` 只拼接原子页；`AudioEffects`、`UsbExclusive` 是独立成页的模块，不参与拼接。1.12.1 把它们从一级入口下沉为三级页，却**没有在父页里放入口行**。其余三个三级页（音乐服务器、存储概览、小米超级岛）原本就由各自的原子页组件提供跳转，所以只有这两个漏了。
+
+**修复**：
+
+| 文件 | 内容 |
+| :--- | :--- |
+| `component/SettingsSubPageEntry.kt`（新增） | `SettingsSubPageEntryRow`（ListItem + `settingsItemClickable` + 右箭头）与 `SettingsSubPageEntrySection`（卡内标题 + 若干入口行） |
+| `SettingsScreen.kt` | 播放分类页在音质卡之后追加 `AudioQuality:entries` 卡，含「音效」「USB 独占」两行，点击切换 `navigation.activePage` |
+| `SettingsSearchIndex.kt` | `SettingsAtomicCardCount[AudioQuality]` 1 → 2 |
+| 三语文案 | `settings_hub_advanced_audio` / `_desc` |
+| `SettingsCardKeyUniquenessTest` | 新增第 4 项 `everyNestedPageHasANavigationEntry`：所有 `backTargetPage() != null` 的页面，源码里必须存在 `activePage = SettingsPage.X` 或 `openSettingsPage(SettingsPage.X)` |
+
+这条静态断言正是防同类回归的：以后再把某页下沉成三级页却忘了加入口，测试会直接失败。
+
+**产物**：`dist/MEMI-1.12.2-2611072-fix1.apk`（versionCode 不变，可直接覆盖安装）。
 
 ### 仍留到 1.12.3 / 1.20
 

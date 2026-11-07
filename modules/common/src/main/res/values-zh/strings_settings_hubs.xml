@@ -21,4 +21,7 @@
     <string name="settings_hub_backup_desc">本地备份、GitHub 与 WebDAV 同步</string>
     <string name="settings_hub_general">通用</string>
     <string name="settings_hub_general_desc">语言、通知权限与开发者选项</string>
+    <!-- 分类页内的三级页面入口（1.12.2） -->
+    <string name="settings_hub_advanced_audio">高级音频</string>
+    <string name="settings_hub_advanced_audio_desc">均衡器与音效处理、USB DAC 独占输出</string>
 </resources>

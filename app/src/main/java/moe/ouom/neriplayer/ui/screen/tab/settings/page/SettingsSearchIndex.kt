@@ -286,7 +286,7 @@ private val SettingsAtomicCardCount: Map<SettingsPage, Int> = mapOf(
     SettingsPage.Accounts to 4,
     SettingsPage.PlaybackSource to 1,
     SettingsPage.Playback to 4,
-    SettingsPage.AudioQuality to 1,
+    SettingsPage.AudioQuality to 2,
     SettingsPage.Theme to 3,
     SettingsPage.Background to 1,
     SettingsPage.Motion to 4,

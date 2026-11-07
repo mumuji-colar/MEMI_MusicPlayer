@@ -3,6 +3,7 @@ package moe.ouom.neriplayer.ui.screen.tab.settings
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsHubComposition
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsPage
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsTopLevelPages
+import moe.ouom.neriplayer.ui.screen.tab.settings.page.backTargetPage
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -67,6 +68,48 @@ class SettingsCardKeyUniquenessTest {
                 branchKeys.containsKey(page)
             )
         }
+    }
+
+    /**
+     * 1.12.1 把「音效」「USB 独占」下沉为三级页后，忘了在分类页里放入口行，
+     * 结果这两页只能靠搜索进入。这条断言要求每个三级页在源码里都有跳转语句。
+     */
+    @Test
+    fun everyNestedPageHasANavigationEntry() {
+        val sources = settingsSourceTexts()
+        val nestedPages = SettingsPage.entries.filter { page ->
+            page !in SettingsTopLevelPages && page.backTargetPage() != null
+        }
+        assertTrue("没有找到任何三级页，测试前提失效", nestedPages.isNotEmpty())
+
+        nestedPages.forEach { page ->
+            val directJump = Regex("activePage\\s*=\\s*SettingsPage\\.${page.name}\\b")
+            val routedJump = Regex("openSettingsPage\\s*\\(\\s*SettingsPage\\.${page.name}\\b")
+            val reachable = sources.any { text ->
+                directJump.containsMatchIn(text) || routedJump.containsMatchIn(text)
+            }
+            assertTrue(
+                "三级页 $page 没有任何入口（既无 activePage = SettingsPage.${page.name}，" +
+                    "也无 openSettingsPage(SettingsPage.${page.name})），用户只能搜索进入",
+                reachable
+            )
+        }
+    }
+
+    /** 读取设置页相关源码，用于静态扫描。 */
+    private fun settingsSourceTexts(): List<String> {
+        val roots = listOf(
+            File("src/main/java/moe/ouom/neriplayer/ui/screen/tab/settings"),
+            File("app/src/main/java/moe/ouom/neriplayer/ui/screen/tab/settings"),
+            File("src/main/java/moe/ouom/neriplayer/ui/settings"),
+            File("app/src/main/java/moe/ouom/neriplayer/ui/settings")
+        )
+        val root = roots.firstOrNull { it.isDirectory }
+            ?: error("settings source root not found from ${File(".").absolutePath}")
+        return root.walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .map { it.readText() }
+            .toList()
     }
 
     /** 解析 `SettingsPage.X to { ... }` 分支内的 item key（含铺卡与裸 item 两种写法）。 */

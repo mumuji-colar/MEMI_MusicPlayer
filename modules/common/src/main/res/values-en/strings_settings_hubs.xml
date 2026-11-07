@@ -21,4 +21,7 @@
     <string name="settings_hub_backup_desc">Local backup, GitHub and WebDAV sync</string>
     <string name="settings_hub_general">General</string>
     <string name="settings_hub_general_desc">Language, notification access, and developer options</string>
+    <!-- Sub-page entries inside hub pages (1.12.2) -->
+    <string name="settings_hub_advanced_audio">Advanced audio</string>
+    <string name="settings_hub_advanced_audio_desc">Equalizer and effects, exclusive USB DAC output</string>
 </resources>
