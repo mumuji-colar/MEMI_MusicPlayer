@@ -31,7 +31,10 @@ internal fun buildSettingsSearchEntries(
     resources: Resources,
     internationalEnabled: Boolean = false
 ): List<SettingsSearchEntry> {
-    val pageEntries = SettingsPage.entries.map { page ->
+    // 1.12.1：搜索的「页面」结果只包含一级入口，原子页不再单独出现
+    val pageEntries = SettingsPage.entries
+        .filter { it in SettingsTopLevelPages }
+        .map { page ->
         val title = resources.safeString(page.titleRes)
         val description = resources.safeString(page.descriptionRes)
         SettingsSearchEntry(
@@ -99,23 +102,23 @@ internal fun searchSettingsEntries(
 
 internal fun AutoSettingInfo.settingsPage(): SettingsPage? {
     if (keyName in LyricAppearanceSettingKeys) {
-        return SettingsPage.Lyrics
+        return SettingsPage.LyricsHub
     }
     val target = "setting:$keyName"
     if (target in PersonalizationBackgroundTargets) {
-        return SettingsPage.Background
+        return SettingsPage.Appearance
     }
     if (target in PersonalizationPlaybackInfoTargets || target in PersonalizationPlaybackControlTargets) {
-        return SettingsPage.NowPlaying
+        return SettingsPage.LayoutHub
     }
     if (section == AutoSettingsSections.lyrics && !keyName.endsWith("_lyric_default_offset_ms")) {
-        return SettingsPage.ExternalLyrics
+        return SettingsPage.LyricsHub
     }
     if (
         keyName == "netease_auto_source_switch" ||
         keyName == "netease_local_source_fallback"
     ) {
-        return SettingsPage.PlaybackSource
+        return SettingsPage.AccountSources
     }
     if (section == AutoSettingsSections.playback && keyName.startsWith("usb_exclusive")) {
         return SettingsPage.UsbExclusive
@@ -125,20 +128,20 @@ internal fun AutoSettingInfo.settingsPage(): SettingsPage? {
 
 internal fun settingsPageForSection(section: String): SettingsPage? {
     return when (section) {
-        AutoSettingsSections.general -> SettingsPage.General
-        AutoSettingsSections.theme -> SettingsPage.Theme
-        AutoSettingsSections.audioQuality -> SettingsPage.AudioQuality
-        AutoSettingsSections.personalization -> SettingsPage.Personalization
-        AutoSettingsSections.display -> SettingsPage.Personalization
-        AutoSettingsSections.motion -> SettingsPage.Motion
-        AutoSettingsSections.lyrics -> SettingsPage.Lyrics
-        AutoSettingsSections.lyricSource -> SettingsPage.Lyrics
-        AutoSettingsSections.network -> SettingsPage.Network
-        AutoSettingsSections.download -> SettingsPage.Downloads
-        AutoSettingsSections.trafficManagement -> SettingsPage.TrafficManagement
-        AutoSettingsSections.storage -> SettingsPage.Storage
-        AutoSettingsSections.backup -> SettingsPage.Backup
-        AutoSettingsSections.playback -> SettingsPage.Playback
+        AutoSettingsSections.general -> SettingsPage.GeneralHub
+        AutoSettingsSections.theme -> SettingsPage.Appearance
+        AutoSettingsSections.audioQuality -> SettingsPage.PlaybackHub
+        AutoSettingsSections.personalization -> SettingsPage.LayoutHub
+        AutoSettingsSections.display -> SettingsPage.LayoutHub
+        AutoSettingsSections.motion -> SettingsPage.MotionPerformance
+        AutoSettingsSections.lyrics -> SettingsPage.LyricsHub
+        AutoSettingsSections.lyricSource -> SettingsPage.LyricsHub
+        AutoSettingsSections.network -> SettingsPage.NetworkTraffic
+        AutoSettingsSections.download -> SettingsPage.StorageDownloads
+        AutoSettingsSections.trafficManagement -> SettingsPage.NetworkTraffic
+        AutoSettingsSections.storage -> SettingsPage.StorageDownloads
+        AutoSettingsSections.backup -> SettingsPage.BackupSync
+        AutoSettingsSections.playback -> SettingsPage.PlaybackHub
         else -> null
     }
 }
@@ -191,7 +194,7 @@ internal fun resolveSettingsSearchHighlightTarget(
 ): String {
     return when {
         dynamicColor &&
-            entry.page == SettingsPage.Theme &&
+            entry.page == SettingsPage.Appearance &&
             entry.targetId in DynamicColorHiddenSearchTargets -> "setting:dynamic_color"
         mobileDataFollowDefaultAudioQuality &&
             entry.targetId in MobileDataQualityHiddenSearchTargets -> {
@@ -212,6 +215,35 @@ internal fun settingsSearchScrollAnchor(
         return SettingsSearchScrollAnchor(itemIndex = 0)
     }
 
+    // 1.12.1：一级分类页 = 原子页顺序拼接。
+    // 位置 = 目标原子页在分类页里的起始卡 + 该原子页内部的原锚点偏移。
+    if (page in SettingsHubComposition) {
+        val atoms = SettingsHubComposition[page].orEmpty()
+        val atom = settingsHubAtomFor(page, targetId)
+        var start = 1
+        for (candidate in atoms) {
+            if (candidate == atom) break
+            start += SettingsAtomicCardCount[candidate] ?: 1
+        }
+        if (atom == null) {
+            return SettingsSearchScrollAnchor(itemIndex = start)
+        }
+        val inner = atomicSettingsAnchor(atom, targetId).itemIndex - atomicHeaderOffset(atom)
+        return SettingsSearchScrollAnchor(itemIndex = (start + inner).coerceAtLeast(1))
+    }
+
+    return atomicSettingsAnchor(page, targetId)
+}
+
+/** 原子页锚点里页头占的位数：Accounts 页不渲染详情页头。 */
+private fun atomicHeaderOffset(page: SettingsPage): Int =
+    if (page == SettingsPage.Accounts) 0 else 1
+
+/** 原子页自身的锚点计算（1.12.1 之前的原始逻辑）。 */
+private fun atomicSettingsAnchor(
+    page: SettingsPage,
+    targetId: String
+): SettingsSearchScrollAnchor {
     return when (page) {
         SettingsPage.Accounts -> SettingsSearchScrollAnchor(itemIndex = 0)
         SettingsPage.Theme -> when (targetId) {
@@ -247,6 +279,86 @@ internal fun settingsSearchScrollAnchor(
         )
         else -> SettingsSearchScrollAnchor(itemIndex = 1)
     }
+}
+
+/** 每个原子页在所属一级分类页里占多少张卡，用于累加起始位置。 */
+private val SettingsAtomicCardCount: Map<SettingsPage, Int> = mapOf(
+    SettingsPage.Accounts to 4,
+    SettingsPage.PlaybackSource to 1,
+    SettingsPage.Playback to 4,
+    SettingsPage.AudioQuality to 1,
+    SettingsPage.Theme to 4,
+    SettingsPage.Background to 1,
+    SettingsPage.Motion to 4,
+    SettingsPage.NowPlaying to 2,
+    SettingsPage.Personalization to 2,
+    SettingsPage.Lyrics to 3,
+    SettingsPage.ExternalLyrics to 2,
+    SettingsPage.Storage to 4,
+    SettingsPage.Downloads to 2,
+    SettingsPage.Network to 1,
+    SettingsPage.TrafficManagement to 1,
+    SettingsPage.Backup to 4,
+    SettingsPage.ListenTogether to 1,
+    SettingsPage.General to 1,
+    SettingsPage.Language to 1
+)
+
+/** 按 targetId 归属规则判断搜索目标属于哪个原子页。 */
+private fun settingsHubAtomFor(hub: SettingsPage, targetId: String): SettingsPage? {
+    return SettingsHubComposition[hub].orEmpty()
+        .firstOrNull { atom -> settingsTargetBelongsTo(atom, targetId) }
+}
+
+private fun settingsTargetBelongsTo(atom: SettingsPage, targetId: String): Boolean = when (atom) {    SettingsPage.Accounts -> targetId.startsWith("manual:netease_login") ||
+        targetId.startsWith("manual:bili_login") ||
+        targetId.startsWith("manual:youtube_login") ||
+        targetId.startsWith("manual:music_servers") ||
+        targetId.startsWith("page:Accounts")
+    SettingsPage.PlaybackSource -> targetId.startsWith("setting:netease_auto_source_switch") ||
+        targetId.startsWith("setting:netease_local_source_fallback")
+    SettingsPage.Playback -> targetId.startsWith("setting:playback")
+    SettingsPage.AudioQuality -> targetId.contains("audio_quality")
+    SettingsPage.Theme -> targetId.startsWith("manual:theme") || targetId == "setting:dynamic_color"
+    SettingsPage.Background -> targetId.startsWith("setting:background")
+    SettingsPage.Motion -> targetId.contains("blur") ||
+        targetId == "setting:advanced_lyrics_enabled" ||
+        targetId == "setting:nowplaying_dynamic_background_enabled" ||
+        targetId == "setting:performance_mode"
+    SettingsPage.NowPlaying -> targetId in PersonalizationPlaybackInfoTargets ||
+        targetId in PersonalizationPlaybackControlTargets
+    SettingsPage.Personalization -> targetId in PersonalizationStartTargets ||
+        targetId in PersonalizationHomeTargets
+    SettingsPage.Lyrics -> targetId.endsWith("_lyric_default_offset_ms") ||
+        targetId == "setting:prefer_word_timed_lyrics" ||
+        targetId == "setting:default_lyric_source" ||
+        targetId in LyricAppearanceSearchTargets
+    SettingsPage.ExternalLyrics -> targetId.startsWith("setting:floating_lyrics") ||
+        targetId.startsWith("setting:status_bar_lyrics") ||
+        targetId.startsWith("setting:dynamic_island") ||
+        targetId.startsWith("setting:coloros") ||
+        targetId.startsWith("setting:bluetooth_lyric")
+    SettingsPage.Storage -> targetId.startsWith("setting:download_directory") ||
+        targetId.startsWith("setting:download_file_name") ||
+        targetId.contains("cache")
+    SettingsPage.Downloads -> targetId.startsWith("setting:download_parallelism") ||
+        targetId.startsWith("setting:download_metadata") ||
+        targetId == "setting:standardized_lyric_embedding_enabled"
+    SettingsPage.Network -> targetId == "setting:bypass_proxy"
+    SettingsPage.TrafficManagement -> targetId.startsWith("setting:traffic") ||
+        targetId.startsWith("setting:mobile_data_high_risk")
+    SettingsPage.Backup -> targetId.startsWith("manual:github") ||
+        targetId.startsWith("manual:webdav") ||
+        targetId.startsWith("manual:playlist") ||
+        targetId.startsWith("manual:config") ||
+        targetId == "manual:backup_history" ||
+        targetId.startsWith("setting:silent_github")
+    SettingsPage.ListenTogether -> targetId.contains("listen_together")
+    SettingsPage.General -> targetId.startsWith("setting:haptic") ||
+        targetId == "setting:ui_density_scale" ||
+        targetId.startsWith("setting:playback_service_idle")
+    SettingsPage.Language -> targetId == "manual:language"
+    else -> false
 }
 
 private fun lyricsCardIndex(targetId: String): Int {
@@ -855,6 +967,41 @@ private fun Resources.safeString(resId: Int): String {
 }
 
 private val PageSearchAliases = mapOf(
+    // 1.12.1 一级分类页别名（原子页别名保留，用于兼容旧关键词）
+    SettingsPage.AccountSources to listOf(
+        "account", "accounts", "login", "cookie", "netease", "bili", "youtube",
+        "platform", "source", "sources", "zhanghao", "denglu", "pingtai", "yinyuan"
+    ),
+    SettingsPage.PlaybackHub to listOf(
+        "playback", "player", "audio", "quality", "output", "bofang", "yinpin", "yinzhii"
+    ),
+    SettingsPage.Appearance to listOf(
+        "appearance", "theme", "dark", "light", "color", "palette", "background",
+        "wallpaper", "zhuti", "yanse", "beijing", "waiguan"
+    ),
+    SettingsPage.MotionPerformance to listOf(
+        "motion", "animation", "performance", "blur", "power", "dongxiao", "xingneng", "mohu"
+    ),
+    SettingsPage.LayoutHub to listOf(
+        "layout", "now playing", "player", "cover", "home", "start", "startup",
+        "buju", "bofangye", "shouye", "qidong"
+    ),
+    SettingsPage.LyricsHub to listOf(
+        "lyrics", "lyric", "bluetooth", "floating", "status bar", "dynamic island",
+        "geci", "lanya", "xuanfu", "zhuangtailan", "lingdongdao"
+    ),
+    SettingsPage.StorageDownloads to listOf(
+        "storage", "download", "cache", "folder", "cunchu", "xiazai", "huancun", "mulu"
+    ),
+    SettingsPage.NetworkTraffic to listOf(
+        "network", "proxy", "traffic", "data", "wangluo", "daili", "liuliang", "shuju"
+    ),
+    SettingsPage.BackupSync to listOf(
+        "backup", "sync", "restore", "webdav", "beifen", "tongbu", "huifu"
+    ),
+    SettingsPage.GeneralHub to listOf(
+        "general", "basic", "language", "tongyong", "jichu", "yuyan"
+    ),
     SettingsPage.General to listOf("general", "basic", "tongyong", "jichu"),
     SettingsPage.AudioEffects to listOf(
         "audio effects", "sound effects", "dsp", "eq", "equalizer", "preset", "speed", "pitch",

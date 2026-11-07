@@ -46,7 +46,7 @@ class SettingsSearchLocaleTest {
         composeRule.runOnIdle { navigation.searchQueryState.value = "blueto" }
         val queryState = navigation.searchQueryState
         val pageState = navigation.activePageState
-        val listState = navigation.detailListStates.getValue(SettingsPage.ExternalLyrics)
+        val listState = navigation.detailListStates.getValue(SettingsPage.LyricsHub)
 
         listOf("en", "zh", "en", "zh").forEach { locale ->
             composeRule.runOnIdle { language.value = locale }
@@ -55,12 +55,12 @@ class SettingsSearchLocaleTest {
                 assertEquals("blueto", navigation.searchQueryState.value)
                 assertTrue(queryState === navigation.searchQueryState)
                 assertTrue(pageState === navigation.activePageState)
-                assertTrue(listState === navigation.detailListStates.getValue(SettingsPage.ExternalLyrics))
+                assertTrue(listState === navigation.detailListStates.getValue(SettingsPage.LyricsHub))
             }
         }
         composeRule.runOnIdle { navigation.searchQueryState.value = "蓝牙" }
         composeRule.runOnIdle {
-            assertTrue(navigation.searchResults.any { it.page == SettingsPage.ExternalLyrics })
+            assertTrue(navigation.searchResults.any { it.page == SettingsPage.LyricsHub })
         }
     }
 
@@ -78,7 +78,7 @@ class SettingsSearchLocaleTest {
         composeRule.runOnIdle { navigation.searchQueryState.value = "bilibili" }
         val queryState = navigation.searchQueryState
         val pageState = navigation.activePageState
-        val listState = navigation.detailListStates.getValue(SettingsPage.Personalization)
+        val listState = navigation.detailListStates.getValue(SettingsPage.LayoutHub)
         val targetId = "setting:home_card_bilibili"
         composeRule.runOnIdle {
             assertTrue(navigation.searchResults.any { it.targetId == targetId })
@@ -92,7 +92,7 @@ class SettingsSearchLocaleTest {
                 assertEquals("bilibili", navigation.searchQueryState.value)
                 assertTrue(queryState === navigation.searchQueryState)
                 assertTrue(pageState === navigation.activePageState)
-                assertTrue(listState === navigation.detailListStates.getValue(SettingsPage.Personalization))
+                assertTrue(listState === navigation.detailListStates.getValue(SettingsPage.LayoutHub))
             }
         }
     }
@@ -127,13 +127,13 @@ class SettingsSearchLocaleTest {
     }
 
     private fun assertSearchLanguage(locale: String) {
-        val expected = resourcesFor(locale).getString(SettingsPage.ExternalLyrics.titleRes)
+        val expected = resourcesFor(locale).getString(SettingsPage.LyricsHub.titleRes)
         composeRule.runOnIdle {
-            assertEquals(expected, navigation.searchResults.first { it.id == "page:ExternalLyrics" }.title)
+            assertEquals(expected, navigation.searchResults.first { it.id == "page:LyricsHub" }.title)
         }
         assertTrue(composeRule.onAllNodesWithText(expected).fetchSemanticsNodes().isNotEmpty())
         val oldLocale = if (locale == "en") "zh" else "en"
-        val staleTitle = resourcesFor(oldLocale).getString(SettingsPage.ExternalLyrics.titleRes)
+        val staleTitle = resourcesFor(oldLocale).getString(SettingsPage.LyricsHub.titleRes)
         assertTrue(composeRule.onAllNodesWithText(staleTitle).fetchSemanticsNodes().isEmpty())
     }
 

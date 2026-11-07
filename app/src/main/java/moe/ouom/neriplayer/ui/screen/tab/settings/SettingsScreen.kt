@@ -102,6 +102,7 @@ import moe.ouom.neriplayer.ui.screen.tab.settings.page.MiuixSettingsHeader
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.MiuixSettingsHomeScaffold
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.MiuixSettingsResponsiveDetailScaffold
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.MiuixSettingsSectionIntro
+import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsHubComposition
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsPage
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.miuixSettingsSectionCardItem
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.settingsHighlightTarget
@@ -1188,7 +1189,16 @@ internal fun SettingsScreen(
                                 )
                             }
                         }
-                    )
+                    ).toMutableMap().apply {
+                        // 1.12.1：一级分类页 = 若干原子页按顺序拼接，原子页内容一字未动
+                        SettingsHubComposition.forEach { (hub, atoms) ->
+                            put(hub) {
+                                atoms.forEach { atom ->
+                                    this@apply[atom]?.invoke(this)
+                                }
+                            }
+                        }
+                    }
                     pageItems.getValue(selectedPage).invoke(this)
                 }
                 MiuixSettingsResponsiveDetailScaffold(

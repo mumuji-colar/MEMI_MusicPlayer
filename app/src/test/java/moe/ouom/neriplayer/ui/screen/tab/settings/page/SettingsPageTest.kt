@@ -20,9 +20,9 @@ class SettingsPageTest {
         val setting = AutoSettingsMetadata.settings.first {
             it.keyName == "coloros_lockscreen_lyrics_enabled"
         }
-        assertEquals(SettingsPage.ExternalLyrics, setting.settingsPage())
+        assertEquals(SettingsPage.LyricsHub, setting.settingsPage())
         assertEquals("setting:coloros_lockscreen_lyrics_enabled", setting.searchTargetId())
-        assertEquals(2, settingsSearchScrollAnchor(SettingsPage.ExternalLyrics, setting.searchTargetId()).itemIndex)
+        assertEquals(5, settingsSearchScrollAnchor(SettingsPage.LyricsHub, setting.searchTargetId()).itemIndex)
         assertTrue(setting.searchTokens("", "").any { it.equals("shizuku", ignoreCase = true) })
     }
 
@@ -45,31 +45,32 @@ class SettingsPageTest {
     }
 
     @Test
-    fun usbExclusiveIsATopLevelPageInThePlaybackGroup() {
-        assertEquals(null, SettingsPage.UsbExclusive.backTargetPage())
-        assertEquals(null, SettingsPage.Playback.backTargetPage())
-        assertTrue(SettingsHomePageGroups.first { SettingsPage.Playback in it }.contains(SettingsPage.UsbExclusive))
+    fun usbExclusiveBecomesNestedUnderPlaybackHub() {
+        // 1.12.1：USB 独占从一级入口下沉为「播放」下的三级页
+        assertEquals(SettingsPage.PlaybackHub, SettingsPage.UsbExclusive.backTargetPage())
+        assertEquals(null, SettingsPage.PlaybackHub.backTargetPage())
+        assertTrue(SettingsPage.UsbExclusive !in SettingsTopLevelPages)
     }
     @Test
     fun displaySectionSettingsOpenPersonalizationPage() {
-        assertEquals(SettingsPage.Personalization, settingsPageForSection(AutoSettingsSections.display))
+        assertEquals(SettingsPage.LayoutHub, settingsPageForSection(AutoSettingsSections.display))
     }
 
     @Test
     fun lyricSourceSettingsOpenPreferenceCardWithinLyricsPage() {
-        assertEquals(SettingsPage.Lyrics, settingsPageForSection(AutoSettingsSections.lyricSource))
+        assertEquals(SettingsPage.LyricsHub, settingsPageForSection(AutoSettingsSections.lyricSource))
         assertEquals(
             2,
-            settingsSearchScrollAnchor(SettingsPage.Lyrics, "setting:prefer_word_timed_lyrics").itemIndex
+            settingsSearchScrollAnchor(SettingsPage.LyricsHub, "setting:prefer_word_timed_lyrics").itemIndex
         )
         assertEquals(
             2,
-            settingsSearchScrollAnchor(SettingsPage.Lyrics, "setting:default_lyric_source").itemIndex
+            settingsSearchScrollAnchor(SettingsPage.LyricsHub, "setting:default_lyric_source").itemIndex
         )
         assertEquals(
             3,
             settingsSearchScrollAnchor(
-                SettingsPage.Lyrics,
+                SettingsPage.LyricsHub,
                 "setting:cloud_music_lyric_default_offset_ms"
             ).itemIndex
         )
@@ -88,36 +89,40 @@ class SettingsPageTest {
             val setting = AutoSettingsMetadata.settings.first { it.keyName == keyName }
 
             assertEquals(AutoSettingsSections.display, setting.section)
-            assertEquals(SettingsPage.Lyrics, setting.settingsPage())
+            assertEquals(SettingsPage.LyricsHub, setting.settingsPage())
         }
     }
 
     @Test
     fun accountsPageIsPinnedAsTheFirstHomeItem() {
-        assertEquals(SettingsPage.Accounts, SettingsHomePageGroups.first().first())
+        assertEquals(SettingsPage.AccountSources, SettingsHomePageGroups.first().first())
     }
 
     @Test
     fun accountSearchTargetsUseTheSinglePlatformCardsItem() {
-        listOf("page:Accounts", "manual:netease_login", "manual:bili_login", "manual:youtube_login")
+        // 页面级入口统一落在页首；平台条目落在账号卡（分类页第一张卡）
+        assertEquals(
+            0,
+            settingsSearchScrollAnchor(SettingsPage.AccountSources, "page:AccountSources").itemIndex
+        )
+        listOf("manual:netease_login", "manual:bili_login", "manual:youtube_login")
             .forEach { target ->
-                assertEquals(0, settingsSearchScrollAnchor(SettingsPage.Accounts, target).itemIndex)
+                assertEquals(1, settingsSearchScrollAnchor(SettingsPage.AccountSources, target).itemIndex)
             }
     }
 
     @Test
-    fun appearancePagesStayInOneHomeGroup() {
+    fun displayHubsShareOneHomeGroup() {
+        // 1.12.1：外观 / 动效与性能 / 界面布局 三个显示类分类同组
         val visualGroup = SettingsHomePageGroups.first {
-            SettingsPage.Theme in it
+            SettingsPage.Appearance in it
         }
 
         assertEquals(
             listOf(
-                SettingsPage.Theme,
-                SettingsPage.NowPlaying,
-                SettingsPage.Background,
-                SettingsPage.Personalization,
-                SettingsPage.Motion
+                SettingsPage.Appearance,
+                SettingsPage.MotionPerformance,
+                SettingsPage.LayoutHub
             ),
             visualGroup
         )
@@ -152,8 +157,8 @@ class SettingsPageTest {
             it.keyName == "netease_local_source_fallback"
         }
 
-        assertEquals(SettingsPage.PlaybackSource, autoSourceSwitch.settingsPage())
-        assertEquals(SettingsPage.PlaybackSource, localSourceFallback.settingsPage())
+        assertEquals(SettingsPage.AccountSources, autoSourceSwitch.settingsPage())
+        assertEquals(SettingsPage.AccountSources, localSourceFallback.settingsPage())
     }
 
     @Test
@@ -163,7 +168,7 @@ class SettingsPageTest {
         }
 
         assertEquals(AutoSettingsSections.theme, dynamicColor.section)
-        assertEquals(SettingsPage.Theme, dynamicColor.settingsPage())
+        assertEquals(SettingsPage.Appearance, dynamicColor.settingsPage())
         assertEquals("setting:dynamic_color", dynamicColor.searchTargetId())
     }
 
@@ -174,17 +179,17 @@ class SettingsPageTest {
         }
 
         assertEquals(AutoSettingsSections.lyrics, dynamicIslandLyrics.section)
-        assertEquals(SettingsPage.ExternalLyrics, dynamicIslandLyrics.settingsPage())
+        assertEquals(SettingsPage.LyricsHub, dynamicIslandLyrics.settingsPage())
         assertEquals("setting:dynamic_island_lyrics_enabled", dynamicIslandLyrics.searchTargetId())
         val offset = AutoSettingsMetadata.settings.first { it.keyName == "kugou_lyric_default_offset_ms" }
-        assertEquals(SettingsPage.Lyrics, offset.settingsPage())
+        assertEquals(SettingsPage.LyricsHub, offset.settingsPage())
     }
     @Test
     fun dynamicColorOnlyRedirectsHiddenThemeColorHighlight() {
         fun themeEntry(targetId: String): SettingsSearchEntry {
             return SettingsSearchEntry(
                 id = targetId,
-                page = SettingsPage.Theme,
+                page = SettingsPage.Appearance,
                 title = "主题",
                 description = "主题",
                 tokens = listOf(targetId),
@@ -217,28 +222,28 @@ class SettingsPageTest {
         assertEquals(
             1,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Theme,
+                page = SettingsPage.Appearance,
                 targetId = "manual:theme_mode"
             ).itemIndex
         )
         assertEquals(
             2,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Theme,
+                page = SettingsPage.Appearance,
                 targetId = "setting:dynamic_color"
             ).itemIndex
         )
         assertEquals(
             3,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Theme,
+                page = SettingsPage.Appearance,
                 targetId = "manual:theme_palette_style"
             ).itemIndex
         )
         assertEquals(
             4,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Theme,
+                page = SettingsPage.Appearance,
                 targetId = "manual:theme_color_spec"
             ).itemIndex
         )
@@ -248,7 +253,7 @@ class SettingsPageTest {
     fun mobileDataQualitySearchHighlightsItsRequiredControlWhenHidden() {
         val entry = SettingsSearchEntry(
             id = "setting:mobile_data_bili_audio_quality",
-            page = SettingsPage.AudioQuality,
+            page = SettingsPage.PlaybackHub,
             title = "哔哩哔哩流量音质",
             description = "",
             tokens = listOf("流量音质"),
@@ -278,7 +283,7 @@ class SettingsPageTest {
     fun backgroundControlsHighlightTheirRequiredImageSettingWhenHidden() {
         val entry = SettingsSearchEntry(
             id = "setting:background_image_alpha",
-            page = SettingsPage.Personalization,
+            page = SettingsPage.LayoutHub,
             title = "背景透明度",
             description = "",
             tokens = listOf("透明度"),
@@ -307,58 +312,58 @@ class SettingsPageTest {
     @Test
     fun personalizationSearchUsesTheMatchingCardAnchor() {
         assertEquals(
-            1,
+            3,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Personalization,
+                page = SettingsPage.LayoutHub,
                 targetId = "setting:default_start_destination"
             ).itemIndex
         )
         assertEquals(
-            2,
+            4,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Personalization,
+                page = SettingsPage.LayoutHub,
                 targetId = "setting:home_card_radar"
             ).itemIndex
         )
         assertEquals(
             1,
             settingsSearchScrollAnchor(
-                page = SettingsPage.NowPlaying,
+                page = SettingsPage.LayoutHub,
                 targetId = "setting:nowplaying_progress_show_audio_spec"
             ).itemIndex
         )
         assertEquals(
             1,
             settingsSearchScrollAnchor(
-                page = SettingsPage.NowPlaying,
+                page = SettingsPage.LayoutHub,
                 targetId = "setting:nowplaying_song_title_marquee_enabled"
             ).itemIndex
         )
         assertEquals(
             2,
             settingsSearchScrollAnchor(
-                page = SettingsPage.NowPlaying,
+                page = SettingsPage.LayoutHub,
                 targetId = "setting:nowplaying_toolbar_dock_enabled"
             ).itemIndex
         )
         assertEquals(
             2,
             settingsSearchScrollAnchor(
-                page = SettingsPage.NowPlaying,
+                page = SettingsPage.LayoutHub,
                 targetId = "setting:lyrics_control_size"
             ).itemIndex
         )
         assertEquals(
-            1,
+            5,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Background,
+                page = SettingsPage.Appearance,
                 targetId = "setting:background_image_uri"
             ).itemIndex
         )
         val marquee = AutoSettingsMetadata.settings.first { it.keyName == "nowplaying_song_title_marquee_enabled" }
-        assertEquals(SettingsPage.NowPlaying, marquee.settingsPage())
+        assertEquals(SettingsPage.LayoutHub, marquee.settingsPage())
         val background = AutoSettingsMetadata.settings.first { it.keyName == "background_image_uri" }
-        assertEquals(SettingsPage.Background, background.settingsPage())
+        assertEquals(SettingsPage.Appearance, background.settingsPage())
     }
     @Test
     fun lyricsSearchUsesAppearanceCardAnchor() {
@@ -372,7 +377,7 @@ class SettingsPageTest {
             assertEquals(
                 1,
                 settingsSearchScrollAnchor(
-                    page = SettingsPage.Lyrics,
+                    page = SettingsPage.LyricsHub,
                     targetId = targetId
                 ).itemIndex
             )
@@ -383,7 +388,7 @@ class SettingsPageTest {
         assertEquals(
             1,
             settingsSearchScrollAnchor(
-                page = SettingsPage.General,
+                page = SettingsPage.GeneralHub,
                 targetId = "setting:ui_density_scale"
             ).itemIndex
         )
@@ -394,7 +399,7 @@ class SettingsPageTest {
         val entries = listOf(
             SettingsSearchEntry(
                 id = "manual:github_auto_sync",
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 title = "自动同步",
                 description = "修改后自动同步到 GitHub",
                 tokens = listOf("自动同步", "github", "zidongtongbu"),
@@ -403,7 +408,7 @@ class SettingsPageTest {
             ),
             SettingsSearchEntry(
                 id = "manual:webdav_auto_sync",
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 title = "自动同步",
                 description = "修改后自动同步到 WebDAV",
                 tokens = listOf("自动同步", "webdav", "zidongtongbu"),
@@ -440,7 +445,7 @@ class SettingsPageTest {
         val entries = listOf(
             SettingsSearchEntry(
                 id = "manual:language",
-                page = SettingsPage.General,
+                page = SettingsPage.GeneralHub,
                 title = "语言",
                 description = "选择语言",
                 tokens = listOf("语言", "语言设置", "yuyan", "language"),
@@ -449,7 +454,7 @@ class SettingsPageTest {
             ),
             SettingsSearchEntry(
                 id = "setting:haptic_feedback_enabled",
-                page = SettingsPage.General,
+                page = SettingsPage.GeneralHub,
                 title = "触感反馈",
                 description = "开启后点击按钮时会有震动反馈",
                 tokens = haptic.searchTokens(
@@ -472,70 +477,70 @@ class SettingsPageTest {
         assertEquals(
             1,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "manual:playlist_export"
             ).itemIndex
         )
         assertEquals(
             1,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "manual:playlist_import"
             ).itemIndex
         )
         assertEquals(
             1,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "manual:config_export"
             ).itemIndex
         )
         assertEquals(
             1,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "manual:config_import"
             ).itemIndex
         )
         assertEquals(
             2,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "manual:backup_history"
             ).itemIndex
         )
         assertEquals(
             3,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "manual:github_sync"
             ).itemIndex
         )
         assertEquals(
             3,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "manual:github_auto_sync"
             ).itemIndex
         )
         assertEquals(
             3,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "setting:silent_github_sync_failure"
             ).itemIndex
         )
         assertEquals(
             4,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "manual:webdav_sync"
             ).itemIndex
         )
         assertEquals(
             4,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 targetId = "manual:webdav_auto_sync"
             ).itemIndex
         )
@@ -618,28 +623,28 @@ class SettingsPageTest {
         assertEquals(
             1,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Motion,
+                page = SettingsPage.MotionPerformance,
                 targetId = "setting:advanced_lyrics_enabled"
             ).itemIndex
         )
         assertEquals(
             2,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Motion,
+                page = SettingsPage.MotionPerformance,
                 targetId = "setting:enhanced_advanced_blur_enabled"
             ).itemIndex
         )
         assertEquals(
             3,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Motion,
+                page = SettingsPage.MotionPerformance,
                 targetId = "setting:nowplaying_dynamic_background_enabled"
             ).itemIndex
         )
         assertEquals(
             4,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Motion,
+                page = SettingsPage.MotionPerformance,
                 targetId = "setting:lyric_blur_enabled"
             ).itemIndex
         )
@@ -650,49 +655,49 @@ class SettingsPageTest {
         assertEquals(
             2,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Playback,
+                page = SettingsPage.PlaybackHub,
                 targetId = "setting:playback_volume_normalization_enabled"
             ).itemIndex
         )
         assertEquals(
             3,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Playback,
+                page = SettingsPage.PlaybackHub,
                 targetId = "setting:playback_fade_in"
             ).itemIndex
         )
         assertEquals(
             4,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Playback,
+                page = SettingsPage.PlaybackHub,
                 targetId = "setting:playback_crossfade_next"
             ).itemIndex
         )
         assertEquals(
-            1,
+            4,
             settingsSearchScrollAnchor(
-                page = SettingsPage.ExternalLyrics,
+                page = SettingsPage.LyricsHub,
                 targetId = "setting:floating_lyrics_enabled"
             ).itemIndex
         )
         assertEquals(
-            2,
+            5,
             settingsSearchScrollAnchor(
-                page = SettingsPage.ExternalLyrics,
+                page = SettingsPage.LyricsHub,
                 targetId = "setting:status_bar_lyrics_enabled"
             ).itemIndex
         )
         assertEquals(
             3,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Lyrics,
+                page = SettingsPage.LyricsHub,
                 targetId = "setting:cloud_music_lyric_default_offset_ms"
             ).itemIndex
         )
         assertEquals(
             3,
             settingsSearchScrollAnchor(
-                page = SettingsPage.Lyrics,
+                page = SettingsPage.LyricsHub,
                 targetId = "setting:amll_ttml_lyric_default_offset_ms"
             ).itemIndex
         )
@@ -719,10 +724,10 @@ class SettingsPageTest {
         assertEquals(AutoSettingsSections.storage, settingOf("download_directory_uri").section)
         assertEquals(AutoSettingsSections.storage, settingOf("download_file_name_template").section)
         assertEquals(AutoSettingsSections.download, settingOf("download_parallelism").section)
-        assertEquals(SettingsPage.Storage, pageOf("download_directory_uri"))
-        assertEquals(SettingsPage.Storage, pageOf("download_file_name_template"))
-        assertEquals(SettingsPage.Downloads, pageOf("download_parallelism"))
-        assertEquals(SettingsPage.Downloads, pageOf("download_metadata_post_processing_enabled"))
+        assertEquals(SettingsPage.StorageDownloads, pageOf("download_directory_uri"))
+        assertEquals(SettingsPage.StorageDownloads, pageOf("download_file_name_template"))
+        assertEquals(SettingsPage.StorageDownloads, pageOf("download_parallelism"))
+        assertEquals(SettingsPage.StorageDownloads, pageOf("download_metadata_post_processing_enabled"))
     }
 
     @Test
@@ -730,7 +735,7 @@ class SettingsPageTest {
         val entries = listOf(
             SettingsSearchEntry(
                 id = "manual:github_auto_sync",
-                page = SettingsPage.Backup,
+                page = SettingsPage.BackupSync,
                 title = "自动同步",
                 description = "修改后自动同步到 GitHub",
                 tokens = listOf("自动同步", "github", "zidongtongbu"),
@@ -739,7 +744,7 @@ class SettingsPageTest {
             ),
             SettingsSearchEntry(
                 id = "setting:download_parallelism",
-                page = SettingsPage.Downloads,
+                page = SettingsPage.StorageDownloads,
                 title = "下载线程数量",
                 description = "控制同时下载的歌曲任务数量",
                 tokens = AutoSettingsMetadata.settings

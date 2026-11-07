@@ -8,34 +8,38 @@ import org.junit.Test
 class SettingsSearchAnchorIndexTest {
     @Test
     fun cleanThemeSearchReachesTheSameColorSpecCardAfterRemovingTheHero() {
-        val anchor = settingsSearchScrollAnchor(SettingsPage.Theme, "manual:theme_color_spec")
+        // 1.12.1：主题并入「外观」分类页，仍是该页第 4 张卡
+        val anchor = settingsSearchScrollAnchor(SettingsPage.Appearance, "manual:theme_color_spec")
 
-        assertEquals(5, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Theme, clean = false))
-        assertEquals(4, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Theme, clean = true))
+        assertEquals(4, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = false))
+        assertEquals(3, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = true))
     }
 
     @Test
-    fun cleanBackgroundSearchStartsAtTheFirstCard() {
-        val anchor = settingsSearchScrollAnchor(SettingsPage.Background, "setting:background_image_uri")
+    fun backgroundSearchReachesTheBackgroundCardInsideAppearance() {
+        // 背景是「外观」分类页里主题 4 张卡之后的第 5 张
+        val anchor = settingsSearchScrollAnchor(SettingsPage.Appearance, "setting:background_image_uri")
 
-        assertEquals(1, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Background, clean = false))
-        assertEquals(0, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Background, clean = true))
+        assertEquals(5, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = false))
+        assertEquals(4, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = true))
     }
 
     @Test
     fun pageSearchNeverProducesANegativeListIndex() {
-        val anchor = settingsSearchScrollAnchor(SettingsPage.Theme, "page:Theme")
+        val anchor = settingsSearchScrollAnchor(SettingsPage.Appearance, "page:Appearance")
 
-        assertEquals(0, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Theme, clean = false))
-        assertEquals(0, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Theme, clean = true))
+        assertEquals(0, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = false))
+        assertEquals(0, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = true))
     }
 
     @Test
-    fun accountsSearchKeepsItsHeaderlessAnchorInBothStyles() {
-        val anchor = settingsSearchScrollAnchor(SettingsPage.Accounts, "page:Accounts")
+    fun accountHubKeepsAStableHeaderAnchorInBothStyles() {
+        // 账号页并入「账号与音源」分类页后开始渲染页头，页面级入口仍落在页首
+        val anchor = settingsSearchScrollAnchor(SettingsPage.AccountSources, "page:AccountSources")
 
-        assertEquals(0, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Accounts, clean = false))
-        assertEquals(0, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Accounts, clean = true))
-        assertEquals(2, settingsDetailListIndex(2, SettingsPage.Accounts, clean = true))
+        assertEquals(0, settingsDetailListIndex(anchor.itemIndex, SettingsPage.AccountSources, clean = false))
+        assertEquals(0, settingsDetailListIndex(anchor.itemIndex, SettingsPage.AccountSources, clean = true))
+        // 分类页有页头，clean 风格下卡片整体前移一格
+        assertEquals(1, settingsDetailListIndex(2, SettingsPage.AccountSources, clean = true))
     }
 }

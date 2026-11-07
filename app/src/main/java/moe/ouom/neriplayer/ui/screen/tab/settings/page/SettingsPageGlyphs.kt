@@ -81,6 +81,17 @@ internal fun SettingsPage.cleanGlyph(): SettingsPageGlyph = when (this) {
     SettingsPage.TrafficManagement -> SettingsPageGlyph(Icons.Rounded.DataUsage, Green)
     SettingsPage.Backup -> SettingsPageGlyph(Icons.Rounded.CloudSync, Blue)
     SettingsPage.ListenTogether -> SettingsPageGlyph(Icons.Rounded.Headphones, Pink)
+    // 1.12.1 一级分类
+    SettingsPage.AccountSources -> SettingsPageGlyph(Icons.Rounded.AccountCircle, Indigo)
+    SettingsPage.PlaybackHub -> SettingsPageGlyph(Icons.Rounded.PlayCircle, Red)
+    SettingsPage.Appearance -> SettingsPageGlyph(Icons.Rounded.Palette, Purple)
+    SettingsPage.MotionPerformance -> SettingsPageGlyph(Icons.Rounded.AutoAwesome, Orange)
+    SettingsPage.LayoutHub -> SettingsPageGlyph(Icons.Rounded.Album, Pink)
+    SettingsPage.LyricsHub -> SettingsPageGlyph(Icons.Rounded.Lyrics, Violet)
+    SettingsPage.StorageDownloads -> SettingsPageGlyph(Icons.Rounded.Download, Green)
+    SettingsPage.NetworkTraffic -> SettingsPageGlyph(Icons.Rounded.Wifi, Blue)
+    SettingsPage.BackupSync -> SettingsPageGlyph(Icons.Rounded.CloudSync, Blue)
+    SettingsPage.GeneralHub -> SettingsPageGlyph(Icons.Rounded.Settings, Graphite)
     SettingsPage.About -> SettingsPageGlyph(Icons.Rounded.Info, Graphite)
 }
 

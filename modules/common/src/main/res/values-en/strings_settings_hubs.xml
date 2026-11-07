@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings top-level hubs (1.12.1 restructure) -->
+    <string name="settings_hub_account_sources">Accounts &amp; sources</string>
+    <string name="settings_hub_account_sources_desc">Platform sign-in, source priority, and music servers</string>
+    <string name="settings_hub_playback">Playback</string>
+    <string name="settings_hub_playback_desc">Playback behavior, audio output, and network quality</string>
+    <string name="settings_hub_appearance">Appearance</string>
+    <string name="settings_hub_appearance_desc">Theme mode, color palette, and background</string>
+    <string name="settings_hub_motion">Motion &amp; performance</string>
+    <string name="settings_hub_motion_desc">Motion toggles, blur effects, and performance tiers</string>
+    <string name="settings_hub_layout">Layout</string>
+    <string name="settings_hub_layout_desc">Now Playing info, control layout, and home sections</string>
+    <string name="settings_hub_lyrics">Lyrics</string>
+    <string name="settings_hub_lyrics_desc">Lyrics appearance, source preference, and external output</string>
+    <string name="settings_hub_storage">Storage &amp; downloads</string>
+    <string name="settings_hub_storage_desc">Download folder, file naming, and cache cleanup</string>
+    <string name="settings_hub_network">Network &amp; data</string>
+    <string name="settings_hub_network_desc">Proxy, connectivity, and mobile data usage</string>
+    <string name="settings_hub_backup">Backup &amp; sync</string>
+    <string name="settings_hub_backup_desc">Local backup, GitHub and WebDAV sync</string>
+    <string name="settings_hub_general">General</string>
+    <string name="settings_hub_general_desc">Language, notification access, and developer options</string>
+</resources>

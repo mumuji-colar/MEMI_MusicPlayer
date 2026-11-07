@@ -145,6 +145,60 @@ internal enum class SettingsPage(
         descriptionRes = CoreCommonR.string.settings_listen_together_expand,
         icon = Icons.Outlined.Cloud
     ),
+
+    // ---- 1.12.1 重构：一级分类页 ----
+    // 下列 10 个是一级分类，由下方原子页按顺序聚合渲染；原子页不再出现在设置主页。
+    AccountSources(
+        titleRes = CoreCommonR.string.settings_hub_account_sources,
+        descriptionRes = CoreCommonR.string.settings_hub_account_sources_desc,
+        icon = Icons.Filled.AccountCircle
+    ),
+    PlaybackHub(
+        titleRes = CoreCommonR.string.settings_hub_playback,
+        descriptionRes = CoreCommonR.string.settings_hub_playback_desc,
+        icon = Icons.AutoMirrored.Outlined.PlaylistPlay
+    ),
+    Appearance(
+        titleRes = CoreCommonR.string.settings_hub_appearance,
+        descriptionRes = CoreCommonR.string.settings_hub_appearance_desc,
+        icon = Icons.Outlined.Palette
+    ),
+    MotionPerformance(
+        titleRes = CoreCommonR.string.settings_hub_motion,
+        descriptionRes = CoreCommonR.string.settings_hub_motion_desc,
+        icon = Icons.Outlined.Bolt
+    ),
+    LayoutHub(
+        titleRes = CoreCommonR.string.settings_hub_layout,
+        descriptionRes = CoreCommonR.string.settings_hub_layout_desc,
+        icon = Icons.Outlined.Album
+    ),
+    LyricsHub(
+        titleRes = CoreCommonR.string.settings_hub_lyrics,
+        descriptionRes = CoreCommonR.string.settings_hub_lyrics_desc,
+        icon = Icons.Outlined.Lyrics
+    ),
+    StorageDownloads(
+        titleRes = CoreCommonR.string.settings_hub_storage,
+        descriptionRes = CoreCommonR.string.settings_hub_storage_desc,
+        icon = Icons.Outlined.Storage
+    ),
+    NetworkTraffic(
+        titleRes = CoreCommonR.string.settings_hub_network,
+        descriptionRes = CoreCommonR.string.settings_hub_network_desc,
+        icon = Icons.Outlined.Router
+    ),
+    BackupSync(
+        titleRes = CoreCommonR.string.settings_hub_backup,
+        descriptionRes = CoreCommonR.string.settings_hub_backup_desc,
+        icon = Icons.Outlined.Sync
+    ),
+    GeneralHub(
+        titleRes = CoreCommonR.string.settings_hub_general,
+        descriptionRes = CoreCommonR.string.settings_hub_general_desc,
+        icon = Icons.Outlined.Settings
+    ),
+
     About(
         titleRes = CoreCommonR.string.settings_about,
         descriptionRes = CoreCommonR.string.settings_about_desc,
@@ -162,41 +216,77 @@ internal enum class SettingsPage(
 /** Lets nested settings rows open a second-level page without threading callbacks through. */
 internal val LocalSettingsPageNavigator = staticCompositionLocalOf<((SettingsPage) -> Unit)?> { null }
 
+/**
+ * 1.12.1 重构后的一级入口顺序（4 张分组卡 / 11 个入口）。
+ * 其余枚举值保留为「原子页」，只作为聚合渲染与搜索跳转的内部目标，不再出现在主页。
+ */
 internal val SettingsHomePageGroups: List<List<SettingsPage>> = listOf(
-    listOf(SettingsPage.Accounts),
     listOf(
-        SettingsPage.General,
-        SettingsPage.Language
+        SettingsPage.AccountSources,
+        SettingsPage.PlaybackHub,
+        SettingsPage.LyricsHub
     ),
     listOf(
+        SettingsPage.Appearance,
+        SettingsPage.MotionPerformance,
+        SettingsPage.LayoutHub
+    ),
+    listOf(
+        SettingsPage.StorageDownloads,
+        SettingsPage.NetworkTraffic,
+        SettingsPage.BackupSync
+    ),
+    listOf(
+        SettingsPage.GeneralHub,
+        SettingsPage.About
+    )
+)
+
+/** 一级入口集合；搜索的「页面」结果只从这里生成。 */
+internal val SettingsTopLevelPages: Set<SettingsPage> =
+    SettingsHomePageGroups.flatten().toSet()
+
+/** 每个一级分类页由哪些原子页按顺序拼接而成（顺序即卡片顺序）。 */
+internal val SettingsHubComposition: Map<SettingsPage, List<SettingsPage>> = mapOf(
+    SettingsPage.AccountSources to listOf(
+        SettingsPage.Accounts,
+        SettingsPage.PlaybackSource
+    ),
+    SettingsPage.PlaybackHub to listOf(
         SettingsPage.Playback,
-        SettingsPage.AudioQuality,
-        SettingsPage.AudioEffects,
-        SettingsPage.PlaybackSource,
-        SettingsPage.UsbExclusive
+        SettingsPage.AudioQuality
     ),
-    listOf(
+    SettingsPage.Appearance to listOf(
         SettingsPage.Theme,
-        SettingsPage.NowPlaying,
-        SettingsPage.Background,
-        SettingsPage.Personalization,
+        SettingsPage.Background
+    ),
+    SettingsPage.MotionPerformance to listOf(
         SettingsPage.Motion
     ),
-    listOf(
+    SettingsPage.LayoutHub to listOf(
+        SettingsPage.NowPlaying,
+        SettingsPage.Personalization
+    ),
+    SettingsPage.LyricsHub to listOf(
         SettingsPage.Lyrics,
         SettingsPage.ExternalLyrics
     ),
-    listOf(
-        SettingsPage.Downloads,
+    SettingsPage.StorageDownloads to listOf(
         SettingsPage.Storage,
+        SettingsPage.Downloads
+    ),
+    SettingsPage.NetworkTraffic to listOf(
         SettingsPage.Network,
         SettingsPage.TrafficManagement
     ),
-    listOf(
+    SettingsPage.BackupSync to listOf(
         SettingsPage.Backup,
         SettingsPage.ListenTogether
     ),
-    listOf(SettingsPage.About)
+    SettingsPage.GeneralHub to listOf(
+        SettingsPage.General,
+        SettingsPage.Language
+    )
 )
 
 /** Card indices of the shared lyrics section rendered on each lyrics page, in display order. */
@@ -204,8 +294,11 @@ internal val LyricsPageCards = listOf(4, 1, 3)
 internal val ExternalLyricsPageCards = listOf(0, 2)
 
 internal fun SettingsPage.backTargetPage(): SettingsPage? = when (this) {
-    SettingsPage.MusicServers -> SettingsPage.Accounts
-    SettingsPage.StorageCacheDetails -> SettingsPage.Storage
-    SettingsPage.XiaomiSuperIsland -> SettingsPage.ExternalLyrics
+    // 三级页回到各自的一级分类
+    SettingsPage.MusicServers -> SettingsPage.AccountSources
+    SettingsPage.StorageCacheDetails -> SettingsPage.StorageDownloads
+    SettingsPage.XiaomiSuperIsland -> SettingsPage.LyricsHub
+    SettingsPage.AudioEffects -> SettingsPage.PlaybackHub
+    SettingsPage.UsbExclusive -> SettingsPage.PlaybackHub
     else -> null
 }

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 设置一级分类（1.12.1 重构） -->
+    <string name="settings_hub_account_sources">账号与音源</string>
+    <string name="settings_hub_account_sources_desc">平台登录、音源优先级与音乐服务器</string>
+    <string name="settings_hub_playback">播放</string>
+    <string name="settings_hub_playback_desc">播放行为、音频输出与网络音质</string>
+    <string name="settings_hub_appearance">外观</string>
+    <string name="settings_hub_appearance_desc">深浅色、主题配色与背景图</string>
+    <string name="settings_hub_motion">动效与性能</string>
+    <string name="settings_hub_motion_desc">动效开关、模糊效果与性能档位</string>
+    <string name="settings_hub_layout">界面布局</string>
+    <string name="settings_hub_layout_desc">播放页信息、控件布局与首页栏目</string>
+    <string name="settings_hub_lyrics">歌词</string>
+    <string name="settings_hub_lyrics_desc">歌词外观、来源偏好与外部输出</string>
+    <string name="settings_hub_storage">存储与下载</string>
+    <string name="settings_hub_storage_desc">下载目录、文件名规则与缓存清理</string>
+    <string name="settings_hub_network">网络与流量</string>
+    <string name="settings_hub_network_desc">代理、连通性与移动数据用量</string>
+    <string name="settings_hub_backup">备份与同步</string>
+    <string name="settings_hub_backup_desc">本地备份、GitHub 与 WebDAV 同步</string>
+    <string name="settings_hub_general">通用</string>
+    <string name="settings_hub_general_desc">语言、通知权限与开发者选项</string>
+</resources>
