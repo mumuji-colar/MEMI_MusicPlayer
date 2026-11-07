@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import moe.ouom.neriplayer.common.R as CoreCommonR
+import moe.ouom.neriplayer.ui.screen.tab.settings.component.SettingsGlyphShape
 import moe.ouom.neriplayer.ui.screen.tab.settings.miuix.MiuixSettingsButton
 
 // 与第三方账号共用外壳，避免入口和管理页的卡片间距分叉
@@ -67,7 +68,7 @@ private fun MusicServerIdentity(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier.size(44.dp).clip(RoundedCornerShape(14.dp))
+            modifier = Modifier.size(44.dp).clip(SettingsGlyphShape)
                 .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {

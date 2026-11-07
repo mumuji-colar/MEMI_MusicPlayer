@@ -324,3 +324,36 @@ return SettingsHubComposition.entries.firstOrNull { page in it.value }?.key ?: p
 ### 产物
 
 `dist/MEMI-1.12.3-2611081.apk`
+
+## 十二、1.20 收口记录
+
+三版重构完成后的一次整合收口，不再改结构，只做「减卡、补标题、统一写法」。
+
+### 改动清单
+
+| 类别 | 内容 |
+| :--- | :--- |
+| **卡片合并** | 「播放」页把「交叉淡入淡出」并入「淡入淡出」卡（中间用 `HorizontalDivider` 分隔，两段说明都保留），该页 4 卡 → 3 卡 |
+| **补标题** | 「存储与下载 → 下载」首卡原本是全设置页唯一没有分区标题的卡，补「下载音质」标题与说明（三语新增 `settings_download_quality_group_desc`） |
+| **切片统一** | 新增 `PlaybackPageCards` / `MotionPageCards`，与既有的 `LyricsPageCards` / `ExternalLyricsPageCards` 同构；渲染循环与 `SettingsAtomicCardCount` 都读这些清单，改卡数只改一处 |
+| **圆角常量** | 新增 `component/SettingsShapes.kt`：`SettingsGlyphShape`(14dp) / `SettingsPanelShape`(24dp)，替换账号卡、音乐服务器卡、第三方登录对话框共 4 处重复数值（**视觉零变化**） |
+
+### 同步的索引
+
+- `SettingsAtomicCardCount[Playback]`：`4` → `PlaybackPageCards.size`（=3）
+- `playbackCardIndex("setting:playback_crossfade_next")`：`3` → `2`
+- `SettingsPageTest` 中交叉淡入淡出的锚点期望：`4` → `3`
+
+### 有意不做的三件事
+
+| 项目 | 原因 |
+| :--- | :--- |
+| 合并 7 套自建卡片壳 | 各壳的玻璃层、内边距、`animateItem` 时机并不完全一致，合并会带来肉眼可见的差异，收益只是少几个函数 |
+| 其余圆角常量 | 语义不同（标签页 24dp、预览舞台 22dp/18dp、滑块轨道 12dp），强行归一反而错位 |
+| 合并「启动与输入」与「首页栏目」两卡 | 内容性质不同（一个是行为开关，一个是首页模块显隐），合并后单卡过长，不如保持分开 |
+
+### 测试与产物
+
+`SettingsPageTest` 35 + `SettingsCardKeyUniquenessTest` 4 + `SettingsSearchAnchorIndexTest` 4 + `SettingsSearchLocaleTest` 3 + `SettingsNavigationPolicyTest` 14 = **60 项全绿**。
+
+`dist/MEMI-1.20-2611201.apk`（versionCode `2611201` / versionName `1.20`）。

@@ -60,11 +60,12 @@
 | **播放页** | 扬声器音量、歌词偏移、歌词字号三处滑块接入统一控件；长条屏与横屏版式适配 |
 | **歌词系统** | 行对齐、自动断行、点击二次确认、手动浏览与回滚动画 |
 | **性能控制** | 新增「性能模式」三档（省电 / 均衡 / 画质），统一调节动态背景帧率与模糊精细度 |
+| **设置页重构** | 一级入口由 22 个收敛为 11 个；主页搜索栏改为滚动后从顶栏滑出；卡片按功能重新分组 |
 | **许可证合规** | 应用内「设置 → 关于 → 开源许可」可直接查阅 GPL-3.0 全文与第三方许可 |
 
 - **原项目**：[cwuom/NeriPlayer](https://github.com/cwuom/NeriPlayer)（GPL-3.0）
 - **本项目源码**：[mumuji-colar/MEMI_MusicPlayer](https://github.com/mumuji-colar/MEMI_MusicPlayer)
-- **当前版本**：v1.11（versionCode `2611061`）
+- **当前版本**：v1.20（versionCode `2611201`）
 - **问题反馈**：请提交至[本项目 Issues](https://github.com/mumuji-colar/MEMI_MusicPlayer/issues)；
   原项目自身的问题请前往[原仓库](https://github.com/cwuom/NeriPlayer/issues)
 

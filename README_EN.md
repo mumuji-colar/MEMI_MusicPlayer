@@ -64,11 +64,12 @@ In accordance with GPL-3.0 section 5 ("carry prominent notices stating that you 
 | **Now Playing** | Speaker volume, lyric offset, and lyric font size sliders moved to the shared control; long-screen and landscape layout adjustments |
 | **Lyrics** | Line alignment, automatic line breaking, tap-to-confirm on seek, manual browsing and rollback animation |
 | **Performance control** | New three-tier Performance mode (Power saving / Balanced / Quality) tuning dynamic background frame rate and blur detail |
+| **Settings restructure** | Top-level entries reduced from 22 to 11; the home search bar now slides out of the top app bar on scroll; cards regrouped by purpose |
 | **License compliance** | In-app "Settings → About → Open source license" shows the legal notice and the full GPL-3.0 text |
 
 - **Upstream**: [cwuom/NeriPlayer](https://github.com/cwuom/NeriPlayer) (GPL-3.0)
 - **This fork's source**: [mumuji-colar/MEMI_MusicPlayer](https://github.com/mumuji-colar/MEMI_MusicPlayer)
-- **Current version**: v1.11 (versionCode `2611061`)
+- **Current version**: v1.20 (versionCode `2611201`)
 - **Issues**: please report to [this fork's issue tracker](https://github.com/mumuji-colar/MEMI_MusicPlayer/issues);
   upstream-specific problems belong in the [original repository](https://github.com/cwuom/NeriPlayer/issues)
 

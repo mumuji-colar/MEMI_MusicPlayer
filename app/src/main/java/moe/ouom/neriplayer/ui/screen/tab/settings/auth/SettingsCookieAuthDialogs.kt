@@ -57,6 +57,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import moe.ouom.neriplayer.common.R as CoreCommonR
+import moe.ouom.neriplayer.ui.screen.tab.settings.component.SettingsPanelShape
 import moe.ouom.neriplayer.activity.auth.BiliQrLoginActivity
 import moe.ouom.neriplayer.activity.auth.YouTubeWebLoginActivity
 import moe.ouom.neriplayer.core.di.AppContainer
@@ -346,7 +347,7 @@ internal fun SettingsCookieLoginSheet(
 
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
+                    shape = SettingsPanelShape,
                     color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.72f),
                     tonalElevation = 0.dp,
                     shadowElevation = 0.dp

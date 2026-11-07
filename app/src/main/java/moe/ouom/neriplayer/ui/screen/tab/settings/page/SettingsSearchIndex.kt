@@ -285,15 +285,15 @@ private fun atomicSettingsAnchor(
 private val SettingsAtomicCardCount: Map<SettingsPage, Int> = mapOf(
     SettingsPage.Accounts to 4,
     SettingsPage.PlaybackSource to 1,
-    SettingsPage.Playback to 4,
+    SettingsPage.Playback to PlaybackPageCards.size,
     SettingsPage.AudioQuality to 2,
     SettingsPage.Theme to 3,
     SettingsPage.Background to 1,
-    SettingsPage.Motion to 4,
+    SettingsPage.Motion to MotionPageCards.size,
     SettingsPage.NowPlaying to 2,
     SettingsPage.Personalization to 2,
-    SettingsPage.Lyrics to 3,
-    SettingsPage.ExternalLyrics to 2,
+    SettingsPage.Lyrics to LyricsPageCards.size,
+    SettingsPage.ExternalLyrics to ExternalLyricsPageCards.size,
     SettingsPage.Storage to 4,
     SettingsPage.Downloads to 2,
     SettingsPage.Network to 1,
@@ -385,7 +385,8 @@ private fun playbackCardIndex(targetId: String): Int {
         "setting:allow_mixed_playback",
         "setting:preempt_audio_focus" -> 1
         "setting:playback_fade_in" -> 2
-        "setting:playback_crossfade_next" -> 3
+        // 1.20：交叉淡入淡出已并入「淡入淡出」卡
+        "setting:playback_crossfade_next" -> 2
         else -> 0
     }
 }

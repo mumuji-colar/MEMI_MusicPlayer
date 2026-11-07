@@ -666,8 +666,9 @@ class SettingsPageTest {
                 targetId = "setting:playback_fade_in"
             ).itemIndex
         )
+        // 1.20：交叉淡入淡出并入淡入淡出卡，锚点从第 4 张前移到第 3 张
         assertEquals(
-            4,
+            3,
             settingsSearchScrollAnchor(
                 page = SettingsPage.PlaybackHub,
                 targetId = "setting:playback_crossfade_next"

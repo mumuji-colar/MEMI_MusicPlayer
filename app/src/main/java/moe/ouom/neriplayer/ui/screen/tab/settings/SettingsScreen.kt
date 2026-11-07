@@ -98,6 +98,8 @@ import moe.ouom.neriplayer.ui.screen.tab.settings.miuix.MiuixSettingsSwitch
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.LocalSettingsPageNavigator
 import moe.ouom.neriplayer.ui.screen.tab.settings.component.XiaomiSuperIslandSettingsPage
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.LyricsPageCards
+import moe.ouom.neriplayer.ui.screen.tab.settings.page.MotionPageCards
+import moe.ouom.neriplayer.ui.screen.tab.settings.page.PlaybackPageCards
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.ExternalLyricsPageCards
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.MiuixSettingsHeader
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.MiuixSettingsHomeScaffold
@@ -675,7 +677,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.Motion to {
-                            for (cardIndex in 0..3) {
+                            for (cardIndex in MotionPageCards) {
                                 item(key = "Motion:card:$cardIndex") {
                                     SettingsMotionSection(
                                         expanded = true,
@@ -857,7 +859,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.Playback to {
-                            for (cardIndex in 0..3) {
+                            for (cardIndex in PlaybackPageCards) {
                                 item(key = "Playback:card:$cardIndex") {
                                     SettingsPlaybackSection(
                                         expanded = true,

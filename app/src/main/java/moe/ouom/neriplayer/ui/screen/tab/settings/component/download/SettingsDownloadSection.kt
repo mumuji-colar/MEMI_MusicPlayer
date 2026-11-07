@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import moe.ouom.neriplayer.common.R as CoreCommonR
+import moe.ouom.neriplayer.ui.screen.tab.settings.page.MiuixSettingsSectionIntro
 import moe.ouom.neriplayer.core.download.GlobalDownloadManager
 import moe.ouom.neriplayer.core.player.download.network.MAX_DOWNLOAD_PARALLELISM
 import moe.ouom.neriplayer.core.player.download.network.normalizeDownloadParallelism
@@ -322,6 +323,12 @@ internal fun SettingsDownloadQualityFollowPlaybackCard(
     MiuixSettingsSectionCard(
         modifier = modifier.testTag(DOWNLOAD_QUALITY_FOLLOW_PLAYBACK_CARD_TEST_TAG)
     ) {
+        // 1.20：这张卡原来是整页唯一没有分区标题的，补上标题与说明
+        MiuixSettingsSectionIntro(
+            title = stringResource(CoreCommonR.string.settings_download_quality_group),
+            description = stringResource(CoreCommonR.string.settings_download_quality_group_desc)
+        )
+
         AutoSettingSpecSwitchItem(
             setting = followPlaybackSetting,
             checked = followPlaybackQuality,

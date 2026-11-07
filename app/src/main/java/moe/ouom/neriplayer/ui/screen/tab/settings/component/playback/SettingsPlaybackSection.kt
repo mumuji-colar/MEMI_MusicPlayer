@@ -468,15 +468,13 @@ internal fun SettingsPlaybackSection(
                         )
                     }
                 }
-            }
 
-            if (cardIndex == null) DetailSectionGap(showHeader)
-            if (shouldShowCard(3)) DetailSectionCard(
-                showCard = !showHeader,
-                highlighted = false,
-                highlightPulse = highlightPulse,
-                onHighlightFinished = onHighlightFinished
-            ) {
+                // 1.20：淡入淡出与交叉淡入淡出合并为一张卡，少一次滚动
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                )
+
                 MiuixSettingsSectionIntro(
                     title = stringResource(CoreCommonR.string.settings_playback_crossfade_next),
                     description = stringResource(CoreCommonR.string.settings_playback_crossfade_next_desc)

@@ -307,6 +307,7 @@
     <string name="settings_download_follow_playback_audio_quality">Follow playback quality settings</string>
     <string name="settings_download_follow_playback_audio_quality_desc">When enabled, downloads use playback quality; turn it off to choose a quality for each platform</string>
     <string name="settings_download_quality_group">Download quality</string>
+    <string name="settings_download_quality_group_desc">Bitrate for downloaded files; follow the playback quality or set it per platform</string>
     <string name="settings_download_netease_audio_quality">NetEase download quality</string>
     <string name="settings_download_youtube_audio_quality">YouTube download quality</string>
     <string name="settings_download_bili_audio_quality">Bilibili download quality</string>

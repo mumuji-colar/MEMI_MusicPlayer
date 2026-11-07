@@ -289,7 +289,14 @@ internal val SettingsHubComposition: Map<SettingsPage, List<SettingsPage>> = map
     )
 )
 
-/** Card indices of the shared lyrics section rendered on each lyrics page, in display order. */
+/**
+ * 各页卡片切片顺序：渲染循环与搜索锚点的卡片数都读这一份清单。
+ *
+ * 1.20 之前「播放」用 `for (cardIndex in 0..3)`、歌词用集中清单，两套写法并存；
+ * 现在统一到这里，少一处改数字时漏改的地方。
+ */
+internal val PlaybackPageCards = listOf(0, 1, 2)
+internal val MotionPageCards = listOf(0, 1, 2, 3)
 internal val LyricsPageCards = listOf(4, 1, 3)
 internal val ExternalLyricsPageCards = listOf(0, 2)
 

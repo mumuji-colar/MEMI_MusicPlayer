@@ -313,6 +313,7 @@
     <string name="settings_download_follow_playback_audio_quality">遵循播放音质设置</string>
     <string name="settings_download_follow_playback_audio_quality_desc">开启后下载使用播放音质；关闭后可分别设置各平台下载音质</string>
     <string name="settings_download_quality_group">下载音质</string>
+    <string name="settings_download_quality_group_desc">下载文件使用的码率档位，可跟随播放音质或按平台分别设置</string>
     <string name="settings_download_netease_audio_quality">网易云下载音质</string>
     <string name="settings_download_youtube_audio_quality">YouTube 下载音质</string>
     <string name="settings_download_bili_audio_quality">哔哩哔哩下载音质</string>

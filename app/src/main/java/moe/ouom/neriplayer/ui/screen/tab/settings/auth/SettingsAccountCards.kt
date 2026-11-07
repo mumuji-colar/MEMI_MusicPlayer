@@ -44,6 +44,8 @@ import moe.ouom.neriplayer.ui.effect.glass.AdvancedGlassRole
 import moe.ouom.neriplayer.ui.effect.glass.AdvancedGlassSurface
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.settingsHighlightTarget
 import moe.ouom.neriplayer.common.R as CoreCommonR
+import moe.ouom.neriplayer.ui.screen.tab.settings.component.SettingsPanelShape
+import moe.ouom.neriplayer.ui.screen.tab.settings.component.SettingsGlyphShape
 import moe.ouom.neriplayer.R as AppR
 
 internal enum class SettingsAccountPlatform(val key: String, val iconRes: Int, val titleRes: Int) {
@@ -165,7 +167,7 @@ internal fun SettingsAccountCardSurface(
     fallbackColor: Color? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val cardShape = RoundedCornerShape(24.dp)
+    val cardShape = SettingsPanelShape
     val interactionModifier = if (onClick != null) {
         Modifier.clip(cardShape).clickable(onClick = onClick)
     } else Modifier
@@ -204,7 +206,7 @@ private fun SettingsAccountIdentity(
     ) {
         Box(
             modifier = Modifier.size(44.dp)
-                .clip(RoundedCornerShape(14.dp))
+                .clip(SettingsGlyphShape)
                 .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
