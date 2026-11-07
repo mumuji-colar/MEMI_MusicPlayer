@@ -203,3 +203,21 @@
 ### 已知取舍
 
 分类页的搜索锚点精确到「原子页内原锚点」，而非重排后的真实卡片序号 —— 因为 1.12.2 会重排卡片，现在精确计算会白费。当前精度足以命中目标卡片。
+
+### 崩溃修复记录（1.12.1 首发包）
+
+**现象**：真机（Samsung SM-N9860 / Android 13）打开设置页立即崩溃。
+
+```
+IllegalArgumentException: Key "GeneralHub:content" was already used.
+```
+
+**根因**：原子页的卡片 key 原先写成 `"${selectedPage.name}:content"`，其中 `selectedPage` 是 `settingsDetailContent` 的**运行时入参**。聚合渲染后该参数变成分类页（GeneralHub），导致 General 与 Language 两个原子页的 key 都算成 `"GeneralHub:content"`，LazyColumn 内 key 重复。
+
+**影响面**：10 个分类页里 9 个（只要含 ≥2 张卡）。`MotionPerformance` 只含 1 个原子页故未触发；`StorageDownloads` / `BackupSync` 因外部函数用硬编码枚举名（`"${SettingsPage.Storage.name}:card:$cardIndex"`）未受影响。
+
+**修复**：把 26 处 key 前缀从运行时 `selectedPage.name` 改为**各分支自己的固定页面名**（脚本按 `SettingsPage.X to {` 分支区间批量替换）。
+
+**验证**：脚本比对各分类页内所有 `item(key=)` / `miuixSettingsSectionCardItem` 的 key，10 个分类页均无重复；编译通过。
+
+**教训**：1.12.1 的测试全部是纯函数（搜索锚点、页面映射），**没有覆盖 Compose 渲染**，因此 key 冲突一路漏到真机。1.12.2 应补一个逐页渲染的 Robolectric 冒烟测试。

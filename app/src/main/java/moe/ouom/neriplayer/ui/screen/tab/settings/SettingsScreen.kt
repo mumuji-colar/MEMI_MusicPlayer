@@ -357,7 +357,7 @@ internal fun SettingsScreen(
 
                     val pageItems = mapOf<SettingsPage, LazyListScope.() -> Unit>(
                         SettingsPage.General to {
-                            miuixSettingsSectionCardItem("${selectedPage.name}:content") {
+                            miuixSettingsSectionCardItem("General:content") {
                                 AutoSettingsSwitchItems(
                                     repository = autoSettingsRepository,
                                     scope = scope,
@@ -403,7 +403,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.Language to {
-                            miuixSettingsSectionCardItem("${selectedPage.name}:content") {
+                            miuixSettingsSectionCardItem("Language:content") {
                                 LanguageSettingItem(
                                     modifier = Modifier.settingsHighlightTarget(
                                         targetId = "manual:language",
@@ -447,7 +447,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.AudioEffects to {
-                            item(key = "${selectedPage.name}:content") {
+                            item(key = "AudioEffects:content") {
                                 AudioEffectsSettingsPage(
                                     usbExclusive = playbackState.playbackOutput.usbExclusivePlayback,
                                     modifier = Modifier.animateItem()
@@ -456,7 +456,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.Theme to {
-                            miuixSettingsSectionCardItem(key = "${selectedPage.name}:mode") {
+                            miuixSettingsSectionCardItem(key = "Theme:mode") {
                                 MiuixSettingsSectionIntro(
                                     title = stringResource(CoreCommonR.string.settings_theme_mode),
                                     description = stringResource(CoreCommonR.string.settings_theme_mode_desc)
@@ -478,7 +478,7 @@ internal fun SettingsScreen(
                                     onThemeModeRequest = environment.onThemeModeRequest
                                 )
                             }
-                            miuixSettingsSectionCardItem(key = "${selectedPage.name}:dynamic_color") {
+                            miuixSettingsSectionCardItem(key = "Theme:dynamic_color") {
                                 MiuixSettingsSectionIntro(
                                     title = stringResource(CoreCommonR.string.settings_theme_color_section),
                                     description = stringResource(CoreCommonR.string.settings_theme_color_section_desc)
@@ -516,7 +516,7 @@ internal fun SettingsScreen(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            miuixSettingsSectionCardItem(key = "${selectedPage.name}:palette_style") {
+                            miuixSettingsSectionCardItem(key = "Theme:palette_style") {
                                 ThemePaletteStyleSelector(
                                     selectedStyle = appearanceState.theme.themePaletteStyleValue,
                                     onStyleChange = appearanceActions.onThemePaletteStyleChange,
@@ -528,7 +528,7 @@ internal fun SettingsScreen(
                                     )
                                 )
                             }
-                            miuixSettingsSectionCardItem(key = "${selectedPage.name}:color_spec") {
+                            miuixSettingsSectionCardItem(key = "Theme:color_spec") {
                                 ThemeColorSpecSelector(
                                     selectedSpec = appearanceState.visualBlur.themeColorSpecValue,
                                     onSpecChange = appearanceActions.onThemeColorSpecChange,
@@ -543,7 +543,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.Accounts to {
-                            item(key = "${selectedPage.name}:content") {
+                            item(key = "Accounts:content") {
                                 SettingsLoginExpandedContent(
                                     controller = accountAuth,
                                     onOpenMusicServers = { navigation.activePage = SettingsPage.MusicServers },
@@ -556,7 +556,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.Personalization to {
-                            item(key = "${selectedPage.name}:card:0") {
+                            item(key = "Personalization:card:0") {
                                 SettingsPersonalizationStartCard(
                                     autoSettingsRepository = autoSettingsRepository,
                                     scope = scope,
@@ -569,7 +569,7 @@ internal fun SettingsScreen(
                                     onHighlightFinished = onSettingsHighlightFinished
                                 )
                             }
-                            item(key = "${selectedPage.name}:card:1") {
+                            item(key = "Personalization:card:1") {
                                 SettingsPersonalizationHomeCard(
                                     internationalEnabled = otherState.internationalizationEnabled,
                                     homeTrendingLabelRes = homeCardCopy.trendingLabelRes,
@@ -597,7 +597,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.NowPlaying to {
-                            item(key = "${selectedPage.name}:card:2") {
+                            item(key = "NowPlaying:card:2") {
                                 SettingsPersonalizationPlaybackInfoCard(
                                     autoSettingsRepository = autoSettingsRepository,
                                     scope = scope,
@@ -606,7 +606,7 @@ internal fun SettingsScreen(
                                     onHighlightFinished = onSettingsHighlightFinished
                                 )
                             }
-                            item(key = "${selectedPage.name}:card:3") {
+                            item(key = "NowPlaying:card:3") {
                                 SettingsPersonalizationControlsCard(
                                     autoSettingsRepository = autoSettingsRepository,
                                     settingsRepository = repository,
@@ -619,7 +619,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.Background to {
-                            item(key = "${selectedPage.name}:card:4") {
+                            item(key = "Background:card:4") {
                                 SettingsPersonalizationBackgroundCard(
                                     backgroundImageUri = appearanceState.visualBackground.backgroundImageUri,
                                     onPickBackgroundImage = {
@@ -665,7 +665,7 @@ internal fun SettingsScreen(
 
                         SettingsPage.Motion to {
                             for (cardIndex in 0..3) {
-                                item(key = "${selectedPage.name}:card:$cardIndex") {
+                                item(key = "Motion:card:$cardIndex") {
                                     SettingsMotionSection(
                                         expanded = true,
                                         arrowRotation = 0f,
@@ -715,7 +715,7 @@ internal fun SettingsScreen(
 
                         SettingsPage.Lyrics to {
                             for (cardIndex in LyricsPageCards) {
-                                item(key = "${selectedPage.name}:card:$cardIndex") {
+                                item(key = "Lyrics:card:$cardIndex") {
                                     SettingsLyricsSection(
                                         expanded = true,
                                         arrowRotation = 0f,
@@ -768,7 +768,7 @@ internal fun SettingsScreen(
 
                         SettingsPage.ExternalLyrics to {
                             for (cardIndex in ExternalLyricsPageCards) {
-                                item(key = "${selectedPage.name}:card:$cardIndex") {
+                                item(key = "ExternalLyrics:card:$cardIndex") {
                                     SettingsLyricsSection(
                                         expanded = true,
                                         arrowRotation = 0f,
@@ -820,7 +820,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.Network to {
-                            miuixSettingsSectionCardItem("${selectedPage.name}:content") {
+                            miuixSettingsSectionCardItem("Network:content") {
                                 AutoSettingsListItem(
                                     setting = AutoSettingsMetadata.requireSetting(AutoSettingsKeys.BYPASS_PROXY),
                                     leadingContent = {
@@ -847,7 +847,7 @@ internal fun SettingsScreen(
 
                         SettingsPage.Playback to {
                             for (cardIndex in 0..3) {
-                                item(key = "${selectedPage.name}:card:$cardIndex") {
+                                item(key = "Playback:card:$cardIndex") {
                                     SettingsPlaybackSection(
                                         expanded = true,
                                         arrowRotation = 0f,
@@ -904,7 +904,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.UsbExclusive to {
-                            item(key = "${selectedPage.name}:content") {
+                            item(key = "UsbExclusive:content") {
                                 val floatingKeepAlive by repository.usbExclusiveFloatingKeepAliveFlow
                                     .collectAsStateWithLifecycle(initialValue = false)
                                 UsbExclusiveSettingsSection(
@@ -933,7 +933,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.XiaomiSuperIsland to {
-                            item(key = "${selectedPage.name}:content") {
+                            item(key = "XiaomiSuperIsland:content") {
                                 XiaomiSuperIslandSettingsPage(
                                     autoSettingsRepository = autoSettingsRepository,
                                     settingsRepository = repository,
@@ -943,13 +943,13 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.MusicServers to {
-                            item(key = "${selectedPage.name}:content") {
+                            item(key = "MusicServers:content") {
                                 moe.ouom.neriplayer.ui.screen.server.MusicServerSettingsContent()
                             }
                         },
 
                         SettingsPage.PlaybackSource to {
-                            miuixSettingsSectionCardItem(key = "${selectedPage.name}:content") {
+                            miuixSettingsSectionCardItem(key = "PlaybackSource:content") {
                                 YouTubePlaybackSourceSetting(
                                     repository = repository,
                                     highlightTargetId = settingsHighlightTargetId,
@@ -1014,7 +1014,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.AudioQuality to {
-                            miuixSettingsSectionCardItem("${selectedPage.name}:content") {
+                            miuixSettingsSectionCardItem("AudioQuality:content") {
                                 SettingsAudioQualitySection(
                                     expanded = true,
                                     arrowRotation = 0f,
@@ -1142,7 +1142,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.TrafficManagement to {
-                            miuixSettingsSectionCardItem("${selectedPage.name}:content") {
+                            miuixSettingsSectionCardItem("TrafficManagement:content") {
                                 SettingsTrafficManagementSection()
                             }
                         },
@@ -1169,7 +1169,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.ListenTogether to {
-                            miuixSettingsSectionCardItem("${selectedPage.name}:content") {
+                            miuixSettingsSectionCardItem("ListenTogether:content") {
                                 SettingsListenTogetherSection(
                                     controller = listenTogetherSettings,
                                     modifier = Modifier
@@ -1180,7 +1180,7 @@ internal fun SettingsScreen(
                         },
 
                         SettingsPage.About to {
-                            miuixSettingsSectionCardItem("${selectedPage.name}:content") {
+                            miuixSettingsSectionCardItem("About:content") {
                                 SettingsAboutPageContent(
                                     devModeEnabled = appearanceState.theme.devModeEnabled,
                                     onDevModeChange = appearanceActions.onDevModeChange,
