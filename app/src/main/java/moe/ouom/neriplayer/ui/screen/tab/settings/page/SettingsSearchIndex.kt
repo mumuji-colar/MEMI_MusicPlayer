@@ -249,7 +249,7 @@ private fun atomicSettingsAnchor(
         SettingsPage.Theme -> when (targetId) {
             "manual:theme_mode" -> SettingsSearchScrollAnchor(itemIndex = 1)
             "manual:theme_palette_style" -> SettingsSearchScrollAnchor(itemIndex = 3)
-            "manual:theme_color_spec" -> SettingsSearchScrollAnchor(itemIndex = 4)
+            "manual:theme_color_spec" -> SettingsSearchScrollAnchor(itemIndex = 3)
             else -> SettingsSearchScrollAnchor(itemIndex = 2)
         }
         SettingsPage.Motion -> SettingsSearchScrollAnchor(
@@ -287,7 +287,7 @@ private val SettingsAtomicCardCount: Map<SettingsPage, Int> = mapOf(
     SettingsPage.PlaybackSource to 1,
     SettingsPage.Playback to 4,
     SettingsPage.AudioQuality to 1,
-    SettingsPage.Theme to 4,
+    SettingsPage.Theme to 3,
     SettingsPage.Background to 1,
     SettingsPage.Motion to 4,
     SettingsPage.NowPlaying to 2,

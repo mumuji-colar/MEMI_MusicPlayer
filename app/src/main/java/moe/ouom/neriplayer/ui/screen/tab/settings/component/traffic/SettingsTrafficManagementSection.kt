@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Analytics
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -66,9 +64,9 @@ internal fun SettingsTrafficManagementSection() {
         )
 
         if (summary.hasTrafficData) {
-            TrafficStatsCard(summary = summary)
+            TrafficStatsSection(summary = summary)
         } else {
-            TrafficEmptyCard()
+            TrafficEmptyHint()
         }
 
         AutoSettingsListItem(
@@ -136,94 +134,77 @@ internal fun SettingsTrafficManagementSection() {
 }
 
 @Composable
-private fun TrafficStatsCard(summary: TrafficStatsSummary) {
+private fun TrafficStatsSection(summary: TrafficStatsSummary) {
     val context = LocalContext.current
-    Card(
+    // 外层已是 Mochi 卡片，这里只做卡内分区，避免卡中卡
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.22f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Analytics,
-                    contentDescription = null,
-                    modifier = Modifier.size(22.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = stringResource(CoreCommonR.string.traffic_stats_overview),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            TrafficMetricRow(
-                label = stringResource(CoreCommonR.string.traffic_total_network),
-                value = formatTrafficBytes(context, summary.networkBytes)
+            Icon(
+                imageVector = Icons.Outlined.Analytics,
+                contentDescription = null,
+                modifier = Modifier.size(22.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
-            TrafficMetricRow(
-                label = stringResource(CoreCommonR.string.traffic_wifi),
-                value = formatTrafficBytes(context, summary.wifiBytes)
-            )
-            TrafficMetricRow(
-                label = stringResource(CoreCommonR.string.traffic_mobile),
-                value = formatTrafficBytes(context, summary.mobileBytes)
-            )
-            TrafficMetricRow(
-                label = stringResource(CoreCommonR.string.traffic_roaming),
-                value = formatTrafficBytes(context, summary.roamingBytes)
-            )
-            TrafficMetricRow(
-                label = stringResource(CoreCommonR.string.traffic_playback_network),
-                value = formatTrafficBytes(context, summary.playbackNetworkBytes)
-            )
-            TrafficMetricRow(
-                label = stringResource(CoreCommonR.string.traffic_download_network),
-                value = formatTrafficBytes(context, summary.downloadNetworkBytes)
-            )
-            TrafficMetricRow(
-                label = stringResource(CoreCommonR.string.traffic_cache_hit_bytes),
-                value = formatTrafficBytes(context, summary.cacheHitBytes)
-            )
-            TrafficMetricRow(
-                label = stringResource(CoreCommonR.string.traffic_cache_hit_rate),
-                value = formatPercent(summary.cacheHitRate)
+            Text(
+                text = stringResource(CoreCommonR.string.traffic_stats_overview),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
+
+        TrafficMetricRow(
+            label = stringResource(CoreCommonR.string.traffic_total_network),
+            value = formatTrafficBytes(context, summary.networkBytes)
+        )
+        TrafficMetricRow(
+            label = stringResource(CoreCommonR.string.traffic_wifi),
+            value = formatTrafficBytes(context, summary.wifiBytes)
+        )
+        TrafficMetricRow(
+            label = stringResource(CoreCommonR.string.traffic_mobile),
+            value = formatTrafficBytes(context, summary.mobileBytes)
+        )
+        TrafficMetricRow(
+            label = stringResource(CoreCommonR.string.traffic_roaming),
+            value = formatTrafficBytes(context, summary.roamingBytes)
+        )
+        TrafficMetricRow(
+            label = stringResource(CoreCommonR.string.traffic_playback_network),
+            value = formatTrafficBytes(context, summary.playbackNetworkBytes)
+        )
+        TrafficMetricRow(
+            label = stringResource(CoreCommonR.string.traffic_download_network),
+            value = formatTrafficBytes(context, summary.downloadNetworkBytes)
+        )
+        TrafficMetricRow(
+            label = stringResource(CoreCommonR.string.traffic_cache_hit_bytes),
+            value = formatTrafficBytes(context, summary.cacheHitBytes)
+        )
+        TrafficMetricRow(
+            label = stringResource(CoreCommonR.string.traffic_cache_hit_rate),
+            value = formatPercent(summary.cacheHitRate)
+        )
     }
 }
 
 @Composable
-private fun TrafficEmptyCard() {
-    Card(
+private fun TrafficEmptyHint() {
+    Text(
+        text = stringResource(CoreCommonR.string.traffic_period_empty),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.55f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Text(
-            text = stringResource(CoreCommonR.string.traffic_period_empty),
-            modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }
 
 @Composable

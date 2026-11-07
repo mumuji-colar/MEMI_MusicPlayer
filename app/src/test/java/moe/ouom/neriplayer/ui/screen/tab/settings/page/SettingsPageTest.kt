@@ -241,7 +241,7 @@ class SettingsPageTest {
             ).itemIndex
         )
         assertEquals(
-            4,
+            3,
             settingsSearchScrollAnchor(
                 page = SettingsPage.Appearance,
                 targetId = "manual:theme_color_spec"
@@ -354,7 +354,7 @@ class SettingsPageTest {
             ).itemIndex
         )
         assertEquals(
-            5,
+            4,
             settingsSearchScrollAnchor(
                 page = SettingsPage.Appearance,
                 targetId = "setting:background_image_uri"

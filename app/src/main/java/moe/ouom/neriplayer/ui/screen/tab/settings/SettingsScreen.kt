@@ -527,8 +527,7 @@ internal fun SettingsScreen(
                                         onHighlightFinished = onSettingsHighlightFinished
                                     )
                                 )
-                            }
-                            miuixSettingsSectionCardItem(key = "Theme:color_spec") {
+                                // 1.12.2：色彩空间原本独占一张卡（仅 1 项），并入本卡减少滚动
                                 ThemeColorSpecSelector(
                                     selectedSpec = appearanceState.visualBlur.themeColorSpecValue,
                                     onSpecChange = appearanceActions.onThemeColorSpecChange,

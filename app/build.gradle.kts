@@ -100,9 +100,9 @@ android {
     defaultConfig {
         // 正式版独立包名：与旧版音理音理互不影响，可并存安装
         applicationId = "com.mmc.merimusicplayer"
-        // 正式版固定版本信息（v1.12.1 / 2611071）
-        versionCode = 2611071
-        versionName = "1.12.1"
+        // 正式版固定版本信息（v1.12.2 / 2611072）
+        versionCode = 2611072
+        versionName = "1.12.2"
         val inviteScheme = "neriplayer"
         manifestPlaceholders["listenTogetherInviteScheme"] = inviteScheme
         buildConfigField("String", "LISTEN_TOGETHER_INVITE_SCHEME", "\"$inviteScheme\"")

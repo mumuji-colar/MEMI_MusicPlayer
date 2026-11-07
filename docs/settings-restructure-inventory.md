@@ -221,3 +221,33 @@ IllegalArgumentException: Key "GeneralHub:content" was already used.
 **验证**：脚本比对各分类页内所有 `item(key=)` / `miuixSettingsSectionCardItem` 的 key，10 个分类页均无重复；编译通过。
 
 **教训**：1.12.1 的测试全部是纯函数（搜索锚点、页面映射），**没有覆盖 Compose 渲染**，因此 key 冲突一路漏到真机。1.12.2 应补一个逐页渲染的 Robolectric 冒烟测试。
+
+---
+
+## 十、1.12.2 实施记录（已完成）
+
+### 改动清单
+
+| 类别 | 内容 |
+| :--- | :--- |
+| **Mochi 规范** | `SettingsTrafficManagementSection` 的两张原生 Material3 `Card`（`TrafficStatsCard` / `TrafficEmptyCard`）改为**卡内分区**（去掉卡片背景），同时消除「大卡套小卡」 |
+| **标题补齐** | `UsbExclusive` 第一张卡补 `SettingsSectionTitle`（「USB 独占播放」），与同页其他三张卡一致 |
+| **卡片合并** | 外观页「色彩空间」原独占一张卡（仅 1 项），并入「色彩风格」卡；主题原子页 4 卡 → 3 卡 |
+| **回归测试** | 新增 `SettingsCardKeyUniquenessTest`（3 项）：① 卡片 key 不得依赖 `selectedPage.name`；② 每个分类页内 key 唯一；③ 每个原子页都有渲染分支 |
+
+### 同步改动
+
+- `SettingsAtomicCardCount[Theme]` 4 → 3
+- `atomicSettingsAnchor` 中 `manual:theme_color_spec` 锚点 4 → 3
+- 外观页背景卡起始位置 5 → 4
+- 相关测试期望同步（`SettingsPageTest` 35、`SettingsSearchAnchorIndexTest` 4、`SettingsSearchLocaleTest` 7、`SettingsCardKeyUniquenessTest` 3 = **49 项全绿**）
+
+### 仍留到 1.12.3 / 1.20
+
+| 项目 | 原因 |
+| :--- | :--- |
+| 9 处硬编码 `RoundedCornerShape` | 视觉差异极小（8dp→Mochi 8dp 肉眼难辨），改动风险大于收益 |
+| Playback 淡入淡出两卡合并、Personalization 启动与输入并卡、UsbExclusive 卡④ | 都要重排卡片索引，与 1.12.3 的滚动搜索栏一起做更划算 |
+| Downloads 卡① 的标题 | 其组件内部结构较独立，单改收益低 |
+| 7 套自建卡片壳收敛 | 影响面大，放 1.20 合并收口 |
+| 两套切片机制统一 | 同上 |

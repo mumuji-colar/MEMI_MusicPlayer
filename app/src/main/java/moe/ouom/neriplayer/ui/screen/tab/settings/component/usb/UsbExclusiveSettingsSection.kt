@@ -118,6 +118,10 @@ internal fun UsbExclusiveSettingsSection(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         MiuixSettingsSectionCard {
+            SettingsSectionTitle(
+                icon = Icons.Outlined.Usb,
+                title = stringResource(CoreCommonR.string.settings_usb_exclusive_playback)
+            )
             UsbExclusiveMasterSwitch(
                 enabled = usbExclusivePlayback,
                 onEnabledChange = onUsbExclusivePlaybackChange

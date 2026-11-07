@@ -8,20 +8,20 @@ import org.junit.Test
 class SettingsSearchAnchorIndexTest {
     @Test
     fun cleanThemeSearchReachesTheSameColorSpecCardAfterRemovingTheHero() {
-        // 1.12.1：主题并入「外观」分类页，仍是该页第 4 张卡
+        // 1.12.2：色彩空间并入色彩风格卡后，主题在外观页共 3 张卡，色彩空间落在第 3 张
         val anchor = settingsSearchScrollAnchor(SettingsPage.Appearance, "manual:theme_color_spec")
 
-        assertEquals(4, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = false))
-        assertEquals(3, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = true))
+        assertEquals(3, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = false))
+        assertEquals(2, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = true))
     }
 
     @Test
     fun backgroundSearchReachesTheBackgroundCardInsideAppearance() {
-        // 背景是「外观」分类页里主题 4 张卡之后的第 5 张
+        // 背景是「外观」分类页里主题 3 张卡之后的第 4 张
         val anchor = settingsSearchScrollAnchor(SettingsPage.Appearance, "setting:background_image_uri")
 
-        assertEquals(5, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = false))
-        assertEquals(4, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = true))
+        assertEquals(4, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = false))
+        assertEquals(3, settingsDetailListIndex(anchor.itemIndex, SettingsPage.Appearance, clean = true))
     }
 
     @Test
