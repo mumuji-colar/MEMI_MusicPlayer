@@ -67,6 +67,7 @@ import moe.ouom.neriplayer.ui.screen.tab.settings.component.settingsItemClickabl
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.MiuixSettingsSectionCard
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.MiuixSettingsPageGroupCard
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsHomePageGroups
+import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsHubComposition
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsPage
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsSearchEntry
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.backTargetPage
@@ -97,22 +98,35 @@ internal fun shouldShowActiveGlassScene(
     activePage: SettingsPage?
 ): Boolean = isolated || selectedPage == activePage
 
-internal fun settingsHomeSelectedPage(page: SettingsPage?): SettingsPage? =
-    page?.backTargetPage() ?: page
+/**
+ * 主页分组卡要高亮哪一个入口。
+ *
+ * 三级页回落到它的父页；1.12.1 之后搜索可以直接跳到原子页（如 Storage、Playback），
+ * 这类页面不在主页里，也要上溯到所属分类，否则主页什么都高亮不了。
+ */
+internal fun settingsHomeSelectedPage(page: SettingsPage?): SettingsPage? {
+    if (page == null) return null
+    page.backTargetPage()?.let { return it }
+    return SettingsHubComposition.entries.firstOrNull { page in it.value }?.key ?: page
+}
 
 internal fun LazyListScope.settingsHomePageItems(navigation: SettingsNavigationState) {
-    settingsHomeSearchFieldItem(navigation)
     settingsHomeSearchResultsItem(navigation)
     settingsHomePageGroupItems(navigation)
 }
 
-private fun LazyListScope.settingsHomeSearchFieldItem(navigation: SettingsNavigationState) {
-    item(key = "settings_search_field") {
-        SettingsSearchField(
-            query = navigation.searchQueryState.value,
-            onQueryChange = { navigation.searchQueryState.value = it }
-        )
-    }
+/**
+ * 主页顶栏里的搜索栏。
+ *
+ * 它不再固定占列表第一行：进入设置页时只有标题，滚动到标题折叠后才滑出，
+ * 查询非空时由脚手架强制保留，避免结果还在但输入框消失。
+ */
+@Composable
+internal fun SettingsHomeSearchBar(navigation: SettingsNavigationState) {
+    SettingsSearchField(
+        query = navigation.searchQueryState.value,
+        onQueryChange = { navigation.searchQueryState.value = it }
+    )
 }
 
 private fun LazyListScope.settingsHomeSearchResultsItem(navigation: SettingsNavigationState) {

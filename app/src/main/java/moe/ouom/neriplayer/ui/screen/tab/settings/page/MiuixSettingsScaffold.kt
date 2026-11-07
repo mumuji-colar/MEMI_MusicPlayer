@@ -1,6 +1,11 @@
 package moe.ouom.neriplayer.ui.screen.tab.settings.page
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -61,6 +66,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import ui.feice.mochi.anim.mochiSpring
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -121,6 +127,27 @@ private val settingsCardGlassEnabled: Boolean
 
 private const val CleanCardOverBackgroundAlpha = 0.66f
 
+/** 大标题折叠到这个比例后，搜索栏才滑出，避免标题还在收缩时插入一行。 */
+private const val SearchBarCollapsedFractionThreshold = 0.85f
+
+/**
+ * 主页搜索栏的显示判定。
+ *
+ * - 刚进设置页：标题展开，`collapsedFraction` 为 0，不显示，页面最干净
+ * - 向下滚动：大标题折叠到底后滑出，向上滚回顶部再收起
+ * - 搜索词非空：[forceVisible]，否则结果还在但输入框没了，改不了关键词
+ * - 内容不足一屏或已滑到底：标题根本收不起来，必须给入口，否则永远搜不到
+ * - 首帧未完成布局时 `totalItemsCount` 为 0，此时不显示，避免闪现
+ */
+internal fun shouldShowSettingsHomeSearchBar(
+    collapsedFraction: Float,
+    forceVisible: Boolean,
+    laidOut: Boolean,
+    canScrollForward: Boolean
+): Boolean = forceVisible ||
+    collapsedFraction >= SearchBarCollapsedFractionThreshold ||
+    (laidOut && !canScrollForward)
+
 private val settingsListSpacing: Dp
     @Composable get() = if (NeriDesign.isClean) 16.dp else 12.dp
 
@@ -138,6 +165,8 @@ internal fun MiuixSettingsHomeScaffold(
     topAppBarState: TopAppBarState,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    searchBar: (@Composable () -> Unit)? = null,
+    forceSearchBarVisible: Boolean = false,
     content: LazyListScope.() -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -164,6 +193,7 @@ internal fun MiuixSettingsHomeScaffold(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = Color.Transparent,
         topBar = {
+            Column(modifier = Modifier.fillMaxWidth()) {
             NeriMochiLargeTopBar(
                 title = {
                     // large top app bars compose both title slots, but only one is visible
@@ -185,6 +215,41 @@ internal fun MiuixSettingsHomeScaffold(
                     scrolledContainerColor = Color.Transparent
                 )
             )
+
+                val searchSlot = searchBar
+                if (searchSlot != null) {
+                    // 刚进设置页保持干净：大标题折叠到底后搜索栏才滑出；
+                    // 搜索结果仍开着（外部强制可见）时要给到输入框；
+                    // 内容不足一屏或已经滑到底时标题收不起来，也要给到入口，否则永远搜不了
+                    val laidOut = listState.layoutInfo.totalItemsCount > 0
+                    val searchVisible = shouldShowSettingsHomeSearchBar(
+                        collapsedFraction = scrollBehavior.state.collapsedFraction,
+                        forceVisible = forceSearchBarVisible,
+                        laidOut = laidOut,
+                        canScrollForward = listState.canScrollForward
+                    )
+                    AnimatedVisibility(
+                        visible = searchVisible,
+                        enter = expandVertically(animationSpec = mochiSpring()) +
+                            fadeIn(animationSpec = mochiSpring()),
+                        exit = shrinkVertically(animationSpec = mochiSpring()) +
+                            fadeOut(animationSpec = mochiSpring())
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = horizontalPadding,
+                                    end = horizontalPadding,
+                                    top = 2.dp,
+                                    bottom = 8.dp
+                                )
+                        ) {
+                            searchSlot()
+                        }
+                    }
+                }
+            }
         }
     ) { innerPadding ->
         Box(

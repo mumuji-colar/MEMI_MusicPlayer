@@ -271,3 +271,56 @@ IllegalArgumentException: Key "GeneralHub:content" was already used.
 | Downloads 卡① 的标题 | 其组件内部结构较独立，单改收益低 |
 | 7 套自建卡片壳收敛 | 影响面大，放 1.20 合并收口 |
 | 两套切片机制统一 | 同上 |
+
+## 十一、1.12.3 实施记录（滚动搜索栏）
+
+### 目标
+
+主页入口已经收敛到 11 个，但搜索框一直固定占着列表第一行，页面顶部永远有一块输入框。1.12.3 把它挪进顶栏，按滚动状态出现：
+
+| 状态 | 表现 |
+| :--- | :--- |
+| 刚进设置页 | 顶栏只有「设置」标题，无搜索框 |
+| 向下滚动、大标题折叠到底 | 搜索框从标题下方滑出 |
+| 向上滚回顶部 | 搜索框收起 |
+| 搜索词非空 | 强制保留输入框（否则结果还在却改不了关键词） |
+| 切换到二级页 | 不出现（搜索栏只挂在一级主页） |
+
+### 实现
+
+| 文件 | 改动 |
+| :--- | :--- |
+| `page/MiuixSettingsScaffold.kt` | `MiuixSettingsHomeScaffold` 新增 `searchBar: (@Composable () -> Unit)?` 与 `forceSearchBarVisible: Boolean`；顶栏改为 `Column { 大标题栏 + AnimatedVisibility(搜索栏) }`，进出场用 `mochiSpring`；判定逻辑抽成纯函数 `shouldShowSettingsHomeSearchBar(collapsedFraction, forceVisible, laidOut, canScrollForward)` |
+| `navigation/SettingsNavigationSearch.kt` | 删除列表首行的 `settings_search_field` item；新增 `SettingsHomeSearchBar` 供顶栏使用 |
+| `SettingsScreen.kt` | 传入 `searchBar = { SettingsHomeSearchBar(navigation) }`、`forceSearchBarVisible = 查询非空`；查询变为非空时 `animateScrollToItem(0)`，否则结果卡片在视野外 |
+
+### 显示判定的四个条件
+
+```
+forceVisible || collapsedFraction >= 0.85 || (laidOut && !canScrollForward)
+```
+
+- `collapsedFraction >= 0.85`：大标题基本收完才插入一行，避免标题还在收缩时顶栏跳一下
+- `forceVisible`：搜索结果还在时不能把输入框收走
+- `laidOut && !canScrollForward`：内容不足一屏、或已经滑到底时标题根本收不起来，必须给入口，否则永远搜不到；`laidOut` 用来挡首帧（未布局时 `totalItemsCount == 0`），避免搜索栏闪现
+
+### 顺带修掉的一个遗留问题
+
+`settingsHomeSelectedPage` 原先只处理「三级页 → 父页」。1.12.1 之后搜索可以直接落到原子页（如 `Storage`、`Playback`），这类页面不在主页列表里，结果是**主页什么都高亮不了**。现在补上「原子页 → 所属分类」的上溯：
+
+```kotlin
+page.backTargetPage()?.let { return it }
+return SettingsHubComposition.entries.firstOrNull { page in it.value }?.key ?: page
+```
+
+同时修正了 `SettingsNavigationPolicyTest` 里一条 1.12.1 遗留的过期断言（`StorageCacheDetails` 的父页已从 `Storage` 变为 `StorageDownloads`），该断言此前一直是失败状态。
+
+### 测试
+
+`SettingsPageTest` 35 + `SettingsCardKeyUniquenessTest` 4 + `SettingsSearchAnchorIndexTest` 4 + `SettingsSearchLocaleTest` 3 + `SettingsNavigationPolicyTest` 14 = **60 项全绿**。
+
+其中 `SettingsNavigationPolicyTest` 新增 `home search bar only shows after the large title collapses`，覆盖六个分支：初始不显示、半途不显示、折叠后显示、首帧不显示、内容不足时显示、搜索词非空时显示。
+
+### 产物
+
+`dist/MEMI-1.12.3-2611081.apk`

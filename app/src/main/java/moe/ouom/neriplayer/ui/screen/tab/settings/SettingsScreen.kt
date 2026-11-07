@@ -140,6 +140,7 @@ import moe.ouom.neriplayer.ui.screen.tab.settings.listentogether.SettingsListenT
 import moe.ouom.neriplayer.ui.screen.tab.settings.listentogether.SettingsListenTogetherSection
 import moe.ouom.neriplayer.ui.screen.tab.settings.listentogether.rememberSettingsListenTogetherController
 import moe.ouom.neriplayer.ui.screen.tab.settings.navigation.SettingsPageHost
+import moe.ouom.neriplayer.ui.screen.tab.settings.navigation.SettingsHomeSearchBar
 import moe.ouom.neriplayer.ui.screen.tab.settings.navigation.SettingsPageScaffold
 import moe.ouom.neriplayer.ui.screen.tab.settings.navigation.rememberSettingsNavigationState
 import moe.ouom.neriplayer.ui.screen.tab.settings.navigation.settingsHomePageItems
@@ -309,6 +310,13 @@ internal fun SettingsScreen(
     val homeTopAppBarState = navigation.homeTopAppBarState
     val detailTopAppBarStates = navigation.detailTopAppBarStates
     val detailListStates = navigation.detailListStates
+    // 搜索栏挂在顶栏上，输入关键词时列表可能停在下方，结果卡片会在视野外，先拉回顶部
+    val settingsSearchActive = navigation.searchQueryState.value.isNotBlank()
+    LaunchedEffect(settingsSearchActive) {
+        if (settingsSearchActive) {
+            listState.animateScrollToItem(0)
+        }
+    }
     val settingsHighlightTargetId by navigation.highlightTargetState
     val settingsHighlightPulse by navigation.highlightPulseState
     val onSettingsHighlightFinished: () -> Unit = navigation::clearHighlight
@@ -343,6 +351,9 @@ internal fun SettingsScreen(
                     listState = listState,
                     topAppBarState = homeTopAppBarState,
                     title = settingsHomeTitle,
+                    searchBar = { SettingsHomeSearchBar(navigation) },
+                    // 结果还在时不能把输入框收走，否则改不了关键词
+                    forceSearchBarVisible = navigation.searchQueryState.value.isNotBlank(),
                     content = settingsHomeContent
                 )
             },

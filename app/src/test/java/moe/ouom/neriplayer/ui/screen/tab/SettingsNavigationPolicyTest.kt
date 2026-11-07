@@ -24,6 +24,7 @@ import moe.ouom.neriplayer.ui.screen.tab.settings.navigation.shouldUseSettingsSp
 import moe.ouom.neriplayer.ui.screen.tab.settings.navigation.shouldUseTabletSettingsTransitions
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsPage
 import moe.ouom.neriplayer.ui.screen.tab.settings.page.SettingsSearchEntry
+import moe.ouom.neriplayer.ui.screen.tab.settings.page.shouldShowSettingsHomeSearchBar
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -82,12 +83,86 @@ class SettingsNavigationPolicyTest {
     }
 
     @Test
-    fun `home page selection highlights the parent of a nested detail`() {
+    fun `home page selection highlights the hub that owns the active page`() {
         assertNull(settingsHomeSelectedPage(null))
-        assertEquals(SettingsPage.Storage, settingsHomeSelectedPage(SettingsPage.Storage))
+        // 分类页自身就是主页入口
         assertEquals(
-            SettingsPage.Storage,
+            SettingsPage.StorageDownloads,
+            settingsHomeSelectedPage(SettingsPage.StorageDownloads)
+        )
+        // 1.12.1 之后搜索可以直接落到原子页，主页要上溯到所属分类
+        assertEquals(
+            SettingsPage.StorageDownloads,
+            settingsHomeSelectedPage(SettingsPage.Storage)
+        )
+        // 三级页回落到父分类
+        assertEquals(
+            SettingsPage.StorageDownloads,
             settingsHomeSelectedPage(SettingsPage.StorageCacheDetails)
+        )
+        assertEquals(
+            SettingsPage.PlaybackHub,
+            settingsHomeSelectedPage(SettingsPage.UsbExclusive)
+        )
+        // 独立一级页保持自身
+        assertEquals(SettingsPage.About, settingsHomeSelectedPage(SettingsPage.About))
+    }
+
+    @Test
+    fun `home search bar only shows after the large title collapses`() {
+        // 刚进设置页：标题展开，保持干净
+        assertFalse(
+            shouldShowSettingsHomeSearchBar(
+                collapsedFraction = 0f,
+                forceVisible = false,
+                laidOut = true,
+                canScrollForward = true
+            )
+        )
+        // 中途还在收标题
+        assertFalse(
+            shouldShowSettingsHomeSearchBar(
+                collapsedFraction = 0.5f,
+                forceVisible = false,
+                laidOut = true,
+                canScrollForward = true
+            )
+        )
+        // 标题折叠到底：滑出
+        assertTrue(
+            shouldShowSettingsHomeSearchBar(
+                collapsedFraction = 1f,
+                forceVisible = false,
+                laidOut = true,
+                canScrollForward = true
+            )
+        )
+        // 首帧尚未布局：不能闪现
+        assertFalse(
+            shouldShowSettingsHomeSearchBar(
+                collapsedFraction = 0f,
+                forceVisible = false,
+                laidOut = false,
+                canScrollForward = false
+            )
+        )
+        // 内容不足一屏 / 已经滑到底：标题收不起来，也必须给入口
+        assertTrue(
+            shouldShowSettingsHomeSearchBar(
+                collapsedFraction = 0.3f,
+                forceVisible = false,
+                laidOut = true,
+                canScrollForward = false
+            )
+        )
+        // 搜索词非空：即使回到顶部也保留输入框
+        assertTrue(
+            shouldShowSettingsHomeSearchBar(
+                collapsedFraction = 0f,
+                forceVisible = true,
+                laidOut = true,
+                canScrollForward = true
+            )
         )
     }
 
