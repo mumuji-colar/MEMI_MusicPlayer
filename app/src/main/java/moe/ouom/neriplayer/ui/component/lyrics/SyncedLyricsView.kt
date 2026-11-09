@@ -108,6 +108,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -121,6 +122,20 @@ import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.delay
 import moe.ouom.neriplayer.ui.animation.AMBIENT_ANIMATION_FRAME_INTERVAL_NANOS
 import moe.ouom.neriplayer.ui.animation.isNewAmbientFrameSlot
+
+/**
+ * 整行歌词的断行策略。
+ *
+ * Compose 默认对中日韩**逐字**断行，「一起」「知道」这类词会被劈到两行。
+ * [LineBreak.WordBreak.Phrase] 走 ICU 的短语（词典）断行，词内部不再断开；
+ * Android 13 起再叠 [LineBreak.Strategy.Balanced]，让各行长度尽量接近，
+ * 观感与逐字歌词那套均衡断行一致。低版本上 Balanced 会自动退回 HighQuality。
+ */
+private val LyricsLineBreak: LineBreak = LineBreak(
+    strategy = LineBreak.Strategy.Balanced,
+    strictness = LineBreak.Strictness.Strict,
+    wordBreak = LineBreak.WordBreak.Phrase
+)
 
 private const val LYRIC_TIME_SMOOTHING_DURATION_MS = 96
 private const val LYRIC_TIME_SMOOTHING_MAX_DELTA_MS = 180L
@@ -981,7 +996,8 @@ fun SyncedLyricsView(
                         lineHeight = resolveLyricLineHeight(
                             fontSize,
                             LYRIC_LINE_HEIGHT_MULTIPLIER
-                        )
+                        ),
+                        lineBreak = LyricsLineBreak
                     )
 
                     if (isActive) {
@@ -1137,7 +1153,8 @@ private fun LyricTranslationText(
                 lineHeight = resolveLyricLineHeight(
                     fontSize,
                     LYRIC_TRANSLATION_LINE_HEIGHT_MULTIPLIER
-                )
+                ),
+                lineBreak = LyricsLineBreak
             ),
             maxLines = Int.MAX_VALUE,
             softWrap = true
@@ -1386,7 +1403,8 @@ fun SyncedLyricsActiveLine(
         fontWeight = FontWeight.Medium,
         textAlign = TextAlign.Center,
         letterSpacing = 0.sp,  // 禁用字符间距调整，确保测量和渲染一致
-        lineHeight = resolveLyricLineHeight(fontSize, LYRIC_LINE_HEIGHT_MULTIPLIER)
+        lineHeight = resolveLyricLineHeight(fontSize, LYRIC_LINE_HEIGHT_MULTIPLIER),
+        lineBreak = LyricsLineBreak
     )
 
     val effectiveFadeWidth = if (line.words.isNullOrEmpty()) fadeWidth else 0.dp
