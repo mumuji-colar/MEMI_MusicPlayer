@@ -376,4 +376,105 @@ class LyricsLineBreakingTest {
         )
         assertEquals(0, starts?.size)
     }
+
+    // ---- 中文词边界：不要从词中间劈开 ----
+
+    @Test
+    fun `breaking at a han word boundary is cheaper than breaking inside one`() {
+        val atBoundary = wordAwareBreakScale(0, "你", 0, "一起", breakIsWordBoundary = true)
+        val insideWord = wordAwareBreakScale(0, "一", 0, "起", breakIsWordBoundary = false)
+        assertTrue(
+            "词边界应当比词内更便宜：boundary=$atBoundary, inside=$insideWord",
+            atBoundary < insideWord
+        )
+    }
+
+    @Test
+    fun `han word split is detected only between han characters inside a word`() {
+        assertTrue(isIntraHanWordBreak("一", "起", breakIsWordBoundary = false))
+        assertFalse(isIntraHanWordBreak("你", "一起", breakIsWordBoundary = true))
+        // 拉丁词内、汉字接标点都不算——它们各有各的规则
+        assertFalse(isIntraHanWordBreak("hel", "lo", breakIsWordBoundary = false))
+        assertFalse(isIntraHanWordBreak("走", "，", breakIsWordBoundary = false))
+    }
+
+    @Test
+    fun `balanced breaking keeps a two character chinese word intact`() {
+        // 16 个字、每行最多 9 个、词边界在第 7 个字后。
+        // 纯均衡会在第 8 个字断（8 + 8 最整齐），但那会把一个词劈成两半；
+        // 加上拆词惩罚后应当改断在第 7 个字，接受 7 + 9 的一点点不齐。
+        val contents = List(16) { "字" }
+        val widths = FloatArray(contents.size) { 1f }
+        val wordBoundaries = setOf(0, 7, contents.size)
+        val starts = computeBalancedBreakStarts(
+            widths = widths,
+            availableWidthPx = 9f,
+            breakAllowed = { true },
+            breakScale = { index ->
+                if (index <= 0) 1f
+                else wordAwareBreakScale(
+                    prevWordId = 0,
+                    prevContent = contents[index - 1],
+                    nextWordId = 0,
+                    nextContent = contents[index],
+                    breakIsWordBoundary = index in wordBoundaries
+                )
+            },
+            breakPenalty = { index ->
+                if (index <= 0) 0f
+                else if (
+                    isIntraHanWordBreak(
+                        prevContent = contents[index - 1],
+                        nextContent = contents[index],
+                        breakIsWordBoundary = index in wordBoundaries
+                    )
+                ) 1f * 1f * CJK_WORD_SPLIT_PENALTY_SYLLABLES
+                else 0f
+            }
+        )
+        assertNotNull(starts)
+        assertArrayEquals(intArrayOf(0, 7), starts)
+    }
+
+    @Test
+    fun `without the word split penalty the same line splits at the balanced point`() {
+        // 对照组：不传惩罚时会断在更均衡的第 8 个字，证明上一条测试确实由惩罚驱动
+        val contents = List(16) { "字" }
+        val starts = computeBalancedBreakStarts(
+            widths = FloatArray(contents.size) { 1f },
+            availableWidthPx = 9f,
+            breakAllowed = { true },
+            breakScale = { 1f }
+        )
+        assertNotNull(starts)
+        assertArrayEquals(intArrayOf(0, 8), starts)
+    }
+
+    // ---- 成对符号：破折号、省略号不许拆到两行 ----
+
+    @Test
+    fun `doubled punctuation pair is recognised`() {
+        assertTrue(isDoubledPunctuationPair("他走了—", "—然后"))
+        assertTrue(isDoubledPunctuationPair("我等…", "…了很久"))
+        // 整组符号已经在同一个音节里，不存在拆开的风险
+        assertFalse(isDoubledPunctuationPair("我等", "……"))
+        assertFalse(isDoubledPunctuationPair("你", "好"))
+        assertFalse(isDoubledPunctuationPair("—", "你"))
+    }
+
+    @Test
+    fun `canBreakBetween refuses to split doubled punctuation even across words`() {
+        assertFalse(
+            LyricsLineBreaking.canBreakBetween(
+                prevWordId = 0, prevContent = "他走了—",
+                nextWordId = 1, nextContent = "—然后"
+            )
+        )
+    }
+
+    @Test
+    fun `left quotation mark is forbidden at line end`() {
+        assertTrue(LyricsLineBreaking.isLineEndForbidden("他说“"))
+        assertFalse(LyricsLineBreaking.isLineEndForbidden("他说"))
+    }
 }

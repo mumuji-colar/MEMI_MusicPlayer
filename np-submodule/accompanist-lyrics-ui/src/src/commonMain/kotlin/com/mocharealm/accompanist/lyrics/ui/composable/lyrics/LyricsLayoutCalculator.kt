@@ -8,6 +8,9 @@ import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import com.mocharealm.accompanist.lyrics.core.model.karaoke.KaraokeSyllable
 import com.mocharealm.accompanist.lyrics.ui.utils.isArabic
+import com.mocharealm.accompanist.lyrics.ui.utils.isCjk
+import com.mocharealm.accompanist.lyrics.ui.utils.isJapanese
+import com.mocharealm.accompanist.lyrics.ui.utils.isKorean
 import com.mocharealm.accompanist.lyrics.ui.utils.isDevanagari
 import com.mocharealm.accompanist.lyrics.ui.utils.isPunctuation
 import com.mocharealm.accompanist.lyrics.ui.utils.isPureCjk
@@ -295,6 +298,66 @@ internal fun canBreakBetween(previous: SyllableLayout, next: SyllableLayout): Bo
  *
  * [breakIndex] 为 0 表示断点落在行首，没有上一行，返回中性值 1。
  */
+/** 断在中文词边界上的成本折扣，让词与词之间比随便断便宜一点。 */
+internal const val CJK_WORD_BOUNDARY_BREAK_SCALE = 0.9f
+
+/**
+ * 中文词内断行的固定惩罚，单位是「平均字宽的平方」。
+ *
+ * 为什么不乘在 `breakScale` 上：DP 的代价是 `剩余宽度² × 系数`，
+ * 行几乎填满时剩余宽度趋近 0，任何乘数都会被抹平——恰恰这时最容易被拆词。
+ * 所以改成与剩余宽度无关的加项。
+ *
+ * 为什么不用「可用宽度²」：那样在大屏上惩罚会大到离谱（宽度翻倍，惩罚翻四倍），
+ * 算法宁可把行拉得极不均衡也要躲开拆词；以平均字宽为单位才是尺度无关的。
+ * 2.5 的含义：拆一个词大约等于「宁可多空出 2.5 个字」的代价。
+ */
+internal const val CJK_WORD_SPLIT_PENALTY_SYLLABLES = 2.5f
+
+/** 汉字（不含假名、谚文与中文标点）：只有它们才需要「别把词拆开」这条约束。 */
+private fun Char.isHanLetter(): Boolean =
+    isCjk() && !isJapanese() && !isKorean() && isLetter()
+
+/**
+ * 这个断点是不是「两侧都是汉字、而且落在词内部」——也就是会拆开一个中文词。
+ *
+ * 拉丁单词已由 [LyricsLineBreaking.canBreakBetween] 整词禁断，中文标点已由避头/避尾处理，
+ * 所以这里只认汉字，避免把同一套惩罚叠加到别处。
+ */
+internal fun isIntraHanWordBreak(
+    prevContent: String,
+    nextContent: String,
+    breakIsWordBoundary: Boolean
+): Boolean {
+    if (breakIsWordBoundary) return false
+    val previous = prevContent.lastVisibleChar() ?: return false
+    val next = nextContent.firstVisibleChar() ?: return false
+    return previous.isHanLetter() && next.isHanLetter()
+}
+
+/**
+ * 带中文词边界的断行成本系数。
+ *
+ * 只在「词边界 + 两侧汉字」时给一点折扣；拆词的代价不走系数，走 [isIntraHanWordBreak] 的固定惩罚。
+ */
+internal fun wordAwareBreakScale(
+    prevWordId: Int,
+    prevContent: String,
+    nextWordId: Int,
+    nextContent: String,
+    breakIsWordBoundary: Boolean
+): Float {
+    val scale = LyricsLineBreaking.breakScale(prevWordId, prevContent, nextWordId, nextContent)
+    val previous = prevContent.lastVisibleChar()
+    val next = nextContent.firstVisibleChar()
+    if (breakIsWordBoundary && previous != null && next != null &&
+        previous.isHanLetter() && next.isHanLetter()
+    ) {
+        return scale * CJK_WORD_BOUNDARY_BREAK_SCALE
+    }
+    return scale
+}
+
 internal fun breakScaleAt(syllables: List<SyllableLayout>, breakIndex: Int): Float {
     if (breakIndex <= 0) return 1f
     val previous = syllables[breakIndex - 1]
@@ -349,7 +412,8 @@ internal fun computeBalancedBreakStarts(
     widths: FloatArray,
     availableWidthPx: Float,
     breakAllowed: (Int) -> Boolean,
-    breakScale: (Int) -> Float
+    breakScale: (Int) -> Float,
+    breakPenalty: (Int) -> Float = { 0f }
 ): IntArray? {
     val n = widths.size
     if (n == 0) return IntArray(0)
@@ -375,7 +439,7 @@ internal fun computeBalancedBreakStarts(
             if (currentLineWidth > availableWidthPx) break
 
             val lineBadness = (availableWidthPx - currentLineWidth).pow(2).toDouble()
-            val badness = lineBadness * breakScale(j - 1)
+            val badness = lineBadness * breakScale(j - 1) + breakPenalty(j - 1)
 
             if (costs[j - 1] != Double.POSITIVE_INFINITY && costs[j - 1] + badness < costs[i]) {
                 costs[i] = costs[j - 1] + badness
@@ -405,6 +469,20 @@ fun calculateBalancedLines(
     if (syllableLayouts.isEmpty()) return emptyList()
 
     val widths = FloatArray(syllableLayouts.size) { syllableLayouts[it].width }
+    // 拆词惩罚的长度单位：用平均字宽而不是可用宽度，保证小屏大屏的惩罚力度一致
+    val averageSyllableWidth = widths.average().toFloat().takeIf { it > 0f } ?: 1f
+    val contents = syllableLayouts.map { it.syllable.content }
+
+    // 每个音节在整行文本里的起始偏移，用来把「音节断点」换算成「字符偏移」去查词边界
+    val textStarts = IntArray(contents.size + 1)
+    var textOffset = 0
+    contents.forEachIndexed { index, content ->
+        textStarts[index] = textOffset
+        textOffset += content.length
+    }
+    textStarts[contents.size] = textOffset
+    val wordBoundaries = CjkWordSegmentation.boundaries(contents.joinToString(""))
+
     val startIndexes = computeBalancedBreakStarts(
         widths = widths,
         availableWidthPx = availableWidthPx,
@@ -413,7 +491,34 @@ fun calculateBalancedLines(
                 syllableLayouts[breakIndex - 1], syllableLayouts[breakIndex]
             )
         },
-        breakScale = { breakIndex -> breakScaleAt(syllableLayouts, breakIndex) }
+        breakScale = { breakIndex ->
+            if (breakIndex <= 0) {
+                1f
+            } else {
+                wordAwareBreakScale(
+                    prevWordId = syllableLayouts[breakIndex - 1].wordId,
+                    prevContent = contents[breakIndex - 1],
+                    nextWordId = syllableLayouts[breakIndex].wordId,
+                    nextContent = contents[breakIndex],
+                    breakIsWordBoundary = textStarts[breakIndex] in wordBoundaries
+                )
+            }
+        },
+        breakPenalty = { breakIndex ->
+            if (breakIndex <= 0) {
+                0f
+            } else if (
+                isIntraHanWordBreak(
+                    prevContent = contents[breakIndex - 1],
+                    nextContent = contents[breakIndex],
+                    breakIsWordBoundary = textStarts[breakIndex] in wordBoundaries
+                )
+            ) {
+                averageSyllableWidth * averageSyllableWidth * CJK_WORD_SPLIT_PENALTY_SYLLABLES
+            } else {
+                0f
+            }
+        }
     ) ?: return calculateGreedyWrappedLines(syllableLayouts, availableWidthPx, textMeasurer, style)
 
     val lines = mutableListOf<WrappedLine>()

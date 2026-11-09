@@ -41,7 +41,7 @@ internal object LyricsLineBreaking {
      * 开启类标点（左括号、左书名号等）后面必须紧跟内容，
      * 孤零零留在行尾会让读者误以为后面没有下文。
      */
-    private val lineEndForbidden = "（〈《「『【〖〔｛([{<«".toSet()
+    private val lineEndForbidden = "（〈《「『【〖〔｛([{<«“‘〝".toSet()
 
     /** 句读标点：在这些字符之后换行更自然。 */
     private val preferredBreakAfter = "。！？；：，、…—!?;:,".toSet()
@@ -108,6 +108,9 @@ internal object LyricsLineBreaking {
         nextWordId: Int,
         nextContent: String
     ): Boolean {
+        // 破折号「——」、省略号「……」由两个相同符号并排组成，断在中间会变成两行各一半，
+        // 这一条与 wordId 无关，必须优先判掉
+        if (isDoubledPunctuationPair(prevContent, nextContent)) return false
         if (prevWordId != nextWordId) return true
         return !isInsideLatinWord(prevContent, nextContent)
     }
@@ -150,6 +153,21 @@ internal object LyricsLineBreaking {
         return count
     }
 }
+
+/**
+ * 相邻两个音节是不是同一组成对符号的两半（「——」「……」）。
+ *
+ * 这类符号必须整体出现：拆到两行会变成上一行一个短横、下一行一个短横，读者会当成两个符号。
+ */
+internal fun isDoubledPunctuationPair(prevContent: String, nextContent: String): Boolean {
+    val previous = prevContent.lastVisibleChar() ?: return false
+    val next = nextContent.firstVisibleChar() ?: return false
+    if (previous != next) return false
+    return previous in doubledPunctuationChars
+}
+
+/** 需要成对出现的符号：破折号、省略号，以及全角连字符。 */
+private val doubledPunctuationChars = setOf('—', '…', '－', '─')
 
 /**
  * 这个音节能被当成「可独立断开的排版单位」吗？
