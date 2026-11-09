@@ -298,7 +298,7 @@ internal fun canBreakBetween(previous: SyllableLayout, next: SyllableLayout): Bo
  *
  * 调参见 `docs/lyrics-line-breaking.md` 的「还能怎么调」。
  */
-internal const val CJK_WORD_BOUNDARY_BREAK_SCALE = 0.9f
+internal const val CJK_WORD_BOUNDARY_BREAK_SCALE = 1.0f
 
 /**
  * 中文词内断行的固定惩罚，单位是「平均字宽的平方」。
@@ -313,7 +313,7 @@ internal const val CJK_WORD_BOUNDARY_BREAK_SCALE = 0.9f
  *
  * 调参见 `docs/lyrics-line-breaking.md` 的「还能怎么调」：症状对照表 + 建议取值范围 + 改完怎么验。
  */
-internal const val CJK_WORD_SPLIT_PENALTY_SYLLABLES = 2.5f
+internal const val CJK_WORD_SPLIT_PENALTY_SYLLABLES = 5.0f
 
 /** 汉字（不含假名、谚文与中文标点）：只有它们才需要「别把词拆开」这条约束。 */
 private fun Char.isHanLetter(): Boolean =
