@@ -73,8 +73,63 @@ ICU 取不到时（JVM 单元测试、极老系统）`CjkWordSegmentation.bounda
 
 `accompanist-lyrics-ui` 全量 72 项（3 + 9 + 16 + 44）通过。
 
-## 还能怎么调
+## 还能怎么调（改哪里、调多少、怎么验）
 
-- 观感「词是保住了，但行太参差」→ 调小 `CJK_WORD_SPLIT_PENALTY_SYLLABLES`（2.5 → 1.5）；
-- 观感「还是会把词拆开」→ 调大（2.5 → 4），代价是行更不齐；
-- 觉得某些词被词典拆错了（人名、生造词）→ 那是 ICU 词典的边界，属于已知限制，不建议为此引入自定义词典。
+所有可调项都是 `const val`，集中在两个文件里。改完重新打包即可，没有开关、不需要重启应用。
+
+### 拆词相关的两个（最常动）
+
+文件：`np-submodule/accompanist-lyrics-ui/src/src/commonMain/kotlin/com/mocharealm/accompanist/lyrics/ui/composable/lyrics/LyricsLayoutCalculator.kt`
+（在文件里搜常量名即可定位，行号会随改动漂移，这里不写死）
+
+| 常量 | 默认值 | 所在行（约） | 作用 | 往大调 | 往小调 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `CJK_WORD_SPLIT_PENALTY_SYLLABLES` | `2.5f` | 316 | 拆一个词的代价，单位是「平均字宽²」 | 更不容易拆词，但行更参差（建议 ≤ 5） | 更容易拆词，行更整齐（建议 ≥ 1.2；低于 1 基本等于关掉） |
+| `CJK_WORD_BOUNDARY_BREAK_SCALE` | `0.9f` | 301 | 断在词与词之间时的折扣 | 更倾向在词边界断（1.0 = 不打折） | 词边界优势变小（别低于 0.7，会和均衡目标打架） |
+
+### 标点与均衡的四个（一般不用动）
+
+文件：同目录下 `LyricsLineBreaking.kt`
+
+| 行号 | 常量 | 默认值 | 作用 |
+| :--- | :--- | :--- | :--- |
+| 50 | `FORBIDDEN_AT_LINE_START_SCALE` | `6f` | 标点被顶到行首的代价（避头点），调大更严格 |
+| 53 | `FORBIDDEN_AT_LINE_END_SCALE` | `6f` | 开引号 / 开括号留在行尾的代价（避尾点） |
+| 56 | `PUNCTUATION_BREAK_SCALE` | `0.75f` | 句读标点之后断行的折扣，调小更爱在逗号句号后换行 |
+| 59 | `INTRA_WORD_BREAK_SCALE` | `1.15f` | 同一 `wordId` 内断行的额外成本（拉丁词另有硬禁断，主要影响中文） |
+
+### 症状对照
+
+| 看到的现象 | 改哪个 | 方向 |
+| :--- | :--- | :--- |
+| 词保住了，但两行长短差得明显 | `CJK_WORD_SPLIT_PENALTY_SYLLABLES` | 2.5 → 1.8 或 1.5 |
+| 还是会把「一起」「知道」这类词拆开 | 同上 | 2.5 → 3.5 或 4 |
+| 明明有逗号，却偏要在句中换行 | `PUNCTUATION_BREAK_SCALE` | 0.75 → 0.6 |
+| 行首还是冒出逗号 / 句号 | `FORBIDDEN_AT_LINE_START_SCALE` | 6 → 10 |
+| 某些人名、生造词被词典切错 | 改不了 | ICU 词典的边界，属已知限制；不建议为此塞自定义词典 |
+
+### 改完怎么验
+
+**1. 跑单元测试**（约 1 分钟，会连带跑对照组）：
+
+```bash
+cd "C:/Users/dongy/WorkBuddy/2026-11-02-20-41-10/NeriPlayer/NeriPlayer-NeriPlayer-51f0100c.10312030"
+export JAVA_HOME="C:/Program Files/Java/jdk-21.0.12"
+"C:/Users/dongy/.gradle/tools/gradle-9.6.1/bin/gradle" \
+  :accompanist-lyrics-ui:testDebugUnitTest --offline -PallowUnsignedRelease=true
+```
+
+> 对照组断言的是「断在第 7 个字」。把惩罚调到 1.0 以下会让它失败，这属于预期——说明惩罚已经弱到不起作用了。
+
+**2. 打包**：
+
+```bash
+export JAVA_HOME="C:/Users/dongy/.jdks/jdk-17.0.20.1+1"
+"C:/Users/dongy/.gradle/tools/gradle-9.6.1/bin/gradle" \
+  :app:assembleRelease --offline -PallowUnsignedRelease=true
+```
+
+产物在 `app/build/outputs/apk/release/NeriPlayer-<版本号>.apk`；签名用 build-tools 的 `zipalign` + `apksigner`，命令与我每次打包时一致。
+
+**3. 只想看观感**：不必走完整打包，`adb install -r` 手头那个包改不了的——常量是编译期值，必须重编。图快可以只装 debug：`:app:installDebug`。
+

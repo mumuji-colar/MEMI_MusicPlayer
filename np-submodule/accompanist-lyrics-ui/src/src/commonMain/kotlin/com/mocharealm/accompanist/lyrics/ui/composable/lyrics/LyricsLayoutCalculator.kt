@@ -294,11 +294,10 @@ internal fun canBreakBetween(previous: SyllableLayout, next: SyllableLayout): Bo
     )
 
 /**
- * [breakIndex] 这个断点的成本系数，越小越倾向于在这里断行。
+ * 断在中文词边界上的成本折扣，让词与词之间比随便断便宜一点。
  *
- * [breakIndex] 为 0 表示断点落在行首，没有上一行，返回中性值 1。
+ * 调参见 `docs/lyrics-line-breaking.md` 的「还能怎么调」。
  */
-/** 断在中文词边界上的成本折扣，让词与词之间比随便断便宜一点。 */
 internal const val CJK_WORD_BOUNDARY_BREAK_SCALE = 0.9f
 
 /**
@@ -311,6 +310,8 @@ internal const val CJK_WORD_BOUNDARY_BREAK_SCALE = 0.9f
  * 为什么不用「可用宽度²」：那样在大屏上惩罚会大到离谱（宽度翻倍，惩罚翻四倍），
  * 算法宁可把行拉得极不均衡也要躲开拆词；以平均字宽为单位才是尺度无关的。
  * 2.5 的含义：拆一个词大约等于「宁可多空出 2.5 个字」的代价。
+ *
+ * 调参见 `docs/lyrics-line-breaking.md` 的「还能怎么调」：症状对照表 + 建议取值范围 + 改完怎么验。
  */
 internal const val CJK_WORD_SPLIT_PENALTY_SYLLABLES = 2.5f
 
@@ -358,6 +359,11 @@ internal fun wordAwareBreakScale(
     return scale
 }
 
+/**
+ * [breakIndex] 这个断点的成本系数，越小越倾向于在这里断行。
+ *
+ * [breakIndex] 为 0 表示断点落在行首，没有上一行，返回中性值 1。
+ */
 internal fun breakScaleAt(syllables: List<SyllableLayout>, breakIndex: Int): Float {
     if (breakIndex <= 0) return 1f
     val previous = syllables[breakIndex - 1]
