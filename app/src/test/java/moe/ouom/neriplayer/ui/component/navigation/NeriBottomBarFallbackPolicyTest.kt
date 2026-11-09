@@ -1,6 +1,7 @@
 package moe.ouom.neriplayer.ui.component.navigation
 
 import androidx.compose.ui.unit.dp
+import moe.ouom.neriplayer.ui.component.playback.NeriMiniPlayerDefaults
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -41,6 +42,62 @@ class NeriBottomBarFallbackPolicyTest {
                 itemWidth = 64.dp,
                 itemCount = 0
             )
+        )
+    }
+
+    @Test
+    fun alignedBarFillsAvailableWidthSoItsEdgesMatchTheMiniPlayer() {
+        // 360dp 屏 - 两侧 8dp = 344dp 可用；格宽均分后胶囊正好铺满
+        val available = 344.dp
+        val itemWidth = resolveMochiTabItemWidth(
+            availableWidth = available,
+            defaultItemWidth = 64.dp,
+            itemCount = 4,
+            fillAvailableWidth = true
+        )
+        assertEquals(84.dp, itemWidth)
+        assertEquals(
+            available,
+            mochiTabBarCapsuleWidth(
+                availableWidth = available,
+                itemWidth = itemWidth,
+                itemCount = 4
+            )
+        )
+    }
+
+    @Test
+    fun unalignedBarKeepsTheDefaultItemWidth() {
+        assertEquals(
+            64.dp,
+            resolveMochiTabItemWidth(
+                availableWidth = 371.dp,
+                defaultItemWidth = 64.dp,
+                itemCount = 4,
+                fillAvailableWidth = false
+            )
+        )
+    }
+
+    @Test
+    fun alignedBarSurvivesAnEmptyItemList() {
+        assertEquals(
+            64.dp,
+            resolveMochiTabItemWidth(
+                availableWidth = 371.dp,
+                defaultItemWidth = 64.dp,
+                itemCount = 0,
+                fillAvailableWidth = true
+            )
+        )
+    }
+
+    @Test
+    fun alignedPaddingMatchesTheMiniPlayerSideMargin() {
+        // 两条栏靠同一个常量齐边，改一边就等于两条一起改
+        assertEquals(
+            NeriMiniPlayerDefaults.MochiHorizontalPadding,
+            MochiAlignedBarHorizontalPadding
         )
     }
 

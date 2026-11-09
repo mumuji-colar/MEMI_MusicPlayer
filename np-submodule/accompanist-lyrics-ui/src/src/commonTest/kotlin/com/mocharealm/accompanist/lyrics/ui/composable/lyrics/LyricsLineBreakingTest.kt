@@ -380,12 +380,14 @@ class LyricsLineBreakingTest {
     // ---- 中文词边界：不要从词中间劈开 ----
 
     @Test
-    fun `breaking at a han word boundary is cheaper than breaking inside one`() {
+    fun `han word boundary is never pricier than breaking inside one`() {
         val atBoundary = wordAwareBreakScale(0, "你", 0, "一起", breakIsWordBoundary = true)
         val insideWord = wordAwareBreakScale(0, "一", 0, "起", breakIsWordBoundary = false)
+        // 拆词的真正代价是 DP 的固定加项（CJK_WORD_SPLIT_PENALTY_SYLLABLES），不挂在系数上：
+        // 系数只负责「词边界不额外加价」。固定加项的效果由下面的 balanced 用例守住。
         assertTrue(
-            "词边界应当比词内更便宜：boundary=$atBoundary, inside=$insideWord",
-            atBoundary < insideWord
+            "词边界不应比词内更贵：boundary=$atBoundary, inside=$insideWord",
+            atBoundary <= insideWord
         )
     }
 

@@ -452,6 +452,9 @@ class SettingsRepository(private val context: Context) {
     val nowPlayingAudioReactiveEnabledFlow: Flow<Boolean> =
         autoSettingsRepository.nowPlayingAudioReactiveEnabledFlow
 
+    val bottomBarAlignedWithMiniPlayerFlow: Flow<Boolean> =
+        autoSettingsRepository.bottomBarAlignedWithMiniPlayerFlow
+
     val nowPlayingWaveformMotionEnabledFlow: Flow<Boolean> =
         autoSettingsRepository.nowPlayingWaveformMotionEnabledFlow
 

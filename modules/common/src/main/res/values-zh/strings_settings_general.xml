@@ -40,6 +40,8 @@
     <string name="settings_auto_show_keyboard_desc">输入框出现时自动聚焦并尝试打开软键盘</string>
     <string name="settings_always_use_new_tab_style">始终使用新版 TAB 样式</string>
     <string name="settings_always_use_new_tab_style_desc">无背景图时也使用新版 TAB 样式</string>
+    <string name="settings_bottom_bar_aligned">底栏与播放条对齐</string>
+    <string name="settings_bottom_bar_aligned_desc">底栏与迷你播放条等宽、左右边缘对齐（浮起标签栏样式生效）</string>
     <string name="settings_home_card_ytmusic_guess_you_like_desc">控制“猜你喜欢”歌曲推荐</string>
     <string name="settings_home_card_ytmusic_daily_discover_desc">控制“每日发现”歌曲推荐</string>
     <string name="settings_home_card_ytmusic_more_recommendations_desc">控制更多 YouTube Music 推荐与歌单栏目</string>

@@ -585,6 +585,15 @@ object AutoSettingsSchema {
             icon = AutoSettingIcon.Tab
         )
 
+        @AutoSetting(order = 17)
+        val bottomBarAlignedWithMiniPlayer = autoSwitchSetting(
+            key = "bottom_bar_aligned_with_mini_player",
+            defaultValue = true,
+            titleRes = CoreCommonR.string.settings_bottom_bar_aligned,
+            descriptionRes = CoreCommonR.string.settings_bottom_bar_aligned_desc,
+            icon = AutoSettingIcon.Tab
+        )
+
         @AutoSetting(order = 25)
         val nowPlayingSongTitleMarqueeEnabled = autoSwitchSetting(
             key = "nowplaying_song_title_marquee_enabled",

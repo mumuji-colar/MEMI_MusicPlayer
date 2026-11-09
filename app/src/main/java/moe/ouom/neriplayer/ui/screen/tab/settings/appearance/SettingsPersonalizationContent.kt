@@ -379,6 +379,8 @@ internal fun SettingsPersonalizationControlsCard(
         .collectAsState(initial = true)
     val nowPlayingToolbarDockEnabled by autoSettingsRepository.nowPlayingToolbarDockEnabledFlow
         .collectAsState(initial = true)
+    val bottomBarAlignedWithMiniPlayer by autoSettingsRepository.bottomBarAlignedWithMiniPlayerFlow
+        .collectAsState(initial = true)
     val playbackControlLayoutPreferences by settingsRepository
         .playbackControlLayoutPreferencesFlow.collectAsState(
             initial = settingsRepository.defaultPlaybackControlLayoutPreferences
@@ -410,6 +412,20 @@ internal fun SettingsPersonalizationControlsCard(
             autoSettingsRepository = autoSettingsRepository,
             scope = scope,
             state = toolbarDockState,
+            highlightTargetId = highlightTargetId,
+            highlightPulse = highlightPulse,
+            onHighlightFinished = onHighlightFinished
+        )
+        PersonalizationSwitchItem(
+            setting = AutoSettingsMetadata.requireSetting(
+                AutoSettingsKeys.BOTTOM_BAR_ALIGNED_WITH_MINI_PLAYER
+            ),
+            checked = bottomBarAlignedWithMiniPlayer,
+            onCheckedChange = { enabled ->
+                scope.launch { autoSettingsRepository.setBottomBarAlignedWithMiniPlayer(enabled) }
+            },
+            enabled = true,
+            supportingContent = null,
             highlightTargetId = highlightTargetId,
             highlightPulse = highlightPulse,
             onHighlightFinished = onHighlightFinished

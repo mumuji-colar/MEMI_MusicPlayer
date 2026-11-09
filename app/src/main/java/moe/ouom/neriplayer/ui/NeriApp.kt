@@ -442,6 +442,7 @@ private fun NeriAppContent(
     val advancedBlurAvailable = isAdvancedGlassBackendSupported(Build.VERSION.SDK_INT)
     val effectiveAdvancedBlurEnabled = advancedBlurAvailable && advancedBlurEnabled
     val nowPlayingAudioReactiveEnabled by repo.nowPlayingAudioReactiveEnabledFlow.collectAsStateWithLifecycle(initialValue = true)
+    val bottomBarAlignedWithMiniPlayer by repo.bottomBarAlignedWithMiniPlayerFlow.collectAsStateWithLifecycle(initialValue = true)
     val nowPlayingWaveformMotionEnabled by repo.nowPlayingWaveformMotionEnabledFlow.collectAsStateWithLifecycle(initialValue = true)
     val lyricClickConfirmEnabled by repo.lyricClickConfirmEnabledFlow.collectAsStateWithLifecycle(initialValue = true)
     val nowPlayingDynamicBackgroundEnabled by repo.nowPlayingDynamicBackgroundEnabledFlow.collectAsStateWithLifecycle(initialValue = true)
@@ -1738,7 +1739,8 @@ private fun NeriAppContent(
                             ),
                             offlineMode = offlineMode,
                             alwaysUseNewTabStyle = true,
-                            backgroundImageUri = backgroundImageUri
+                            backgroundImageUri = backgroundImageUri,
+                            alignWithMiniPlayer = bottomBarAlignedWithMiniPlayer
                         ),
                         miniPlayer = AppMiniPlayerPresentation(
                             song = currentSong,

@@ -487,6 +487,7 @@ private val PersonalizationPlaybackInfoTargets = setOf(
 private val PersonalizationPlaybackControlTargets = setOf(
     "setting:nowplaying_keep_screen_on",
     "setting:nowplaying_toolbar_dock_enabled",
+    "setting:bottom_bar_aligned_with_mini_player",
     "setting:nowplaying_control_placement",
     "setting:nowplaying_control_size",
     "setting:lyrics_control_size"

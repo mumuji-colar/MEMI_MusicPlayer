@@ -126,6 +126,15 @@ import kotlin.time.Duration.Companion.milliseconds
 object NeriMiniPlayerDefaults {
     val Height = 64.dp
     val TabletHeight = 80.dp
+    /**
+     * 浮起播放条的左右留白。
+     *
+     * 底栏打开「与播放条对齐」时沿用同一个值，两条栏的左右边线才会重合；
+     * 改这里等于同时改两条栏，不要只改一边。
+     */
+    val MochiHorizontalPadding = 8.dp
+    /** Clean 风格播放条的左右留白，与 Clean 底栏的 16dp 对应。 */
+    val CleanHorizontalPadding = 16.dp
     internal val TabletProgressHeight = 12.dp
     internal val TabletProgressThickness = 4.dp
     internal val TabletMetadataVerticalPadding = 2.dp
@@ -876,7 +885,13 @@ fun NeriMiniPlayer(
             .fillMaxWidth()
             .height(if (useTabletControls) NeriMiniPlayerDefaults.TabletHeight else NeriMiniPlayerDefaults.Height)
             // aligned with the floating tab bar's side margins, with a small gap above it
-            .padding(horizontal = if (useTabletControls) 0.dp else if (cleanStyle) 16.dp else 8.dp)
+            .padding(
+                horizontal = when {
+                    useTabletControls -> 0.dp
+                    cleanStyle -> NeriMiniPlayerDefaults.CleanHorizontalPadding
+                    else -> NeriMiniPlayerDefaults.MochiHorizontalPadding
+                }
+            )
             .padding(bottom = if (cleanStyle && !useTabletControls) 6.dp else 0.dp)
             .onGloballyPositioned { coordinates ->
                 sharedCoverFlight?.reportMiniPlayerContainer(coordinates.boundsInWindow())

@@ -98,7 +98,9 @@ internal data class AppBottomBarPresentation(
     val showNowPlaying: Boolean,
     val offlineMode: Boolean,
     val alwaysUseNewTabStyle: Boolean,
-    val backgroundImageUri: String?
+    val backgroundImageUri: String?,
+    /** 底栏是否与迷你播放条同宽、左右齐边（设置里的「底栏与播放条对齐」） */
+    val alignWithMiniPlayer: Boolean = true
 ) {
     val hasCustomBackground: Boolean get() = backgroundImageUri != null
 }
@@ -339,6 +341,7 @@ private fun AppScaffoldBottomBar(
                     .testTag("appBottomNavigation")
                     .onSizeChanged { navigationBarHeightPx = it.height },
                 selectAlpha = selectAlpha,
+                alignWithMiniPlayer = bottomBar.alignWithMiniPlayer,
                 items = bottomBar.items,
                 currentDestination = bottomBar.currentDestination,
                 onItemSelected = { onMainTabSelected(it.route) }

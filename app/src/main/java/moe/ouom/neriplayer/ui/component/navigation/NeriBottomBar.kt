@@ -75,6 +75,7 @@ import moe.ouom.neriplayer.navigation.Destinations
 import moe.ouom.neriplayer.ui.effect.glass.AdvancedGlassRole
 import moe.ouom.neriplayer.ui.effect.glass.AdvancedGlassSurface
 import moe.ouom.neriplayer.ui.effect.glass.LocalAdvancedGlassController
+import moe.ouom.neriplayer.ui.component.playback.NeriMiniPlayerDefaults
 import moe.ouom.neriplayer.ui.haptic.performHapticFeedback
 import kotlinx.collections.immutable.toPersistentList
 import ui.feice.mochi.basic.MochiTabBar
@@ -86,6 +87,33 @@ import ui.feice.mochi.basic.MochiTabItem
  * 胶囊宽度 = 每格宽度 × 格数 + 两侧内缩，玻璃要按同一个尺寸铺在下面。
  */
 private val MochiTabCapsulePadding = 4.dp
+
+/** 浮起胶囊底栏默认的左右留白：比播放条窄一圈，两者宽度不齐。 */
+private val MochiBarHorizontalPadding = 20.dp
+
+/**
+ * 与迷你播放器对齐时底栏的左右留白。
+ *
+ * 直接沿用浮起样式下播放条的留白：底栏放宽到同一组边线，两条栏叠起来是一条竖直的列。
+ */
+internal val MochiAlignedBarHorizontalPadding = NeriMiniPlayerDefaults.MochiHorizontalPadding
+
+/**
+ * 底栏每一格的宽度。
+ *
+ * 对齐播放条时把可用宽度均分给各格（减去胶囊内缩），胶囊正好铺满可用宽度；
+ * 不对齐时沿用 Mochi 的默认格宽，格数少就按内容收窄。
+ */
+internal fun resolveMochiTabItemWidth(
+    availableWidth: Dp,
+    defaultItemWidth: Dp,
+    itemCount: Int,
+    fillAvailableWidth: Boolean
+): Dp {
+    if (!fillAvailableWidth || itemCount <= 0) return defaultItemWidth
+    val usableWidth = availableWidth - MochiTabCapsulePadding * 2
+    return (usableWidth / itemCount.toFloat()).coerceAtLeast(0.dp)
+}
 
 /**
  * Mochi 胶囊底板的宽度：格数少时按内容收窄，放不下时贴满可用宽度。
@@ -124,9 +152,11 @@ fun NeriBottomBar(
     currentDestination: NavDestination?,
     onItemSelected: (Destinations) -> Unit,
     modifier: Modifier = Modifier,
-    selectAlpha: Float = DEFAULT_BOTTOM_BAR_SELECTION_ALPHA
+    selectAlpha: Float = DEFAULT_BOTTOM_BAR_SELECTION_ALPHA,
+    alignWithMiniPlayer: Boolean = false
 ) {
     if (NeriDesign.isClean) {
+        // Clean 底栏本来就是 16dp 留白 + 满宽，和同风格的播放条天然对齐
         CleanFloatingTabBar(items, currentDestination, onItemSelected, modifier)
         return
     }
@@ -135,7 +165,8 @@ fun NeriBottomBar(
         items = items,
         currentDestination = currentDestination,
         onItemSelected = onItemSelected,
-        modifier = modifier
+        modifier = modifier,
+        alignWithMiniPlayer = alignWithMiniPlayer
     )
 }
 
@@ -144,13 +175,17 @@ fun NeriBottomBar(
  *
  * 标签、图标、跳转回调都跟原来一致，只是外观和手感换成 Mochi 的胶囊标签栏；
  * 选中态仍按 [isNeriNavigationDestinationSelected] 的层级判断，子页面里也能正确高亮。
+ *
+ * [alignWithMiniPlayer] 打开时把左右留白收到播放条的 8dp、并按可用宽度均分格宽，
+ * 让胶囊和上方的迷你播放器齐边；关闭时保持原先「20dp 留白 + 按内容收窄」的样子。
  */
 @Composable
 private fun MochiNavigationBar(
     items: List<Pair<Destinations, ImageVector>>,
     currentDestination: NavDestination?,
     onItemSelected: (Destinations) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    alignWithMiniPlayer: Boolean = false
 ) {
     if (items.isEmpty()) return
     val labels = items.map { stringResource(it.first.labelResId) }
@@ -188,19 +223,34 @@ private fun MochiNavigationBar(
     val capsuleColor = mochiColors.container
     BoxWithConstraints(
         modifier = modifier
-            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .padding(
+                horizontal = if (alignWithMiniPlayer) {
+                    MochiAlignedBarHorizontalPadding
+                } else {
+                    MochiBarHorizontalPadding
+                },
+                vertical = 8.dp
+            )
             // 窗口内边距放到外层：玻璃量到的可用宽度才和 MochiTabBar 内部的 maxPx 一致
             .windowInsetsPadding(MochiTabBarDefaults.windowInsets),
         contentAlignment = Alignment.TopCenter
     ) {
+        val itemWidth = resolveMochiTabItemWidth(
+            availableWidth = maxWidth,
+            defaultItemWidth = behavior.itemWidth,
+            itemCount = items.size,
+            fillAvailableWidth = alignWithMiniPlayer
+        )
+        // 对齐时把格宽喂回 Mochi，它内部的胶囊宽度公式才会跟着铺满
+        val barBehavior = if (alignWithMiniPlayer) behavior.copy(itemWidth = itemWidth) else behavior
         val capsuleWidth = mochiTabBarCapsuleWidth(
             availableWidth = maxWidth,
-            itemWidth = behavior.itemWidth,
+            itemWidth = itemWidth,
             itemCount = items.size
         )
         AdvancedGlassSurface(
             role = AdvancedGlassRole.BottomNavigation,
-            modifier = Modifier.width(capsuleWidth).height(behavior.height),
+            modifier = Modifier.width(capsuleWidth).height(barBehavior.height),
             shape = CircleShape,
             tintColor = capsuleColor,
             fallbackColor = capsuleColor,
@@ -214,7 +264,7 @@ private fun MochiNavigationBar(
             items = mochiItems,
             // 底板交给上面的玻璃画，这里只保留选中块、图标和融球
             colors = mochiColors.copy(container = Color.Transparent),
-            behavior = behavior,
+            behavior = barBehavior,
             // 内边距已由外层消费，再加一次会把胶囊顶离玻璃
             windowInsets = WindowInsets(0, 0, 0, 0)
         )
