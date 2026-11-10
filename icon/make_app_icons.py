@@ -137,9 +137,10 @@ def monochrome(art: Image.Image) -> Image.Image:
 
 
 def splash(art: Image.Image, size: int = 512) -> Image.Image:
+    # 保持 RGBA：转灰度+alpha 会让抗锯齿边缘残留一圈白边
     scaled = resize_art(art, size).convert("RGBA")
     scaled.putalpha(circle_mask(size))
-    return scaled.convert("LA")
+    return scaled
 
 
 def main() -> int:
