@@ -69,7 +69,7 @@ In accordance with GPL-3.0 section 5 ("carry prominent notices stating that you 
 
 - **Upstream**: [cwuom/NeriPlayer](https://github.com/cwuom/NeriPlayer) (GPL-3.0)
 - **This fork's source**: [mumuji-colar/MEMI_MusicPlayer](https://github.com/mumuji-colar/MEMI_MusicPlayer)
-- **Current version**: v1.20 (versionCode `2611201`)
+- **Current version**: v1.22 (versionCode `2612201`)
 - **Issues**: please report to [this fork's issue tracker](https://github.com/mumuji-colar/MEMI_MusicPlayer/issues);
   upstream-specific problems belong in the [original repository](https://github.com/cwuom/NeriPlayer/issues)
 

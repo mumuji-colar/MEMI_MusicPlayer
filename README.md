@@ -65,7 +65,7 @@
 
 - **原项目**：[cwuom/NeriPlayer](https://github.com/cwuom/NeriPlayer)（GPL-3.0）
 - **本项目源码**：[mumuji-colar/MEMI_MusicPlayer](https://github.com/mumuji-colar/MEMI_MusicPlayer)
-- **当前版本**：v1.20（versionCode `2611201`）
+- **当前版本**：v1.22（versionCode `2612201`）
 - **问题反馈**：请提交至[本项目 Issues](https://github.com/mumuji-colar/MEMI_MusicPlayer/issues)；
   原项目自身的问题请前往[原仓库](https://github.com/cwuom/NeriPlayer/issues)
 
