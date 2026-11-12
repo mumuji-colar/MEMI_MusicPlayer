@@ -22,6 +22,9 @@
 
 package moe.ouom.neriplayer.ui.startup
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,8 +38,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,6 +73,20 @@ internal fun StartupBrandSplash(
     } else {
         Color.Black.copy(alpha = 0.88f)
     }
+    // 从 95% 淡到 100%：系统启动图刚撤走时是纯底色，
+    // 直接「啪」一下出现图标会显得硬，这点透明度足够把出现变得柔和，又看不出在动画
+    val fade = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        fade.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = StartupBrandSplashDefaults.FadeInMillis.toInt(),
+                easing = FastOutSlowInEasing
+            )
+        )
+    }
+    val contentAlpha = StartupBrandSplashDefaults.FadeInStartAlpha +
+        (1f - StartupBrandSplashDefaults.FadeInStartAlpha) * fade.value
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -77,7 +97,9 @@ internal fun StartupBrandSplash(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             // 整体略上移：图标落在屏幕中心，应用名挂在下面，视觉重心不会偏下
-            modifier = Modifier.offset(y = StartupBrandSplashDefaults.ContentOffsetY)
+            modifier = Modifier
+                .offset(y = StartupBrandSplashDefaults.ContentOffsetY)
+                .alpha(contentAlpha)
         ) {
             Image(
                 painter = painterResource(AppR.drawable.ic_memi_splash),
@@ -127,4 +149,8 @@ internal object StartupBrandSplashDefaults {
 
     /** 品牌页最短停留时间；实测内容ready通常比这更慢，所以基本不额外拖慢启动 */
     const val MinDisplayMillis = 350L
+
+    /** 图标与应用名的淡入时长与起始透明度 */
+    const val FadeInMillis = 180L
+    const val FadeInStartAlpha = 0.95f
 }
