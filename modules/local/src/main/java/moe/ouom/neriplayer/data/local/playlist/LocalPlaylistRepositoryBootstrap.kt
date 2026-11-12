@@ -86,7 +86,13 @@ internal fun LocalPlaylistRepository.loadFromDisk() {
 
     val loadResult = readStoredPlaylists()
     if (roomStorageEnabled && roomStore != null && !loadResult.allowRoomPromotion) {
-        throw IOException("Legacy playlist storage could not be verified for Room migration")
+        // 旧存储校验不过时不要卡死初始化：继续以 JSON 为权威，只是不做 Room 迁移。
+        // 之前这里直接抛异常，导致歌单页永远“初始化失败”，新建和导入全都没法用。
+        roomStorageEnabled = false
+        NPLogger.w(
+            "LocalPlaylistRepo",
+            "Legacy playlist storage could not be verified; keep JSON authoritative"
+        )
     }
     val committedPlaylists = loadResult.playlists
     val committedDomainDigest = LocalPlaylistRoomStore.domainDigest(committedPlaylists)
@@ -153,7 +159,8 @@ internal fun LocalPlaylistRepository.readStoredPlaylists(): PlaylistLoadResult {
     val primaryText = runCatching(storage::readPrimary).getOrElse { error ->
         NPLogger.e("LocalPlaylistRepo", "Failed to read primary playlist storage", error)
         preserveBackupOnNextWrite = true
-        throw IOException("Legacy playlist primary storage is unreadable", error)
+        // 主文件读不出来时退到备份/空库，而不是让整个歌单功能报废
+        return recoverFromBackupOrEmpty(primaryWasCorrupt = true, allowEmptyMigrationWrite = true)
     }
     if (primaryText == null) {
         return recoverFromBackupOrEmpty(primaryWasCorrupt = false, allowEmptyMigrationWrite = true)
