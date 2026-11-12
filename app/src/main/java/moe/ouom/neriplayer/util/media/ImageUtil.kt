@@ -38,6 +38,9 @@ private const val DEFAULT_IMAGE_CROSSFADE_DURATION_MILLIS = 180
 // mini player artwork also supplies the expanded player's first frame
 internal const val PLAYBACK_COVER_BITMAP_MAX_DIMENSION_PX = 512
 
+/** 播放页那张大图单独放宽：512 在 1080p 上放大后会糊，迷你条仍用 512 省内存 */
+internal const val NOW_PLAYING_COVER_BITMAP_MAX_DIMENSION_PX = 1280
+
 /**
  * 创建支持离线缓存的图片请求
  */
