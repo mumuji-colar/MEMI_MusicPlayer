@@ -156,6 +156,7 @@ import moe.ouom.neriplayer.ui.component.lyrics.resolveLyricSeekPosition
 import moe.ouom.neriplayer.ui.viewmodel.NowPlayingViewModel
 import moe.ouom.neriplayer.data.model.NeteaseArtistSummary
 import moe.ouom.neriplayer.data.model.SongItem
+import moe.ouom.neriplayer.ui.util.highResCoverUrl
 import moe.ouom.neriplayer.ui.util.hasKnownEmptyLocalCover
 import moe.ouom.neriplayer.ui.viewmodel.tab.AlbumSummary
 import moe.ouom.neriplayer.ui.viewmodel.tab.PlaylistSummary
@@ -634,7 +635,8 @@ fun NowPlayingScreen(
         visualCoverSongKey = visualCoverSongKey,
         currentSongKey = coverSongKey
     )
-    val actualCoverUrl = currentCoverUrl
+    // 平台给的地址常带 300×300 参数，播放页这张大图要按 1080 取，否则放大就糊
+    val actualCoverUrl = currentCoverUrl?.let(::highResCoverUrl)
     val coverOwner = rememberNowPlayingCoverOwner()
     val coverSource = remember(
         currentCoverUrl, coverSongKey, coverSongKeyAliases,
