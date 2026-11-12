@@ -66,7 +66,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import moe.ouom.neriplayer.ui.component.overlay.DensityScaledAlertDialog as AlertDialog
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
@@ -163,6 +162,8 @@ import moe.ouom.neriplayer.ui.component.overlay.LocalOverlaySurfaceScale
 import moe.ouom.neriplayer.ui.component.overlay.LocalOverlayNavigationBarHidden
 import moe.ouom.neriplayer.ui.effect.glass.AdvancedGlassOverscrollFactory
 import moe.ouom.neriplayer.ui.feedback.AppFeedback
+import moe.ouom.neriplayer.ui.startup.StartupBrandSplash
+import moe.ouom.neriplayer.ui.startup.StartupBrandSplashDefaults
 import moe.ouom.neriplayer.ui.util.ClipboardCopyResult
 import moe.ouom.neriplayer.ui.util.copyPlainTextSafely
 import moe.ouom.neriplayer.ui.onboarding.StartupOnboardingScreen
@@ -687,8 +688,23 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
+                        // 系统启动图只放得下图标，这里让它让位给带应用名的品牌页。
+                        // 只在真正冷启动时出现：旋转、从后台回来（savedInstanceState 非空）不再插入。
+                        var brandSplashDone by remember {
+                            mutableStateOf(savedInstanceState != null)
+                        }
+                        LaunchedEffect(Unit) {
+                            if (brandSplashDone) return@LaunchedEffect
+                            // 先等一帧，确认品牌页已经画出来再撤系统启动图，中间不会露白
+                            withFrameNanos { }
+                            startupContentReady.set(true)
+                            delay(StartupBrandSplashDefaults.MinDisplayMillis.milliseconds)
+                            brandSplashDone = true
+                        }
+                        val displayedStage = if (brandSplashDone) stage else StartupStage.Loading
+
                         AnimatedContent(
-                            targetState = stage,
+                            targetState = displayedStage,
                             transitionSpec = {
                                 val enter = fadeIn(
                                     animationSpec = tween(420, easing = FastOutSlowInEasing)
@@ -729,16 +745,10 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 when (current) {
                                     StartupStage.Loading -> {
-                                        if (showStartupLoadingIndicator) {
-                                            Box(
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                CircularProgressIndicator()
-                                            }
-                                        } else {
-                                            Box(modifier = Modifier.fillMaxSize())
-                                        }
+                                        StartupBrandSplash(
+                                            isDark = useDark,
+                                            showLoadingIndicator = showStartupLoadingIndicator
+                                        )
                                     }
 
                                     StartupStage.Disclaimer -> {

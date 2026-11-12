@@ -9,6 +9,7 @@
     <style name="Theme.NeriPlayer" parent="Base.Theme.NeriPlayer" />
 
     <style name="Theme.NeriPlayer.Starting" parent="Theme.NeriPlayer">
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowBackground">#FFFFFFFF</item>
     </style>
 </resources>
