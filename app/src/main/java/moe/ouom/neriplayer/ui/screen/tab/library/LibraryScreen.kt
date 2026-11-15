@@ -251,6 +251,7 @@ fun LibraryScreen(
     onHotPlaylistClick: (PlaybackStatsPeriod) -> Unit = {},
     onNeteasePlaylistClick: (PlaylistSummary) -> Unit = {},
     onNeteaseAlbumClick: (AlbumSummary) -> Unit = {},
+    onNeteaseCloudClick: () -> Unit = {},
     onNeteaseArtistClick: (NeteaseArtistSummary) -> Unit = {},
     onBiliUploaderClick: (BiliUploaderSummary) -> Unit = {},
     onYouTubeMusicCreatorClick: (YouTubeMusicCreatorSummary) -> Unit = {},
@@ -488,6 +489,8 @@ fun LibraryScreen(
                             onCategoryChange = { selectedNeteaseCategory = it },
                             onPlaylistClick = onNeteasePlaylistClick,
                             onAlbumClick = onNeteaseAlbumClick,
+                            onCloudClick = onNeteaseCloudClick,
+                            showCloudEntry = ui.neteaseLoggedIn,
                             offlineMode = offlineMode
                         ) }
 
