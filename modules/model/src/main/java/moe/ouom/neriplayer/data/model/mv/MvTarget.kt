@@ -68,12 +68,14 @@ data class MvVariant(
  *
  * [variants] 按清晰度从高到低排列，切档位不用重新请求接口。
  * [headers] 是拉流时必须带上的请求头——B 站 CDN 按 UA 校验，网易云认 Referer。
+ * [notice] 是给用户的一句话提醒（例如「这支没有 MV，只能放静态封面版」），没有就不显示。
  */
 data class MvStream(
     val title: String,
     val variants: List<MvVariant>,
     val durationMs: Long? = null,
-    val headers: Map<String, String> = emptyMap()
+    val headers: Map<String, String> = emptyMap(),
+    val notice: String? = null
 ) {
     /** 默认档位：不超过 1080P 的最高一档；全是超高清或没有分辨率信息时退回第一档。 */
     fun defaultVariantIndex(): Int {

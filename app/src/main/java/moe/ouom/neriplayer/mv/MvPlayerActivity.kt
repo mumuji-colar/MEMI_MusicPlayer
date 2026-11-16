@@ -27,6 +27,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.SurfaceView
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -338,7 +339,12 @@ class MvPlayerActivity : ComponentActivity() {
         releasePlayer()
         variantIndex = 0
         urlIndex = 0
-        ui.update { it.copy(phase = MvPhase.Loading, message = "解析中…", qualities = emptyList()) }
+        // YouTube 音源多半是 art track，要多搜一次正式 MV，文案上说明一下
+        val loadingMessage = when (target.platform) {
+            MvPlatform.YOUTUBE -> "正在查找 MV…"
+            else -> "解析中…"
+        }
+        ui.update { it.copy(phase = MvPhase.Loading, message = loadingMessage, qualities = emptyList()) }
         lifecycleScope.launch {
             val result = runCatching { resolveMvStream(target) }
             result.onFailure { error ->
@@ -357,6 +363,7 @@ class MvPlayerActivity : ComponentActivity() {
         MvPlatform.NETEASE -> resolveNeteaseMvStream(AppContainer.neteaseClient, target)
         MvPlatform.YOUTUBE -> resolveYouTubeMvStream(
             AppContainer.youtubeMusicPlaybackRepository,
+            AppContainer.youtubeMusicClient,
             target
         )
     }
@@ -381,6 +388,9 @@ class MvPlayerActivity : ComponentActivity() {
             )
         }
         buildPlayer(resolved, variantIndex, 0L, true)
+        resolved.notice?.let { message ->
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun buildPlayer(
