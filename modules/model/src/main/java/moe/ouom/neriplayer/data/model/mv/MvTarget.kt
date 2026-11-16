@@ -47,18 +47,44 @@ data class MvTarget(
 ) : Parcelable
 
 /**
- * 解析完成、可以直接交给播放器的流信息。
+ * 一个可直接播放的清晰度档位。
  *
  * [audioUrls] 为空表示音画合一（B 站 durl / 网易云 mp4），不能再拼音轨。
+ * 同一首 MV 的不同档位共用 [MvStream.headers]。
+ */
+data class MvVariant(
+    val height: Int,
+    val label: String,
+    val videoUrls: List<String>,
+    val audioUrls: List<String> = emptyList(),
+    val codecLabel: String = ""
+)
+
+/**
+ * 解析完成、可以直接交给播放器的流信息。
+ *
+ * [variants] 按清晰度从高到低排列，切档位不用重新请求接口。
  * [headers] 是拉流时必须带上的请求头——B 站 CDN 按 UA 校验，网易云认 Referer。
  */
 data class MvStream(
     val title: String,
-    val videoUrls: List<String>,
-    val audioUrls: List<String> = emptyList(),
-    val width: Int = 0,
-    val height: Int = 0,
-    val codecLabel: String = "",
+    val variants: List<MvVariant>,
     val durationMs: Long? = null,
     val headers: Map<String, String> = emptyMap()
-)
+) {
+    /** 默认档位：不超过 1080P 的最高一档；全是超高清或没有分辨率信息时退回第一档。 */
+    fun defaultVariantIndex(): Int {
+        val index = variants.indexOfFirst { it.height in 1..1080 }
+        return if (index >= 0) index else 0
+    }
+
+    /** 按用户记住的高度挑档位，没有同高度就退到不高于它的最高一档。 */
+    fun variantIndexFor(preferredHeight: Int?): Int {
+        if (variants.isEmpty()) return -1
+        if (preferredHeight == null || preferredHeight <= 0) return defaultVariantIndex()
+        val exact = variants.indexOfFirst { it.height == preferredHeight }
+        if (exact >= 0) return exact
+        val lower = variants.indexOfFirst { it.height in 1..preferredHeight }
+        return if (lower >= 0) lower else variants.lastIndex
+    }
+}

@@ -18,6 +18,7 @@
 
 package moe.ouom.neriplayer.mv
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
@@ -36,26 +37,31 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,8 +73,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -82,10 +90,13 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import kotlin.math.max
+import kotlin.math.min
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -99,9 +110,31 @@ import moe.ouom.neriplayer.data.model.mv.MvStream
 import moe.ouom.neriplayer.data.model.mv.MvTarget
 import moe.ouom.neriplayer.platform.bilibili.playback.mv.resolveBiliMvStream
 import moe.ouom.neriplayer.platform.netease.mv.resolveNeteaseMvStream
+import moe.ouom.neriplayer.ui.theme.NeriMochiTheme
 import moe.ouom.neriplayer.util.format.formatDuration
+import ui.feice.mochi.basic.MochiSlider
+import ui.feice.mochi.basic.MochiSliderDefaults
 
 internal enum class MvPhase { Loading, Ready, Failed }
+
+/** 画面填充方式：真正的比例由视频自身决定，这里只决定多出来的空间怎么处理。 */
+internal enum class MvScaleMode(val storageValue: String, val label: String) {
+    /** 完整显示，留黑边。 */
+    Fit("fit", "适应屏幕"),
+
+    /** 铺满并裁掉溢出部分。 */
+    Crop("crop", "裁剪铺满"),
+
+    /** 拉伸铺满，不保持比例。 */
+    Fill("fill", "拉伸铺满");
+
+    companion object {
+        fun fromStorage(value: String?): MvScaleMode =
+            entries.firstOrNull { it.storageValue == value } ?: Fit
+    }
+}
+
+internal data class MvQualityOption(val height: Int, val label: String)
 
 internal data class MvUiState(
     val phase: MvPhase = MvPhase.Loading,
@@ -110,8 +143,36 @@ internal data class MvUiState(
     val subtitle: String = "",
     val isPlaying: Boolean = false,
     val positionMs: Long = 0L,
-    val durationMs: Long = 0L
+    val durationMs: Long = 0L,
+    val aspectRatio: Float = 0f,
+    val scaleMode: MvScaleMode = MvScaleMode.Fit,
+    val qualities: List<MvQualityOption> = emptyList(),
+    val selectedHeight: Int = 0,
+    val codecLabel: String = ""
 )
+
+/** MV 页自己的偏好：画面模式与上次选的清晰度，都跟当前账号无关，存在本地就行。 */
+internal object MvPlaybackPrefs {
+    private const val FILE_NAME = "mv_player_prefs"
+    private const val KEY_SCALE_MODE = "scale_mode"
+    private const val KEY_QUALITY_HEIGHT = "quality_height"
+
+    fun scaleMode(context: Context): MvScaleMode =
+        MvScaleMode.fromStorage(prefs(context).getString(KEY_SCALE_MODE, null))
+
+    fun setScaleMode(context: Context, mode: MvScaleMode) {
+        prefs(context).edit().putString(KEY_SCALE_MODE, mode.storageValue).apply()
+    }
+
+    fun qualityHeight(context: Context): Int = prefs(context).getInt(KEY_QUALITY_HEIGHT, 0)
+
+    fun setQualityHeight(context: Context, height: Int) {
+        prefs(context).edit().putInt(KEY_QUALITY_HEIGHT, height).apply()
+    }
+
+    private fun prefs(context: Context) =
+        context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)
+}
 
 /**
  * MV 全屏播放页。
@@ -128,7 +189,15 @@ class MvPlayerActivity : ComponentActivity() {
     private var resumeAfterExit = false
     private var progressJob: Job? = null
     private var stream: MvStream? = null
+
+    /** 当前档位下标（对应 [MvStream.variants]）。 */
+    private var variantIndex = 0
+
+    /** 当前档位里正在用的备用地址下标。 */
     private var urlIndex = 0
+
+    /** 用户上次选的清晰度，0 表示没选过。 */
+    private var preferredHeight = 0
 
     private val ui = MutableStateFlow(MvUiState())
 
@@ -145,25 +214,39 @@ class MvPlayerActivity : ComponentActivity() {
             return
         }
 
-        ui.update { it.copy(title = target.title, subtitle = target.artist) }
+        preferredHeight = MvPlaybackPrefs.qualityHeight(this)
+        ui.update {
+            it.copy(
+                title = target.title,
+                subtitle = target.artist,
+                scaleMode = MvPlaybackPrefs.scaleMode(this)
+            )
+        }
 
         // 进入 MV 前先让主播放器让位，避免两路音频打架
         resumeAfterExit = PlayerManager.isPlayingFlow.value
         if (resumeAfterExit) runCatching { PlayerManager.pause() }
 
         setContent {
-            MaterialTheme {
-                MvPlayerScreen(
-                    state = ui.collectAsStateWithLifecycle().value,
-                    onClose = { finish() },
-                    onTogglePlay = ::togglePlay,
-                    onSeek = ::seekTo,
-                    onRetry = { startPlayback(target) },
-                    onSurfaceReady = { view ->
-                        videoSurface = view
-                        player?.setVideoSurfaceView(view)
-                    }
-                )
+            // MV 页永远是纯黑底，这里给 Mochi 组件（进度条）一套深色主题，
+            // 别让它退回到默认浅色配色
+            val darkScheme = darkColorScheme()
+            MaterialTheme(colorScheme = darkScheme) {
+                NeriMochiTheme(colorScheme = darkScheme) {
+                    MvPlayerScreen(
+                        state = ui.collectAsStateWithLifecycle().value,
+                        onClose = { finish() },
+                        onTogglePlay = ::togglePlay,
+                        onSeek = ::seekTo,
+                        onRetry = { startPlayback(target) },
+                        onSelectQuality = ::selectQuality,
+                        onSelectScaleMode = ::setScaleMode,
+                        onSurfaceReady = { view ->
+                            videoSurface = view
+                            player?.setVideoSurfaceView(view)
+                        }
+                    )
+                }
             }
         }
 
@@ -192,8 +275,9 @@ class MvPlayerActivity : ComponentActivity() {
 
     private fun startPlayback(target: MvTarget) {
         releasePlayer()
+        variantIndex = 0
         urlIndex = 0
-        ui.update { it.copy(phase = MvPhase.Loading, message = "解析中…") }
+        ui.update { it.copy(phase = MvPhase.Loading, message = "解析中…", qualities = emptyList()) }
         lifecycleScope.launch {
             val result = runCatching { resolveMvStream(target) }
             result.onFailure { error ->
@@ -203,10 +287,7 @@ class MvPlayerActivity : ComponentActivity() {
                         message = error.message ?: "解析失败"
                     )
                 }
-            }.onSuccess { resolved ->
-                stream = resolved
-                buildPlayer(resolved, 0)
-            }
+            }.onSuccess { resolved -> applyStream(resolved) }
         }
     }
 
@@ -215,14 +296,42 @@ class MvPlayerActivity : ComponentActivity() {
         MvPlatform.NETEASE -> resolveNeteaseMvStream(AppContainer.neteaseClient, target)
     }
 
-    private fun buildPlayer(resolved: MvStream, index: Int) {
-        val videoUrl = resolved.videoUrls.getOrNull(index)
-        if (videoUrl == null) {
+    private fun applyStream(resolved: MvStream) {
+        if (resolved.variants.isEmpty()) {
+            ui.update { it.copy(phase = MvPhase.Failed, message = "没有可用的视频流") }
+            return
+        }
+        stream = resolved
+        variantIndex = resolved.variantIndexFor(preferredHeight)
+        urlIndex = 0
+        val variant = resolved.variants[variantIndex]
+        ui.update {
+            it.copy(
+                phase = MvPhase.Loading,
+                message = "加载中…",
+                qualities = resolved.variants.map { item -> MvQualityOption(item.height, item.label) },
+                selectedHeight = variant.height,
+                codecLabel = variant.codecLabel,
+                durationMs = resolved.durationMs ?: it.durationMs
+            )
+        }
+        buildPlayer(resolved, variantIndex, 0L, true)
+    }
+
+    private fun buildPlayer(
+        resolved: MvStream,
+        index: Int,
+        startPositionMs: Long,
+        autoPlay: Boolean
+    ) {
+        val variant = resolved.variants.getOrNull(index)
+        val videoUrl = variant?.videoUrls?.getOrNull(urlIndex) ?: variant?.videoUrls?.firstOrNull()
+        if (variant == null || videoUrl == null) {
             ui.update { it.copy(phase = MvPhase.Failed, message = "没有可用的视频流") }
             return
         }
         // 音轨数量可能与视频不一致，缺了就用第一条
-        val audioUrl = resolved.audioUrls.getOrNull(index) ?: resolved.audioUrls.firstOrNull()
+        val audioUrl = variant.audioUrls.getOrNull(urlIndex) ?: variant.audioUrls.firstOrNull()
 
         releasePlayer()
 
@@ -248,6 +357,13 @@ class MvPlayerActivity : ComponentActivity() {
                 true
             )
             addListener(object : Player.Listener {
+                override fun onVideoSizeChanged(videoSize: VideoSize) {
+                    val height = videoSize.height
+                    if (height <= 0 || videoSize.width <= 0) return
+                    val ratio = videoSize.width * videoSize.pixelWidthHeightRatio / height
+                    if (ratio > 0f) ui.update { it.copy(aspectRatio = ratio) }
+                }
+
                 override fun onPlaybackStateChanged(playbackState: Int) {
                     when (playbackState) {
                         Player.STATE_READY -> ui.update {
@@ -269,26 +385,35 @@ class MvPlayerActivity : ComponentActivity() {
                 }
 
                 override fun onPlayerError(error: PlaybackException) {
-                    tryNextSource(resolved, error)
+                    tryNextSource(resolved, index, currentPosition, isPlaying, error)
                 }
             })
             videoSurface?.let { setVideoSurfaceView(it) }
             setMediaSource(mediaSource)
+            if (startPositionMs > 0L) seekTo(startPositionMs)
             prepare()
-            playWhenReady = true
+            playWhenReady = autoPlay
         }
         startProgressLoop()
     }
 
-    /** PCDN 节点会抽风，dash 里每个流都带备用地址，失败就换一个再试。 */
-    private fun tryNextSource(resolved: MvStream, error: PlaybackException) {
-        val sourceCount = maxOf(resolved.videoUrls.size, resolved.audioUrls.size)
+    /** PCDN 节点会抽风，每条流都带备用地址，失败就换一个再试。 */
+    private fun tryNextSource(
+        resolved: MvStream,
+        index: Int,
+        positionMs: Long,
+        autoPlay: Boolean,
+        error: PlaybackException
+    ) {
+        val sourceCount = resolved.variants.getOrNull(index)?.videoUrls?.size ?: 0
         if (urlIndex + 1 < sourceCount) {
             urlIndex += 1
             ui.update { it.copy(phase = MvPhase.Loading, message = "换备用地址重试…") }
             // 不能在播放器回调栈里直接 release 自己，推到下一帧
             window.decorView.post {
-                if (!isFinishing && !isDestroyed) buildPlayer(resolved, urlIndex)
+                if (!isFinishing && !isDestroyed) {
+                    buildPlayer(resolved, index, positionMs, autoPlay)
+                }
             }
             return
         }
@@ -298,6 +423,34 @@ class MvPlayerActivity : ComponentActivity() {
                 message = "${error.errorCodeName} ${error.message.orEmpty().take(80)}".trim()
             )
         }
+    }
+
+    /** 切清晰度：同一首 MV 的档位在解析时就全拿到了，这里只换流、不重新请求。 */
+    private fun selectQuality(height: Int) {
+        val resolved = stream ?: return
+        val index = resolved.variants.indexOfFirst { it.height == height }
+        if (index < 0 || index == variantIndex) return
+        val position = player?.currentPosition ?: 0L
+        val playing = player?.isPlaying ?: true
+        preferredHeight = height
+        MvPlaybackPrefs.setQualityHeight(this, height)
+        variantIndex = index
+        urlIndex = 0
+        val variant = resolved.variants[index]
+        ui.update {
+            it.copy(
+                phase = MvPhase.Loading,
+                message = "切换清晰度…",
+                selectedHeight = variant.height,
+                codecLabel = variant.codecLabel
+            )
+        }
+        buildPlayer(resolved, index, position, playing)
+    }
+
+    private fun setScaleMode(mode: MvScaleMode) {
+        MvPlaybackPrefs.setScaleMode(this, mode)
+        ui.update { it.copy(scaleMode = mode) }
     }
 
     private fun startProgressLoop() {
@@ -356,14 +509,19 @@ private fun MvPlayerScreen(
     onTogglePlay: () -> Unit,
     onSeek: (Long) -> Unit,
     onRetry: () -> Unit,
+    onSelectQuality: (Int) -> Unit,
+    onSelectScaleMode: (MvScaleMode) -> Unit,
     onSurfaceReady: (SurfaceView) -> Unit
 ) {
     var controlsVisible by remember { mutableStateOf(true) }
+    var settingsVisible by remember { mutableStateOf(false) }
 
-    BackHandler(enabled = true, onBack = onClose)
+    BackHandler(enabled = true) {
+        if (settingsVisible) settingsVisible = false else onClose()
+    }
 
-    LaunchedEffect(controlsVisible, state.isPlaying, state.phase) {
-        if (controlsVisible && state.phase == MvPhase.Ready && state.isPlaying) {
+    LaunchedEffect(controlsVisible, settingsVisible, state.isPlaying, state.phase) {
+        if (controlsVisible && !settingsVisible && state.phase == MvPhase.Ready && state.isPlaying) {
             delay(3_200)
             controlsVisible = false
         }
@@ -376,14 +534,15 @@ private fun MvPlayerScreen(
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
-                ) { controlsVisible = !controlsVisible }
+                ) {
+                    if (settingsVisible) {
+                        settingsVisible = false
+                    } else {
+                        controlsVisible = !controlsVisible
+                    }
+                }
         ) {
-            AndroidView(
-                factory = { context ->
-                    SurfaceView(context).also(onSurfaceReady)
-                },
-                modifier = Modifier.fillMaxSize()
-            )
+            MvVideoLayer(state = state, onSurfaceReady = onSurfaceReady)
 
             if (state.phase == MvPhase.Loading) {
                 LoadingOverlay(state.message)
@@ -399,7 +558,16 @@ private fun MvPlayerScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 Box(Modifier.fillMaxSize()) {
-                    TopBar(state, onClose, Modifier.align(Alignment.TopCenter))
+                    TopBar(
+                        state = state,
+                        settingsOpen = settingsVisible,
+                        onSettings = {
+                            settingsVisible = !settingsVisible
+                            controlsVisible = true
+                        },
+                        onClose = onClose,
+                        modifier = Modifier.align(Alignment.TopCenter)
+                    )
                     if (state.phase == MvPhase.Ready) {
                         BottomBar(
                             state = state,
@@ -410,6 +578,65 @@ private fun MvPlayerScreen(
                     }
                 }
             }
+
+            AnimatedVisibility(
+                visible = settingsVisible,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 62.dp, end = 14.dp)
+            ) {
+                MvSettingsPanel(
+                    state = state,
+                    onSelectQuality = onSelectQuality,
+                    onSelectScaleMode = onSelectScaleMode
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 画面层：按 [MvUiState.scaleMode] 决定 SurfaceView 的实际尺寸。
+ *
+ * SurfaceView 的画面总是铺满自身，所以「适应」只需把尺寸算成视频比例，
+ * 「裁剪」则把尺寸放大到能盖住容器，再让外层裁掉溢出部分。
+ */
+@Composable
+private fun MvVideoLayer(state: MvUiState, onSurfaceReady: (SurfaceView) -> Unit) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val density = LocalDensity.current
+        val containerWidth = constraints.maxWidth.toFloat()
+        val containerHeight = constraints.maxHeight.toFloat()
+        val aspect = state.aspectRatio
+
+        val videoModifier = if (aspect <= 0f || state.scaleMode == MvScaleMode.Fill) {
+            Modifier.fillMaxSize()
+        } else {
+            val fitWidth = min(containerWidth, containerHeight * aspect)
+            val fitHeight = fitWidth / aspect
+            val scale = if (state.scaleMode == MvScaleMode.Crop) {
+                max(containerWidth / fitWidth, containerHeight / fitHeight)
+            } else {
+                1f
+            }
+            Modifier.requiredSize(
+                width = with(density) { (fitWidth * scale).toDp() },
+                height = with(density) { (fitHeight * scale).toDp() }
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clipToBounds(),
+            contentAlignment = Alignment.Center
+        ) {
+            AndroidView(
+                factory = { context -> SurfaceView(context).also(onSurfaceReady) },
+                modifier = videoModifier
+            )
         }
     }
 }
@@ -461,7 +688,13 @@ private fun ErrorOverlay(message: String, onRetry: () -> Unit, onClose: () -> Un
 }
 
 @Composable
-private fun TopBar(state: MvUiState, onClose: () -> Unit, modifier: Modifier = Modifier) {
+private fun TopBar(
+    state: MvUiState,
+    settingsOpen: Boolean,
+    onSettings: () -> Unit,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -481,9 +714,14 @@ private fun TopBar(state: MvUiState, onClose: () -> Unit, modifier: Modifier = M
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            if (state.subtitle.isNotBlank()) {
+            val meta = listOfNotNull(
+                state.subtitle.takeIf { it.isNotBlank() },
+                state.qualities.firstOrNull { it.height == state.selectedHeight }?.label,
+                state.codecLabel.takeIf { it.isNotBlank() }
+            ).joinToString(" · ")
+            if (meta.isNotBlank()) {
                 Text(
-                    text = state.subtitle,
+                    text = meta,
                     color = Color.White.copy(alpha = 0.62f),
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 1,
@@ -491,9 +729,108 @@ private fun TopBar(state: MvUiState, onClose: () -> Unit, modifier: Modifier = M
                 )
             }
         }
+        IconButton(onClick = onSettings) {
+            Icon(
+                imageVector = Icons.Filled.Settings,
+                contentDescription = "MV 设置",
+                tint = if (settingsOpen) Color.White else Color.White.copy(alpha = 0.82f)
+            )
+        }
         IconButton(onClick = onClose) {
             Icon(Icons.Filled.Close, contentDescription = "关闭 MV", tint = Color.White)
         }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MvSettingsPanel(
+    state: MvUiState,
+    onSelectQuality: (Int) -> Unit,
+    onSelectScaleMode: (MvScaleMode) -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(20.dp),
+        color = Color.Black.copy(alpha = 0.82f),
+        modifier = Modifier
+            .width(300.dp)
+            // 吃掉点击，别让「点面板空白处」当成点画面而把面板关掉
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {}
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "清晰度",
+                color = Color.White.copy(alpha = 0.6f),
+                style = MaterialTheme.typography.labelMedium
+            )
+            if (state.qualities.isEmpty()) {
+                Text(
+                    text = "解析中…",
+                    color = Color.White.copy(alpha = 0.5f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            } else {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    state.qualities.forEach { option ->
+                        MvOptionChip(
+                            text = option.label,
+                            selected = option.height == state.selectedHeight,
+                            onClick = { onSelectQuality(option.height) }
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = "画面",
+                color = Color.White.copy(alpha = 0.6f),
+                style = MaterialTheme.typography.labelMedium
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                MvScaleMode.entries.forEach { mode ->
+                    MvOptionChip(
+                        text = mode.label,
+                        selected = mode == state.scaleMode,
+                        onClick = { onSelectScaleMode(mode) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MvOptionChip(text: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        shape = RoundedCornerShape(50),
+        color = if (selected) Color.White.copy(alpha = 0.92f) else Color.White.copy(alpha = 0.12f),
+        modifier = Modifier
+            .clipToBounds()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
+    ) {
+        Text(
+            text = text,
+            color = if (selected) Color.Black.copy(alpha = 0.88f) else Color.White.copy(alpha = 0.86f),
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 7.dp)
+        )
     }
 }
 
@@ -542,7 +879,8 @@ private fun BottomBar(
                 color = Color.White.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.labelMedium
             )
-            Slider(
+            // 胶囊轨道 + 胶囊滑块，和 App 其他页面的 Mochi 滑块保持同一套手感
+            MochiSlider(
                 value = sliderValue,
                 onValueChange = { dragPosition = it },
                 onValueChangeFinished = {
@@ -550,14 +888,16 @@ private fun BottomBar(
                     dragPosition = null
                 },
                 valueRange = 0f..duration.toFloat(),
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.White,
-                    activeTrackColor = Color.White.copy(alpha = 0.9f),
-                    inactiveTrackColor = Color.White.copy(alpha = 0.28f)
+                colors = MochiSliderDefaults.colors(
+                    Color.White.copy(alpha = 0.92f),
+                    Color.White.copy(alpha = 0.26f),
+                    Color.White,
+                    Color.Black.copy(alpha = 0.35f),
+                    Color.White.copy(alpha = 0.5f)
                 ),
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 12.dp)
             )
             Text(
                 text = formatDuration(duration),

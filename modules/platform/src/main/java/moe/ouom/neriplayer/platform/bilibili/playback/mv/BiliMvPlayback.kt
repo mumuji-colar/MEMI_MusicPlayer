@@ -24,6 +24,7 @@ import moe.ouom.neriplayer.data.model.bilibili.playback.DashStream
 import moe.ouom.neriplayer.data.model.bilibili.playback.PlayOptions
 import moe.ouom.neriplayer.data.model.mv.MvPlatform
 import moe.ouom.neriplayer.data.model.mv.MvStream
+import moe.ouom.neriplayer.data.model.mv.MvVariant
 import moe.ouom.neriplayer.data.model.mv.MvTarget
 import moe.ouom.neriplayer.platform.bilibili.api.client.BiliClient
 import moe.ouom.neriplayer.platform.bilibili.playback.resolver.biliBvidOrNull
@@ -77,31 +78,64 @@ suspend fun resolveBiliMvStream(client: BiliClient, target: MvTarget): MvStream 
 
     val video = selectMvVideoStream(info.dashVideo)
     if (video != null) {
-        val audio = selectMvAudioStream(info.dashAudio)
-        return MvStream(
-            title = target.title.ifBlank { bvid },
-            videoUrls = listOf(video.baseUrl) + video.backupUrls,
-            audioUrls = audio?.let { listOf(it.baseUrl) + it.backupUrls }.orEmpty(),
-            width = video.width,
-            height = video.height,
-            codecLabel = mvCodecLabel(video.codecid),
-            durationMs = info.timeLengthMs,
-            headers = BILI_MV_HEADERS
-        )
+        val variants = buildBiliVariants(info.dashVideo, info.dashAudio)
+        if (variants.isNotEmpty()) {
+            return MvStream(
+                title = target.title.ifBlank { bvid },
+                variants = variants,
+                durationMs = info.timeLengthMs,
+                headers = BILI_MV_HEADERS
+            )
+        }
     }
 
     // 少数老视频只有 durl，音画已经合在一起
     val progressive = info.durl.firstOrNull() ?: throw IOException("没有可用的视频流")
     return MvStream(
         title = target.title.ifBlank { bvid },
-        videoUrls = listOf(progressive.url) + progressive.backupUrls,
-        audioUrls = emptyList(),
-        width = 0,
-        height = 0,
-        codecLabel = "MP4",
+        variants = listOf(
+            MvVariant(
+                height = 0,
+                label = "原始",
+                videoUrls = listOf(progressive.url) + progressive.backupUrls,
+                codecLabel = "MP4"
+            )
+        ),
         durationMs = progressive.lengthMs,
         headers = BILI_MV_HEADERS
     )
+}
+
+/**
+ * 把 dash 里的视频流按分辨率分组，每组取一条可播的（优先 H.264），
+ * 这样切清晰度是本地换流，不用再打一次 playurl。
+ */
+internal fun buildBiliVariants(
+    videos: List<DashStream>,
+    audios: List<DashStream>
+): List<MvVariant> {
+    if (videos.isEmpty()) return emptyList()
+    val audio = selectMvAudioStream(audios)
+    val audioUrls = audio?.let { listOf(it.baseUrl) + it.backupUrls }.orEmpty()
+    return videos
+        .filter { it.height > 0 }
+        .groupBy { it.height }
+        .map { (height, group) -> height to pickVideoForHeight(group) }
+        .sortedByDescending { it.first }
+        .map { (height, stream) ->
+            MvVariant(
+                height = height,
+                label = "${height}P",
+                videoUrls = listOf(stream.baseUrl) + stream.backupUrls,
+                audioUrls = audioUrls,
+                codecLabel = mvCodecLabel(stream.codecid)
+            )
+        }
+}
+
+private fun pickVideoForHeight(group: List<DashStream>): DashStream {
+    val avc = group.filter { it.codecid == AVC_CODEC_ID }
+    return (avc.ifEmpty { group }).maxByOrNull { it.bandwidth } ?: group.first()
 }
 
 /**

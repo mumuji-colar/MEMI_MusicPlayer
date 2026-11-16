@@ -34,6 +34,7 @@ import moe.ouom.neriplayer.data.model.SongItem
 import moe.ouom.neriplayer.data.model.mv.MvPlatform
 import moe.ouom.neriplayer.data.model.mv.MvStream
 import moe.ouom.neriplayer.data.model.mv.MvTarget
+import moe.ouom.neriplayer.data.model.mv.MvVariant
 import moe.ouom.neriplayer.data.model.netease.crypto.CryptoMode
 import moe.ouom.neriplayer.platform.netease.api.client.NeteaseClient
 import org.json.JSONObject
@@ -178,22 +179,31 @@ suspend fun resolveNeteaseMvStream(client: NeteaseClient, target: MvTarget): MvS
     val data = json.optJSONObject("data") ?: throw IOException("MV 不存在或已下架")
 
     val brs = data.optJSONObject("brs")
-    val picked = brs?.keys()?.asSequence()
+    val variants = brs?.keys()?.asSequence()
         ?.mapNotNull { key ->
             val url = brs.optString(key).orEmpty()
             val quality = key.toIntOrNull()
-            if (quality == null || url.isBlank()) null else quality to url
+            if (quality == null || quality <= 0 || url.isBlank()) {
+                null
+            } else {
+                MvVariant(
+                    height = quality,
+                    label = "${quality}P",
+                    videoUrls = listOf(url.toHttpsUrl()),
+                    codecLabel = "MP4"
+                )
+            }
         }
-        ?.maxByOrNull { it.first }
-    if (picked == null) {
+        ?.sortedByDescending { it.height }
+        ?.toList()
+        .orEmpty()
+    if (variants.isEmpty()) {
         throw IOException("这首 MV 没有可用地址（可能需要会员或已下架）")
     }
 
     return MvStream(
         title = target.title.ifBlank { data.optString("name") },
-        videoUrls = listOf(picked.second.toHttpsUrl()),
-        audioUrls = emptyList(),
-        codecLabel = "MP4 · ${picked.first}P",
+        variants = variants,
         durationMs = data.optLong("duration", 0L).takeIf { it > 0L },
         headers = NETEASE_MV_HEADERS
     )
