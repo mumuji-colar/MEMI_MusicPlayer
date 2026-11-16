@@ -21,8 +21,10 @@ package moe.ouom.neriplayer.mv
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.SurfaceView
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -66,6 +68,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -97,6 +100,7 @@ import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -111,10 +115,10 @@ import moe.ouom.neriplayer.data.model.mv.MvStream
 import moe.ouom.neriplayer.data.model.mv.MvTarget
 import moe.ouom.neriplayer.platform.bilibili.playback.mv.resolveBiliMvStream
 import moe.ouom.neriplayer.platform.netease.mv.resolveNeteaseMvStream
+import moe.ouom.neriplayer.ui.component.playback.LocalWaveformWaveMotionEnabled
+import moe.ouom.neriplayer.ui.component.playback.WaveformSlider
 import moe.ouom.neriplayer.ui.theme.NeriMochiTheme
 import moe.ouom.neriplayer.util.format.formatDuration
-import ui.feice.mochi.basic.MochiSlider
-import ui.feice.mochi.basic.MochiSliderDefaults
 
 internal enum class MvPhase { Loading, Ready, Failed }
 
@@ -200,6 +204,8 @@ class MvPlayerActivity : ComponentActivity() {
     /** 用户上次选的清晰度，0 表示没选过。 */
     private var preferredHeight = 0
 
+    private val audioManager by lazy { getSystemService(AudioManager::class.java) }
+
     private val ui = MutableStateFlow(MvUiState())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -228,25 +234,41 @@ class MvPlayerActivity : ComponentActivity() {
         resumeAfterExit = PlayerManager.isPlayingFlow.value
         if (resumeAfterExit) runCatching { PlayerManager.pause() }
 
+        // 竖滑手势的起点值：只在进入时读一次，之后由手势自己推进
+        val initialBrightness = currentBrightnessFraction()
+        val initialVolume = currentVolumeFraction()
+
         setContent {
-            // MV 页永远是纯黑底，这里给 Mochi 组件（进度条）一套深色主题，
+            // 进度条要跟歌曲页同一套手感，连「波浪动不动」也跟着设置走
+            val waveformMotion by AppContainer.settingsRepo
+                .nowPlayingWaveformMotionEnabledFlow
+                .collectAsStateWithLifecycle(initialValue = true)
+            // MV 页永远是纯黑底，这里给 Mochi 组件一套深色主题，
             // 别让它退回到默认浅色配色
             val darkScheme = darkColorScheme()
             MaterialTheme(colorScheme = darkScheme) {
                 NeriMochiTheme(colorScheme = darkScheme) {
-                    MvPlayerScreen(
-                        state = ui.collectAsStateWithLifecycle().value,
-                        onClose = { finish() },
-                        onTogglePlay = ::togglePlay,
-                        onSeek = ::seekTo,
-                        onRetry = { startPlayback(target) },
-                        onSelectQuality = ::selectQuality,
-                        onSelectScaleMode = ::setScaleMode,
-                        onSurfaceReady = { view ->
-                            videoSurface = view
-                            player?.setVideoSurfaceView(view)
-                        }
-                    )
+                    CompositionLocalProvider(
+                        LocalWaveformWaveMotionEnabled provides waveformMotion
+                    ) {
+                        MvPlayerScreen(
+                            state = ui.collectAsStateWithLifecycle().value,
+                            onClose = { finish() },
+                            onTogglePlay = ::togglePlay,
+                            onSeek = ::seekTo,
+                            onRetry = { startPlayback(target) },
+                            onSelectQuality = ::selectQuality,
+                            onSelectScaleMode = ::setScaleMode,
+                            initialBrightness = initialBrightness,
+                            initialVolume = initialVolume,
+                            onBrightnessChange = ::applyBrightness,
+                            onVolumeChange = ::applyVolume,
+                            onSurfaceReady = { view ->
+                                videoSurface = view
+                                player?.setVideoSurfaceView(view)
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -272,6 +294,43 @@ class MvPlayerActivity : ComponentActivity() {
             systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
+    }
+
+    /**
+     * 窗口亮度；还没被手势改过时返回 -1，此时读系统亮度当作起点。
+     * 只改窗口属性就够——退出 MV 后窗口消失，系统亮度不受影响。
+     */
+    private fun currentBrightnessFraction(): Float {
+        val windowBrightness = window.attributes.screenBrightness
+        if (windowBrightness >= 0f) return windowBrightness.coerceIn(MIN_BRIGHTNESS, 1f)
+        // 系统亮度多半落在 0..255；个别 ROM 用 0..max 的自定义量程，
+        // 拿不到 max 时按 255 折算，误差只影响首次拖动的手感
+        val current = runCatching {
+            Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS)
+        }.getOrDefault((SYSTEM_BRIGHTNESS_MAX * 0.6f).roundToInt())
+        return (current.toFloat() / SYSTEM_BRIGHTNESS_MAX).coerceIn(MIN_BRIGHTNESS, 1f)
+    }
+
+    private fun applyBrightness(fraction: Float) {
+        val attributes = window.attributes
+        attributes.screenBrightness = fraction.coerceIn(MIN_BRIGHTNESS, 1f)
+        window.attributes = attributes
+    }
+
+    private fun currentVolumeFraction(): Float {
+        val max = audioManager
+            .getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+            .coerceAtLeast(1)
+        val current = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        return (current.toFloat() / max).coerceIn(0f, 1f)
+    }
+
+    private fun applyVolume(fraction: Float) {
+        val max = audioManager
+            .getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+            .coerceAtLeast(1)
+        val index = (fraction.coerceIn(0f, 1f) * max).roundToInt().coerceIn(0, max)
+        runCatching { audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, index, 0) }
     }
 
     private fun startPlayback(target: MvTarget) {
@@ -501,6 +560,12 @@ class MvPlayerActivity : ComponentActivity() {
 
     companion object {
         internal const val EXTRA_TARGET = "moe.ouom.neriplayer.mv.extra.TARGET"
+
+        /** 亮度下限：再低就是黑屏，留一点可视范围。 */
+        private const val MIN_BRIGHTNESS = 0.02f
+
+        /** 少数机型拿不到 SCREEN_BRIGHTNESS_MAX，退回传统 0..255。 */
+        private const val SYSTEM_BRIGHTNESS_MAX = 255
     }
 }
 
@@ -513,10 +578,16 @@ private fun MvPlayerScreen(
     onRetry: () -> Unit,
     onSelectQuality: (Int) -> Unit,
     onSelectScaleMode: (MvScaleMode) -> Unit,
+    initialBrightness: Float,
+    initialVolume: Float,
+    onBrightnessChange: (Float) -> Unit,
+    onVolumeChange: (Float) -> Unit,
     onSurfaceReady: (SurfaceView) -> Unit
 ) {
     var controlsVisible by remember { mutableStateOf(true) }
     var settingsVisible by remember { mutableStateOf(false) }
+    // 竖滑手势的即时提示，停手后由 LaunchedEffect 自动收起
+    var gestureHud by remember { mutableStateOf<MvGestureHud?>(null) }
     // 响度均衡是全局开关，和设置页读同一份状态，MV 里改完设置页也跟着变
     val soundState by PlayerManager.playbackSoundStateFlow.collectAsStateWithLifecycle()
 
@@ -528,6 +599,13 @@ private fun MvPlayerScreen(
         if (controlsVisible && !settingsVisible && state.phase == MvPhase.Ready && state.isPlaying) {
             delay(3_200)
             controlsVisible = false
+        }
+    }
+
+    LaunchedEffect(gestureHud) {
+        if (gestureHud != null) {
+            delay(700)
+            gestureHud = null
         }
     }
 
@@ -547,6 +625,22 @@ private fun MvPlayerScreen(
                 }
         ) {
             MvVideoLayer(state = state, onSurfaceReady = onSurfaceReady)
+
+            // 左半边竖滑调亮度，右半边调音量；水平拖动仍然交给底部进度条
+            MvGestureLayer(
+                brightness = initialBrightness,
+                volume = initialVolume,
+                onBrightnessChange = onBrightnessChange,
+                onVolumeChange = onVolumeChange,
+                onHudChange = { gestureHud = it }
+            )
+
+            gestureHud?.let { hud ->
+                MvGestureHudView(
+                    hud = hud,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
 
             if (state.phase == MvPhase.Loading) {
                 LoadingOverlay(state.message)
@@ -909,24 +1003,24 @@ private fun BottomBar(
                 color = Color.White.copy(alpha = 0.8f),
                 style = MaterialTheme.typography.labelMedium
             )
-            // 胶囊轨道 + 胶囊滑块，和 App 其他页面的 Mochi 滑块保持同一套手感
-            MochiSlider(
-                value = sliderValue,
-                onValueChange = { dragPosition = it },
+            // 与歌曲播放页同一套波浪进度条 + 小圆点，手感和视觉统一
+            WaveformSlider(
+                value = (sliderValue / duration.toFloat()).coerceIn(0f, 1f),
+                onValueChange = { fraction ->
+                    dragPosition = (fraction * duration.toFloat()).coerceIn(0f, duration.toFloat())
+                },
                 onValueChangeFinished = {
                     dragPosition?.let { onSeek(it.toLong()) }
                     dragPosition = null
                 },
-                valueRange = 0f..duration.toFloat(),
-                colors = MochiSliderDefaults.colors(
-                    Color.White.copy(alpha = 0.92f),
-                    Color.White.copy(alpha = 0.26f),
-                    Color.White,
-                    Color.Black.copy(alpha = 0.35f),
-                    Color.White.copy(alpha = 0.5f)
-                ),
+                onValueChangeCanceled = { dragPosition = null },
+                isPlaying = state.isPlaying,
+                isProgressPreviewing = dragPosition != null,
+                activeTint = Color.White,
+                durationMs = state.durationMs,
                 modifier = Modifier
                     .weight(1f)
+                    .height(30.dp)
                     .padding(horizontal = 12.dp)
             )
             Text(

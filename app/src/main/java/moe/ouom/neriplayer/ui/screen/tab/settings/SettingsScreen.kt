@@ -354,8 +354,6 @@ internal fun SettingsScreen(
                     topAppBarState = homeTopAppBarState,
                     title = settingsHomeTitle,
                     searchBar = { SettingsHomeSearchBar(navigation) },
-                    // 结果还在时不能把输入框收走，否则改不了关键词
-                    forceSearchBarVisible = navigation.searchQueryState.value.isNotBlank(),
                     content = settingsHomeContent
                 )
             },
