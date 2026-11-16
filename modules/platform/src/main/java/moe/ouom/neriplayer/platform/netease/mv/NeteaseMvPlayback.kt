@@ -34,6 +34,7 @@ import moe.ouom.neriplayer.data.model.SongItem
 import moe.ouom.neriplayer.data.model.mv.MvPlatform
 import moe.ouom.neriplayer.data.model.mv.MvStream
 import moe.ouom.neriplayer.data.model.mv.MvTarget
+import moe.ouom.neriplayer.data.model.netease.crypto.CryptoMode
 import moe.ouom.neriplayer.platform.netease.api.client.NeteaseClient
 import org.json.JSONObject
 
@@ -152,44 +153,50 @@ class NeteaseMvRepository(
 /**
  * 取网易云 MV 的播放地址。
  *
- * `mv/url` 的 `r` 参数是清晰度档位：1080 需要会员，720/480 一般登录即可。
- * 逐档回退，第一档拿到地址就用，全空说明这首 MV 受版权/会员限制。
+ * 老的 `mv/url` 接口已经下线（任何清晰度档位都返回 `code=404 接口未找到`），
+ * 现在地址直接放在 `mv/detail` 的 `brs` 字段里：档位 → 直链，
+ * 未登录一般给 240/480，会员账号会多出 720/1080，所以取最高档即可。
+ *
+ * 拿到的直链是带 `wsSecret/wsTime` 的签名地址，音画合一（mp4/H.264），
+ * CDN 不校验 Referer，但带上更稳。
  */
 suspend fun resolveNeteaseMvStream(client: NeteaseClient, target: MvTarget): MvStream {
     val mvid = target.videoId.trim().toLongOrNull() ?: throw IOException("缺少 MV 编号")
-    var lastNote = ""
-    for (quality in listOf(1080, 720, 480)) {
-        val raw = withContext(Dispatchers.IO) {
-            runCatching { client.callWeApi("/mv/url", mvUrlParams(mvid, quality)) }.getOrNull()
-        }
-        if (raw.isNullOrBlank()) {
-            lastNote = "r=$quality 无响应"
-            continue
-        }
-        val json = runCatching { JSONObject(raw) }.getOrNull()
-        if (json == null) {
-            lastNote = "r=$quality 响应无法解析"
-            continue
-        }
-        val data = json.optJSONObject("data")
-        val url = data?.optString("url").orEmpty()
-        if (url.isNotBlank()) {
-            return MvStream(
-                title = target.title,
-                videoUrls = listOf(url.toHttpsUrl()),
-                audioUrls = emptyList(),
-                codecLabel = "MP4 · ${quality}P",
-                headers = NETEASE_MV_HEADERS
-            )
-        }
-        lastNote = "r=$quality code=${json.optInt("code", -1)}"
+    val raw = withContext(Dispatchers.IO) {
+        client.request(
+            url = "https://music.163.com/api/mv/detail",
+            params = mapOf("id" to mvid.toString()),
+            mode = CryptoMode.API,
+            method = "GET"
+        )
     }
-    throw IOException("没有可用的 MV 地址（$lastNote）")
-}
+    if (raw.isBlank()) throw IOException("MV 详情无响应")
+    val json = runCatching { JSONObject(raw) }
+        .getOrElse { throw IOException("MV 详情无法解析") }
+    val code = json.optInt("code", -1)
+    if (code != 200) throw IOException("MV 详情请求失败（code=$code）")
+    val data = json.optJSONObject("data") ?: throw IOException("MV 不存在或已下架")
 
-private fun mvUrlParams(mvid: Long, quality: Int): Map<String, Any> = mapOf(
-    "id" to mvid.toString(),
-    "r" to quality.toString()
-)
+    val brs = data.optJSONObject("brs")
+    val picked = brs?.keys()?.asSequence()
+        ?.mapNotNull { key ->
+            val url = brs.optString(key).orEmpty()
+            val quality = key.toIntOrNull()
+            if (quality == null || url.isBlank()) null else quality to url
+        }
+        ?.maxByOrNull { it.first }
+    if (picked == null) {
+        throw IOException("这首 MV 没有可用地址（可能需要会员或已下架）")
+    }
+
+    return MvStream(
+        title = target.title.ifBlank { data.optString("name") },
+        videoUrls = listOf(picked.second.toHttpsUrl()),
+        audioUrls = emptyList(),
+        codecLabel = "MP4 · ${picked.first}P",
+        durationMs = data.optLong("duration", 0L).takeIf { it > 0L },
+        headers = NETEASE_MV_HEADERS
+    )
+}
 
 private fun String.toHttpsUrl(): String = replaceFirst("http://", "https://")
