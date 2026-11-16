@@ -333,7 +333,8 @@ object YouTubeMusicPlaybackParser {
         return resolver.resolveStreamingUrl(url)
     }
 
-    private suspend fun resolveFormatUrlAsync(
+    /** MV 页解析视频轨时复用同一套签名/限速处理，因此对模块内可见。 */
+    internal suspend fun resolveFormatUrlAsync(
         format: JSONObject,
         cipherResolver: YouTubeStreamingCipherResolver?
     ): String {

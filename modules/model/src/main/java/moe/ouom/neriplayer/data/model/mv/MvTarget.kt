@@ -27,7 +27,10 @@ enum class MvPlatform {
     BILIBILI,
 
     /** 网易云：歌曲详情里的 `mv` 字段指向独立的 MV 资源。 */
-    NETEASE
+    NETEASE,
+
+    /** YouTube Music：歌曲本身就是一支视频，MV 就是同一支视频的画面。 */
+    YOUTUBE
 }
 
 /**

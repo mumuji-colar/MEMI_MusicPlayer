@@ -26,12 +26,14 @@ import moe.ouom.neriplayer.data.model.SongItem
 import moe.ouom.neriplayer.data.model.mv.MvTarget
 import moe.ouom.neriplayer.platform.bilibili.playback.mv.biliMvTargetOrNull
 import moe.ouom.neriplayer.platform.netease.mv.neteaseMvTargetOrNull
+import moe.ouom.neriplayer.platform.youtube.mv.youtubeMvTargetOrNull
 
 /** MV 入口的统一判定与跳转，避免各处重复拼 Intent。 */
 object MvLauncher {
 
-    /** B 站音源自带 BV 号，同步就能判定；网易云要现查 mv id，走 [resolveTarget]。 */
-    fun targetOf(song: SongItem?): MvTarget? = song?.biliMvTargetOrNull()
+    /** B 站音源自带 BV 号、YouTube 音源自带视频 id，同步就能判定；网易云要现查 mv id，走 [resolveTarget]。 */
+    fun targetOf(song: SongItem?): MvTarget? =
+        song?.biliMvTargetOrNull() ?: song?.youtubeMvTargetOrNull()
 
     fun canOpenMv(song: SongItem?): Boolean = targetOf(song) != null
 

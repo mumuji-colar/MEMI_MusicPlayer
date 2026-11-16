@@ -115,6 +115,7 @@ import moe.ouom.neriplayer.data.model.mv.MvStream
 import moe.ouom.neriplayer.data.model.mv.MvTarget
 import moe.ouom.neriplayer.platform.bilibili.playback.mv.resolveBiliMvStream
 import moe.ouom.neriplayer.platform.netease.mv.resolveNeteaseMvStream
+import moe.ouom.neriplayer.platform.youtube.mv.resolveYouTubeMvStream
 import moe.ouom.neriplayer.ui.component.playback.LocalWaveformWaveMotionEnabled
 import moe.ouom.neriplayer.ui.component.playback.WaveformSlider
 import moe.ouom.neriplayer.ui.theme.NeriMochiTheme
@@ -354,6 +355,10 @@ class MvPlayerActivity : ComponentActivity() {
     private suspend fun resolveMvStream(target: MvTarget): MvStream = when (target.platform) {
         MvPlatform.BILIBILI -> resolveBiliMvStream(AppContainer.biliClient, target)
         MvPlatform.NETEASE -> resolveNeteaseMvStream(AppContainer.neteaseClient, target)
+        MvPlatform.YOUTUBE -> resolveYouTubeMvStream(
+            AppContainer.youtubeMusicPlaybackRepository,
+            target
+        )
     }
 
     private fun applyStream(resolved: MvStream) {

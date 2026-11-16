@@ -63,6 +63,8 @@ import moe.ouom.neriplayer.data.model.youtube.playback.YouTubePlaybackBootstrap
 import moe.ouom.neriplayer.data.model.youtube.playback.YouTubePlaybackSourcePreference
 import moe.ouom.neriplayer.data.model.youtube.playback.YouTubePlayerClientProfile
 import moe.ouom.neriplayer.data.model.youtube.playback.YouTubePlayerPlayabilityStatus
+import moe.ouom.neriplayer.data.model.youtube.playback.YouTubePlayableVideo
+import moe.ouom.neriplayer.data.model.youtube.playback.YouTubePlayableVideoVariant
 import moe.ouom.neriplayer.platform.youtube.api.playback.YouTubePlayableAudioSelection
 import moe.ouom.neriplayer.platform.youtube.api.playback.YouTubePlaybackStreamAccessOwner
 import moe.ouom.neriplayer.platform.youtube.api.playback.isTrustedYouTubeDirectUrlForStrictRecovery
@@ -73,6 +75,7 @@ import moe.ouom.neriplayer.platform.youtube.api.protocol.YOUTUBE_PLAYER_TV_CLIEN
 import moe.ouom.neriplayer.platform.youtube.api.protocol.YOUTUBE_PLAYER_WEB_REMIX_CLIENT_NAME
 import moe.ouom.neriplayer.platform.youtube.api.protocol.YouTubeMusicLocaleResolver
 import moe.ouom.neriplayer.platform.youtube.api.protocol.YouTubeMusicPlaybackParser
+import moe.ouom.neriplayer.platform.youtube.api.protocol.YouTubeMvStreamParser
 import moe.ouom.neriplayer.platform.youtube.api.protocol.YouTubePlayerRequestComposer
 import moe.ouom.neriplayer.platform.youtube.api.protocol.isYouTubeGoogleVideoStream
 import moe.ouom.neriplayer.platform.youtube.api.protocol.playerClientProfiles
@@ -82,6 +85,7 @@ import moe.ouom.neriplayer.platform.youtube.api.transport.YOUTUBE_ERROR_RESPONSE
 import moe.ouom.neriplayer.platform.youtube.api.transport.YOUTUBE_TEXT_RESPONSE_MAX_BYTES
 import moe.ouom.neriplayer.platform.youtube.api.transport.YouTubeHttpStatusException
 import moe.ouom.neriplayer.platform.youtube.api.transport.buildBootstrapAuthFingerprint
+import moe.ouom.neriplayer.platform.youtube.api.transport.buildYouTubeStreamRequestHeaders
 import moe.ouom.neriplayer.platform.youtube.api.transport.parseRetryAfterMs
 import moe.ouom.neriplayer.platform.youtube.api.transport.rateLimitBackoffMs
 import moe.ouom.neriplayer.platform.youtube.api.transport.readErrorPreviewWithLimit
@@ -404,6 +408,189 @@ class YouTubeMusicPlaybackRepository(
             )
         }
     }
+
+    /**
+     * 解析 MV 用的视频流（视频轨 + 一条音轨）。
+     *
+     * 走的还是音乐播放那套 player 请求、签名解算与 GVS PoToken，只是把
+     * adaptiveFormats 里的视频轨也解出来——音画分离，交给播放器合成。
+     * 档位一次性解析完，MV 页切清晰度就不用再打接口。
+     */
+    suspend fun getBestPlayableVideo(
+        videoId: String,
+        forceRefresh: Boolean = false
+    ): YouTubePlayableVideo? = withContext(Dispatchers.IO) {
+        if (!YouTubeFeatureGate.isEnabled()) {
+            throw YouTubeFeatureDisabledException()
+        }
+        if (videoId.isBlank()) return@withContext null
+        val auth = authProvider().normalized()
+        syncAuthBoundCachesIfNeeded(auth)
+        val sourcePreference = resolveYouTubePlaybackSource()
+        var bootstrap = bootstrap(auth)
+        var lastError: IOException? = null
+
+        repeat(PLAYER_REQUEST_MAX_ATTEMPTS) { attempt ->
+            val profiles = selectUsablePlayerClients(
+                profiles = playerClientProfiles(
+                    sourcePreference = sourcePreference,
+                    isAuthenticated = auth.hasLoginCookies()
+                ),
+                clientName = { it.clientName },
+                isSuppressed = PlayerClientHealthTracker::isSuppressed
+            )
+            for (profile in profiles) {
+                try {
+                    val root = postPlayerRequest(
+                        videoId = videoId,
+                        auth = auth,
+                        bootstrap = bootstrap,
+                        profile = profile,
+                        requestLocale = currentPlayerRequestLocale()
+                    )
+                    val playability = YouTubeMusicPlaybackParser.parsePlayabilityStatus(root)
+                    if (!playability.status.equals("OK", ignoreCase = true)) {
+                        lastError = IOException(
+                            "${profile.clientName}: ${playability.status} ${playability.reason}".trim()
+                        )
+                        continue
+                    }
+                    val cipherResolver = if (profile.includeSignatureTimestamp) {
+                        createStreamingCipherResolver(videoId = videoId, playerJsUrl = bootstrap.playerJsUrl)
+                    } else {
+                        null
+                    }
+                    val resolved = buildPlayableVideo(
+                        root = root,
+                        cipherResolver = cipherResolver,
+                        profile = profile,
+                        videoId = videoId,
+                        auth = auth,
+                        bootstrap = bootstrap,
+                        forceRefresh = forceRefresh || attempt > 0
+                    )
+                    if (resolved == null) {
+                        lastError = IOException("视频流不可用")
+                        continue
+                    }
+                    PlayerClientHealthTracker.recordSuccess(profile.clientName)
+                    NPLogger.d(
+                        "YouTubeMusicPlayback",
+                        "mv video resolve ok: videoId=$videoId, client=${profile.clientName}, " +
+                            "variants=${resolved.variants.size}, hasAudio=${resolved.audioUrl != null}"
+                    )
+                    return@withContext resolved
+                } catch (error: Exception) {
+                    if (error is CancellationException) throw error
+                    lastError = error as? IOException ?: IOException(error)
+                    NPLogger.w(
+                        "YouTubeMusicPlayback",
+                        "mv video resolve failed: videoId=$videoId, client=${profile.clientName}, error=${error.message}"
+                    )
+                }
+            }
+            if (attempt < PLAYER_REQUEST_MAX_ATTEMPTS - 1) {
+                bootstrap = bootstrap(auth, forceRefresh = true)
+            }
+        }
+        throw lastError ?: IOException("YouTube 视频流解析失败")
+    }
+
+    private suspend fun buildPlayableVideo(
+        root: JSONObject,
+        cipherResolver: YouTubeStreamingCipherResolver?,
+        profile: YouTubePlayerClientProfile,
+        videoId: String,
+        auth: YouTubeAuthBundle,
+        bootstrap: YouTubePlaybackBootstrap,
+        forceRefresh: Boolean
+    ): YouTubePlayableVideo? {
+        val tracks = YouTubeMvStreamParser.resolveVideoTracks(root, cipherResolver)
+        val title = YouTubeMvStreamParser.parseTitle(root)
+        val durationMs = YouTubeMvStreamParser.parseDurationMs(root)
+
+        // adaptive 轨要单独拼音轨；拼不上就退回音画合一的 progressive
+        val audioUrl = YouTubeMvStreamParser.resolveAudioUrl(root, cipherResolver)
+        if (tracks.isNotEmpty() && audioUrl != null) {
+            val variants = tracks.mapNotNull { track ->
+                attachStreamPoToken(
+                    url = track.url,
+                    profile = profile,
+                    videoId = videoId,
+                    auth = auth,
+                    bootstrap = bootstrap,
+                    forceRefresh = forceRefresh
+                )?.let { playableUrl ->
+                    YouTubePlayableVideoVariant(
+                        height = track.height,
+                        videoUrl = playableUrl,
+                        codecLabel = track.codecLabel
+                    )
+                }
+            }
+            val signedAudioUrl = attachStreamPoToken(
+                url = audioUrl,
+                profile = profile,
+                videoId = videoId,
+                auth = auth,
+                bootstrap = bootstrap,
+                forceRefresh = forceRefresh
+            )
+            if (variants.isNotEmpty() && signedAudioUrl != null) {
+                return YouTubePlayableVideo(
+                    title = title,
+                    durationMs = durationMs,
+                    variants = variants,
+                    audioUrl = signedAudioUrl,
+                    headers = auth.buildYouTubeStreamRequestHeaders(
+                        streamUrl = variants.first().videoUrl
+                    )
+                )
+            }
+        }
+
+        val muxed = YouTubeMvStreamParser.resolveMuxedTrack(root, cipherResolver) ?: return null
+        val muxedUrl = attachStreamPoToken(
+            url = muxed.url,
+            profile = profile,
+            videoId = videoId,
+            auth = auth,
+            bootstrap = bootstrap,
+            forceRefresh = forceRefresh
+        ) ?: return null
+        return YouTubePlayableVideo(
+            title = title,
+            durationMs = durationMs,
+            variants = listOf(
+                YouTubePlayableVideoVariant(
+                    height = muxed.height,
+                    videoUrl = muxedUrl,
+                    codecLabel = muxed.codecLabel
+                )
+            ),
+            audioUrl = null,
+            headers = auth.buildYouTubeStreamRequestHeaders(streamUrl = muxedUrl)
+        )
+    }
+
+    private suspend fun attachStreamPoToken(
+        url: String,
+        profile: YouTubePlayerClientProfile,
+        videoId: String,
+        auth: YouTubeAuthBundle,
+        bootstrap: YouTubePlaybackBootstrap,
+        forceRefresh: Boolean
+    ): String? = streamAccessOwner.maybeAttachGvsPoToken(
+        playableAudio = YouTubePlayableAudio(url = url),
+        profile = profile,
+        videoId = videoId,
+        auth = auth,
+        bootstrap = bootstrap,
+        forceRefresh = forceRefresh,
+        prefetchedPoToken = null,
+        allowBlockingAcquisition = true,
+        allowUnverifiedDirectFallback = true
+    )?.url
 
     suspend fun prefetchPlayableAudioUrl(
         videoId: String,
