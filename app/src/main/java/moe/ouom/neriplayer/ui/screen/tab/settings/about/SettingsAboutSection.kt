@@ -51,6 +51,7 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material.icons.outlined.Verified
@@ -73,6 +74,7 @@ import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import moe.ouom.neriplayer.BuildConfig
+import moe.ouom.neriplayer.mv.MvDemoActivity
 import moe.ouom.neriplayer.common.R as CoreCommonR
 import moe.ouom.neriplayer.ui.screen.tab.settings.component.settingsItemClickable
 import moe.ouom.neriplayer.util.format.convertTimestampToDate
@@ -111,6 +113,9 @@ internal fun SettingsAboutContent(
     SettingsSpecialThanksItem()
     SettingsSourceCodeItem()
     SettingsOpenSourceLicenseItem(onClick = { showLicenseDialog = true })
+    if (devModeEnabled) {
+        SettingsMvDemoItem()
+    }
 
     if (showLicenseDialog) {
         OpenSourceLicenseDialog(onDismiss = { showLicenseDialog = false })
@@ -290,6 +295,29 @@ private fun SettingsOpenSourceLicenseItem(onClick: () -> Unit) {
             Text(stringResource(AppR.string.about_open_source_license_desc))
         },
         modifier = androidx.compose.ui.Modifier.settingsItemClickable { onClick() },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+    )
+}
+
+/** 调试模式下可见：MV 播放验证页的入口，正式版不出现。 */
+@Composable
+private fun SettingsMvDemoItem() {
+    val context = LocalContext.current
+    ListItem(
+        leadingContent = {
+            Icon(
+                imageVector = Icons.Outlined.PlayArrow,
+                contentDescription = stringResource(AppR.string.about_mv_demo),
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+        },
+        headlineContent = { Text(stringResource(AppR.string.about_mv_demo)) },
+        supportingContent = { Text(stringResource(AppR.string.about_mv_demo_desc)) },
+        modifier = Modifier.settingsItemClickable {
+            runCatching {
+                context.startActivity(Intent(context, MvDemoActivity::class.java))
+            }
+        },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
     )
 }

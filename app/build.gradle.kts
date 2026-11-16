@@ -101,7 +101,7 @@ android {
         // 正式版独立包名：与旧版音理音理互不影响，可并存安装
         applicationId = "com.mmc.merimusicplayer"
         // 正式版固定版本信息（v1.22.1 / 2612202）
-        versionCode = 2612202
+        versionCode = 2612203
         versionName = "1.22.1"
         val inviteScheme = "neriplayer"
         manifestPlaceholders["listenTogetherInviteScheme"] = inviteScheme

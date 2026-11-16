@@ -31,7 +31,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -49,13 +48,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -78,6 +79,7 @@ import java.util.concurrent.TimeUnit
 class MvDemoActivity : ComponentActivity() {
 
     private var player: ExoPlayer? = null
+    private var videoSurface: SurfaceView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +92,10 @@ class MvDemoActivity : ComponentActivity() {
                     MvDemoScreen(
                         onPlay = ::play,
                         onRelease = { releasePlayer() },
-                        attachSurface = { view -> player?.setVideoSurfaceView(view) }
+                        attachSurface = { view ->
+                            videoSurface = view
+                            player?.setVideoSurfaceView(view)
+                        }
                     )
                 }
             }
@@ -114,8 +119,7 @@ class MvDemoActivity : ComponentActivity() {
 
     private fun play(bvid: String, onStatus: (String) -> Unit) {
         releasePlayer()
-        val scope = CoroutineScope(Dispatchers.Main)
-        scope.launch {
+        lifecycleScope.launch {
             onStatus("解析中…")
             val result = withContext(Dispatchers.IO) { runCatching { resolve(bvid) } }
             result.onFailure { error ->
@@ -144,6 +148,21 @@ class MvDemoActivity : ComponentActivity() {
                 } ?: videoSource
 
                 player = ExoPlayer.Builder(this@MvDemoActivity).build().apply {
+                    addListener(object : Player.Listener {
+                        override fun onPlaybackStateChanged(playbackState: Int) {
+                            if (playbackState == Player.STATE_READY) {
+                                onStatus("播放中 · ${info.width}×${info.height}")
+                            }
+                        }
+
+                        override fun onPlayerError(error: PlaybackException) {
+                            onStatus(
+                                "播放失败：${error.errorCodeName}" +
+                                    " ${error.message.orEmpty().take(80)}"
+                            )
+                        }
+                    })
+                    videoSurface?.let { setVideoSurfaceView(it) }
                     setMediaSource(mediaSource)
                     prepare()
                     playWhenReady = true
@@ -233,7 +252,7 @@ private fun MvDemoScreen(
     attachSurface: (SurfaceView) -> Unit
 ) {
     var bvid by remember { mutableStateOf("BV1GJ411x7h7") }
-    var status by remember { mutableStateOf("输入 BV 号后点解析") }
+    var status by remember { mutableStateOf("验证页：填 BV 号 → 解析播放（默认值可直接试）") }
 
     Column(
         modifier = Modifier
@@ -264,7 +283,7 @@ private fun MvDemoScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f / 9f)
+                .weight(1f)
         )
         DisposableEffect(Unit) {
             onDispose { onRelease() }
