@@ -105,6 +105,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import moe.ouom.neriplayer.core.di.AppContainer
 import moe.ouom.neriplayer.core.player.PlayerManager
+import moe.ouom.neriplayer.core.player.engine.MvRenderersFactory
 import moe.ouom.neriplayer.data.model.mv.MvPlatform
 import moe.ouom.neriplayer.data.model.mv.MvStream
 import moe.ouom.neriplayer.data.model.mv.MvTarget
@@ -348,7 +349,8 @@ class MvPlayerActivity : ComponentActivity() {
             videoSource
         }
 
-        player = ExoPlayer.Builder(this).build().apply {
+        // 用带音量处理的渲染器工厂，让响度均衡/声道平衡在 MV 里也生效
+        player = ExoPlayer.Builder(this, MvRenderersFactory(this)).build().apply {
             setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -515,6 +517,8 @@ private fun MvPlayerScreen(
 ) {
     var controlsVisible by remember { mutableStateOf(true) }
     var settingsVisible by remember { mutableStateOf(false) }
+    // 响度均衡是全局开关，和设置页读同一份状态，MV 里改完设置页也跟着变
+    val soundState by PlayerManager.playbackSoundStateFlow.collectAsStateWithLifecycle()
 
     BackHandler(enabled = true) {
         if (settingsVisible) settingsVisible = false else onClose()
@@ -589,6 +593,12 @@ private fun MvPlayerScreen(
             ) {
                 MvSettingsPanel(
                     state = state,
+                    normalizationEnabled = soundState.volumeNormalizationEnabled,
+                    onToggleNormalization = {
+                        PlayerManager.setPlaybackVolumeNormalizationEnabled(
+                            !soundState.volumeNormalizationEnabled
+                        )
+                    },
                     onSelectQuality = onSelectQuality,
                     onSelectScaleMode = onSelectScaleMode
                 )
@@ -746,6 +756,8 @@ private fun TopBar(
 @Composable
 private fun MvSettingsPanel(
     state: MvUiState,
+    normalizationEnabled: Boolean,
+    onToggleNormalization: () -> Unit,
     onSelectQuality: (Int) -> Unit,
     onSelectScaleMode: (MvScaleMode) -> Unit
 ) {
@@ -807,6 +819,24 @@ private fun MvSettingsPanel(
                         onClick = { onSelectScaleMode(mode) }
                     )
                 }
+            }
+
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = "音量",
+                color = Color.White.copy(alpha = 0.6f),
+                style = MaterialTheme.typography.labelMedium
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // 与「设置 → 播放 → 响度均衡」是同一个开关，这里只是就近提供入口
+                MvOptionChip(
+                    text = if (normalizationEnabled) "响度均衡 开" else "响度均衡 关",
+                    selected = normalizationEnabled,
+                    onClick = onToggleNormalization
+                )
             }
         }
     }
