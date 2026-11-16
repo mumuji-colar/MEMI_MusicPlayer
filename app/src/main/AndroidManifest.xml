@@ -207,6 +207,11 @@
             android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
             android:theme="@style/Theme.NeriPlayer" />
+            <activity
+            android:name=".mv.BiliMvPlayerActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:theme="@style/Theme.NeriPlayer" />
 
 </application>
 

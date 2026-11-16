@@ -15,6 +15,9 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -35,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -43,6 +47,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import moe.ouom.neriplayer.common.R as CoreCommonR
 import moe.ouom.neriplayer.data.model.SongItem
+import moe.ouom.neriplayer.data.model.bilibili.mv.BiliMvTarget
+import moe.ouom.neriplayer.mv.BiliMvLauncher
+import moe.ouom.neriplayer.ui.component.common.BiliMvBadge
 import moe.ouom.neriplayer.data.local.media.displayArtist
 import moe.ouom.neriplayer.data.local.media.displayName
 import moe.ouom.neriplayer.ui.component.playback.NowPlayingSongTitle
@@ -130,13 +137,16 @@ internal fun NowPlayingTrackIdentity(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onArtistClick: () -> Unit,
-    layout: NowPlayingTrackIdentityLayout = NowPlayingTrackIdentityLayout.Expanded
+    layout: NowPlayingTrackIdentityLayout = NowPlayingTrackIdentityLayout.Expanded,
+    mvSong: SongItem? = null
 ) {
     val clipboard = LocalClipboard.current
     val clipboardScope = rememberCoroutineScope()
     val owner = remember { NowPlayingTrackIdentityOwner() }
     owner.bindCopyContext(clipboard, clipboardScope)
     val presentation = resolveNowPlayingTrackIdentityPresentation(layout, MaterialTheme.typography)
+    // 只有 B 站音源才谈得上「有 MV」，非 B 站歌曲这里恒为 null，入口自然不出现
+    val mvTarget = remember(mvSong) { BiliMvLauncher.targetOf(mvSong) }
     AnimatedVisibility(
         visible = visible,
         modifier = presentation.modifier,
@@ -151,7 +161,7 @@ internal fun NowPlayingTrackIdentity(
             )
             NowPlayingTrackArtist(
                 display.artist, sharedTransitionScope, animatedVisibilityScope,
-                onArtistClick, owner, presentation.artistStyle
+                onArtistClick, owner, presentation.artistStyle, mvTarget
             )
         }
     }
@@ -197,21 +207,29 @@ private fun NowPlayingTrackArtist(
     animatedVisibilityScope: AnimatedVisibilityScope,
     onArtistClick: () -> Unit,
     owner: NowPlayingTrackIdentityOwner,
-    artistStyle: TextStyle
+    artistStyle: TextStyle,
+    mvTarget: BiliMvTarget? = null
 ) {
-    Box {
-        Text(
-            text = displayArtist.orEmpty(),
-            style = artistStyle,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .nowPlayingArtistSharedModifier(sharedTransitionScope, animatedVisibilityScope)
-                .clip(RoundedCornerShape(8.dp))
-                .combinedClickable(onClick = onArtistClick, onLongClick = owner.openArtistMenuAction)
-        )
-        NowPlayingArtistCopyMenu(displayArtist, owner)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.weight(1f, fill = false)) {
+            Text(
+                text = displayArtist.orEmpty(),
+                style = artistStyle,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .nowPlayingArtistSharedModifier(sharedTransitionScope, animatedVisibilityScope)
+                    .clip(RoundedCornerShape(8.dp))
+                    .combinedClickable(onClick = onArtistClick, onLongClick = owner.openArtistMenuAction)
+            )
+            NowPlayingArtistCopyMenu(displayArtist, owner)
+        }
+        if (mvTarget != null) {
+            val context = LocalContext.current
+            Spacer(Modifier.width(6.dp))
+            BiliMvBadge(onClick = { BiliMvLauncher.open(context, mvTarget) })
+        }
     }
 }
 

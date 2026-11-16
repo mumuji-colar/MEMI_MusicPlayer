@@ -20,6 +20,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import moe.ouom.neriplayer.data.local.media.displayArtist
 import moe.ouom.neriplayer.data.local.media.displayName
 import moe.ouom.neriplayer.data.model.SongItem
+import moe.ouom.neriplayer.mv.BiliMvLauncher
+import moe.ouom.neriplayer.ui.component.common.BiliMvBadge
 import moe.ouom.neriplayer.ui.component.download.SongDownloadSubtitle
 import moe.ouom.neriplayer.ui.haptic.performHapticFeedback
 import moe.ouom.neriplayer.ui.screen.playlist.LocalPlaylistSongArtwork
@@ -62,6 +65,8 @@ internal fun PlaylistModernSongRow(
     trailing: @Composable RowScope.() -> Unit
 ) {
     val context = LocalContext.current
+    // B 站音源的歌曲本身就带 MV，这里只做标识，不拦截行的点击
+    val hasMv = remember(song) { BiliMvLauncher.canOpenMv(song) }
     val rowContainerColor = if (selectionMode && selected) {
         MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f)
     } else Color.Transparent
@@ -98,13 +103,20 @@ internal fun PlaylistModernSongRow(
                 )
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(
-                        song.displayName(),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = playlistModernListPrimaryContentColor()
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            song.displayName(),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = playlistModernListPrimaryContentColor(),
+                            modifier = Modifier.weight(1f, fill = false)
+                        )
+                        if (hasMv) {
+                            Spacer(Modifier.width(6.dp))
+                            BiliMvBadge()
+                        }
+                    }
                     if (compact) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             SongDownloadSubtitle(

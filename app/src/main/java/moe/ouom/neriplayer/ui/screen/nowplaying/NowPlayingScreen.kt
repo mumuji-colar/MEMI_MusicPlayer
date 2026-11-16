@@ -1612,7 +1612,8 @@ fun NowPlayingScreen(
                                     sharedTransitionScope = this@SharedTransitionLayout,
                                     animatedVisibilityScope = this@AnimatedContent,
                                     onArtistClick = openCurrentArtist,
-                                    layout = coverPagePresentation.trackIdentityLayout
+                                    layout = coverPagePresentation.trackIdentityLayout,
+                                    mvSong = currentSong
                                 )
                             }
                             val trackIdentity: @Composable (Boolean) -> Unit = { compact ->
@@ -1628,7 +1629,8 @@ fun NowPlayingScreen(
                                         NowPlayingTrackIdentityLayout.Compact
                                     } else {
                                         NowPlayingTrackIdentityLayout.Expanded
-                                    }
+                                    },
+                                    mvSong = currentSong
                                 )
                             }
                             val coverToolbar: @Composable (Boolean) -> Unit = { compactHeight ->
