@@ -239,9 +239,13 @@ class MvDemoActivity : ComponentActivity() {
     }
 
     companion object {
+        /**
+         * 必须用桌面 UA：playurl 返回的 CDN 地址带 `platform=pc`，节点会按 UA 校验，
+         * 移动端 UA（含 "Mobile"）直接 403 openresty 页，表现就是 ERROR_CODE_IO_BAD_HTTP_STATUS。
+         */
         private const val UA =
-            "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) " +
-                "Chrome/120.0 Mobile Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+                "Chrome/120.0.0.0 Safari/537.36"
     }
 }
 
