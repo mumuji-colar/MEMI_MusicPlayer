@@ -85,6 +85,7 @@ import moe.ouom.neriplayer.data.local.platform.bilibili.BiliVideoSkipRepositoryP
 import moe.ouom.neriplayer.platform.netease.NeteasePlaylistCacheRepository
 import moe.ouom.neriplayer.platform.netease.encyclopedia.NeteaseSongEncyclopediaRepository
 import moe.ouom.neriplayer.platform.netease.encyclopedia.SongEncyclopediaRepository
+import moe.ouom.neriplayer.platform.netease.mv.NeteaseMvRepository
 import moe.ouom.neriplayer.platform.youtube.playlist.YouTubeMusicPlaylistCacheRepository
 import moe.ouom.neriplayer.data.playlist.usage.LocalPlaylistPlaybackStatsRepository
 import moe.ouom.neriplayer.data.playlist.usage.PlaylistUsageRepository
@@ -410,6 +411,9 @@ object AppContainer {
     }
 
     val biliClient by lazy { BiliClient(biliCookieRepo, client = sharedOkHttpClient) }
+
+    /** 网易云歌曲 → MV 编号的查询缓存，歌单角标与播放页共用。 */
+    val neteaseMvRepository by lazy { NeteaseMvRepository(neteaseClient) }
 
     /** 歌曲百科仓库；数据源为网易云，其它来源返回 NotSupported。 */
     val songEncyclopediaRepository: SongEncyclopediaRepository by lazy {

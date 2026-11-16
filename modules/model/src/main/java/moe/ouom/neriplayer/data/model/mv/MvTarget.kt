@@ -1,0 +1,64 @@
+/*
+ * MEMI輕音 / MemiPlayer - A modified build of NeriPlayer.
+ * Copyright (C) 2025-2025 NeriPlayer developers
+ * Copyright (C) 2026 MMC
+ *
+ * This software is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * File: moe.ouom.neriplayer.data.model.mv/MvTarget
+ */
+
+package moe.ouom.neriplayer.data.model.mv
+
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+/** MV 的来源平台。 */
+enum class MvPlatform {
+    /** B 站：歌曲本身就是一个视频。 */
+    BILIBILI,
+
+    /** 网易云：歌曲详情里的 `mv` 字段指向独立的 MV 资源。 */
+    NETEASE
+}
+
+/**
+ * 一首歌对应的 MV 身份，跨平台统一用这个结构在 Intent 里传递。
+ *
+ * [videoId] 对 B 站是 bvid，对网易云是 mvid（纯数字字符串）。
+ * [cid] 只有 B 站有意义，缺失时由播放页现取。
+ */
+@Parcelize
+data class MvTarget(
+    val platform: MvPlatform,
+    val videoId: String,
+    val cid: Long? = null,
+    val title: String = "",
+    val artist: String = "",
+    val coverUrl: String? = null
+) : Parcelable
+
+/**
+ * 解析完成、可以直接交给播放器的流信息。
+ *
+ * [audioUrls] 为空表示音画合一（B 站 durl / 网易云 mp4），不能再拼音轨。
+ * [headers] 是拉流时必须带上的请求头——B 站 CDN 按 UA 校验，网易云认 Referer。
+ */
+data class MvStream(
+    val title: String,
+    val videoUrls: List<String>,
+    val audioUrls: List<String> = emptyList(),
+    val width: Int = 0,
+    val height: Int = 0,
+    val codecLabel: String = "",
+    val durationMs: Long? = null,
+    val headers: Map<String, String> = emptyMap()
+)

@@ -13,7 +13,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * File: moe.ouom.neriplayer.ui.component.common/BiliMvBadge
+ * File: moe.ouom.neriplayer.ui.component.common/MvBadge
  */
 
 package moe.ouom.neriplayer.ui.component.common
@@ -32,11 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * 歌单/播放页通用的「这首歌有 MV」标记。
+ * 歌单/播放页通用的「这首歌有 MV」标记，B 站与网易云共用。
  * 传 onClick 时变成可点的按钮，否则只是标识，不拦截列表行的点击。
  */
 @Composable
-internal fun BiliMvBadge(
+internal fun MvBadge(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {

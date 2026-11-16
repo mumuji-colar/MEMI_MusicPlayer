@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +48,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import moe.ouom.neriplayer.common.R as CoreCommonR
 import moe.ouom.neriplayer.data.model.SongItem
-import moe.ouom.neriplayer.data.model.bilibili.mv.BiliMvTarget
-import moe.ouom.neriplayer.mv.BiliMvLauncher
-import moe.ouom.neriplayer.ui.component.common.BiliMvBadge
+import moe.ouom.neriplayer.data.model.mv.MvTarget
+import moe.ouom.neriplayer.mv.MvLauncher
+import moe.ouom.neriplayer.ui.component.common.MvBadge
 import moe.ouom.neriplayer.data.local.media.displayArtist
 import moe.ouom.neriplayer.data.local.media.displayName
 import moe.ouom.neriplayer.ui.component.playback.NowPlayingSongTitle
@@ -145,8 +146,11 @@ internal fun NowPlayingTrackIdentity(
     val owner = remember { NowPlayingTrackIdentityOwner() }
     owner.bindCopyContext(clipboard, clipboardScope)
     val presentation = resolveNowPlayingTrackIdentityPresentation(layout, MaterialTheme.typography)
-    // 只有 B 站音源才谈得上「有 MV」，非 B 站歌曲这里恒为 null，入口自然不出现
-    val mvTarget = remember(mvSong) { BiliMvLauncher.targetOf(mvSong) }
+    // B 站音源直接带 BV 号；网易云要现查 mv id，查到了入口才出现
+    var mvTarget by remember(mvSong?.id) { mutableStateOf(MvLauncher.targetOf(mvSong)) }
+    LaunchedEffect(mvSong?.id, mvSong?.channelId) {
+        if (mvTarget == null) mvTarget = MvLauncher.resolveTarget(mvSong)
+    }
     AnimatedVisibility(
         visible = visible,
         modifier = presentation.modifier,
@@ -208,7 +212,7 @@ private fun NowPlayingTrackArtist(
     onArtistClick: () -> Unit,
     owner: NowPlayingTrackIdentityOwner,
     artistStyle: TextStyle,
-    mvTarget: BiliMvTarget? = null
+    mvTarget: MvTarget? = null
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.weight(1f, fill = false)) {
@@ -228,7 +232,7 @@ private fun NowPlayingTrackArtist(
         if (mvTarget != null) {
             val context = LocalContext.current
             Spacer(Modifier.width(6.dp))
-            BiliMvBadge(onClick = { BiliMvLauncher.open(context, mvTarget) })
+            MvBadge(onClick = { MvLauncher.open(context, mvTarget) })
         }
     }
 }

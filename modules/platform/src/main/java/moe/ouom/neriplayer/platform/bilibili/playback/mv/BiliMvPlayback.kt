@@ -20,48 +20,47 @@ package moe.ouom.neriplayer.platform.bilibili.playback.mv
 
 import java.io.IOException
 import moe.ouom.neriplayer.data.model.SongItem
-import moe.ouom.neriplayer.data.model.bilibili.mv.BiliMvTarget
 import moe.ouom.neriplayer.data.model.bilibili.playback.DashStream
 import moe.ouom.neriplayer.data.model.bilibili.playback.PlayOptions
+import moe.ouom.neriplayer.data.model.mv.MvPlatform
+import moe.ouom.neriplayer.data.model.mv.MvStream
+import moe.ouom.neriplayer.data.model.mv.MvTarget
 import moe.ouom.neriplayer.platform.bilibili.api.client.BiliClient
 import moe.ouom.neriplayer.platform.bilibili.playback.resolver.biliBvidOrNull
 import moe.ouom.neriplayer.platform.bilibili.playback.resolver.biliCidOrNull
-
-/**
- * 一首歌在 MV 播放页需要的全部信息。
- *
- * [audioUrls] 为空表示走 durl（MP4 音画合一），此时不能再拼音轨。
- */
-data class BiliMvStream(
-    val title: String,
-    val videoUrls: List<String>,
-    val audioUrls: List<String>,
-    val width: Int,
-    val height: Int,
-    val codecLabel: String,
-    val durationMs: Long?
-)
 
 private const val AVC_CODEC_ID = 7
 private const val MAX_HEIGHT = 1080
 private const val QN_1080P = 80
 
+/** B 站 CDN 按 UA 校验：带 "Mobile" 的 UA 会被 openresty 直接 403。 */
+internal const val BILI_MV_USER_AGENT =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
+        "Chrome/120.0.0.0 Safari/537.36"
+
+/** 拉 B 站流必须带的请求头。 */
+val BILI_MV_HEADERS: Map<String, String> = mapOf(
+    "User-Agent" to BILI_MV_USER_AGENT,
+    "Referer" to "https://www.bilibili.com/"
+)
+
 /**
- * 只有 B 站音源才谈得上「有 MV」：歌曲本身就是那个视频。
- * 其他平台（网易云/QQ/YouTube）没有 BV 号，这里直接返回 null。
+ * B 站音源的歌本身就是一个视频，所以「有没有 MV」等价于「能不能解析出 bvid」。
  */
-fun SongItem.biliMvTargetOrNull(): BiliMvTarget? {
+fun SongItem.biliMvTargetOrNull(): MvTarget? {
     val bvid = biliBvidOrNull() ?: return null
-    return BiliMvTarget(
-        bvid = bvid,
+    return MvTarget(
+        platform = MvPlatform.BILIBILI,
+        videoId = bvid,
         cid = biliCidOrNull(),
         title = name,
-        artist = artist
+        artist = artist,
+        coverUrl = coverUrl
     )
 }
 
-suspend fun resolveBiliMvStream(client: BiliClient, target: BiliMvTarget): BiliMvStream {
-    val bvid = target.bvid.trim()
+suspend fun resolveBiliMvStream(client: BiliClient, target: MvTarget): MvStream {
+    val bvid = target.videoId.trim()
     if (bvid.isEmpty()) throw IOException("缺少 BV 号")
 
     val cid = target.cid ?: run {
@@ -79,27 +78,29 @@ suspend fun resolveBiliMvStream(client: BiliClient, target: BiliMvTarget): BiliM
     val video = selectMvVideoStream(info.dashVideo)
     if (video != null) {
         val audio = selectMvAudioStream(info.dashAudio)
-        return BiliMvStream(
+        return MvStream(
             title = target.title.ifBlank { bvid },
             videoUrls = listOf(video.baseUrl) + video.backupUrls,
             audioUrls = audio?.let { listOf(it.baseUrl) + it.backupUrls }.orEmpty(),
             width = video.width,
             height = video.height,
             codecLabel = mvCodecLabel(video.codecid),
-            durationMs = info.timeLengthMs
+            durationMs = info.timeLengthMs,
+            headers = BILI_MV_HEADERS
         )
     }
 
     // 少数老视频只有 durl，音画已经合在一起
     val progressive = info.durl.firstOrNull() ?: throw IOException("没有可用的视频流")
-    return BiliMvStream(
+    return MvStream(
         title = target.title.ifBlank { bvid },
         videoUrls = listOf(progressive.url) + progressive.backupUrls,
         audioUrls = emptyList(),
         width = 0,
         height = 0,
         codecLabel = "MP4",
-        durationMs = progressive.lengthMs
+        durationMs = progressive.lengthMs,
+        headers = BILI_MV_HEADERS
     )
 }
 

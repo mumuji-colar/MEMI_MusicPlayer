@@ -13,7 +13,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * File: moe.ouom.neriplayer.mv/BiliMvHttp
+ * File: moe.ouom.neriplayer.mv/MvHttp
  */
 
 package moe.ouom.neriplayer.mv
@@ -24,17 +24,6 @@ import androidx.media3.datasource.okhttp.OkHttpDataSource
 import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 
-/**
- * B 站 CDN 会按 UA 校验，playurl 下发的地址带 `platform=pc`，
- * 用移动端 UA（含 "Mobile"）请求会被 openresty 直接 403。
- * 所有 MV 取流都必须带这个桌面 UA。
- */
-internal const val BILI_CDN_USER_AGENT =
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) " +
-        "Chrome/120.0.0.0 Safari/537.36"
-
-private const val BILI_REFERER = "https://www.bilibili.com/"
-
 private val mvHttpClient: OkHttpClient by lazy {
     OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -42,12 +31,11 @@ private val mvHttpClient: OkHttpClient by lazy {
         .build()
 }
 
+/**
+ * 各平台 CDN 的校验方式不同：B 站认 UA（移动端 UA 直接 403），网易云认 Referer。
+ * 具体请求头由 platform 层解析器随 MvStream 一起给出，这里只负责套上。
+ */
 @OptIn(UnstableApi::class)
-internal fun biliMvDataSourceFactory(): OkHttpDataSource.Factory =
+internal fun mvDataSourceFactory(headers: Map<String, String>): OkHttpDataSource.Factory =
     OkHttpDataSource.Factory(mvHttpClient)
-        .setDefaultRequestProperties(
-            mapOf(
-                "User-Agent" to BILI_CDN_USER_AGENT,
-                "Referer" to BILI_REFERER
-            )
-        )
+        .setDefaultRequestProperties(headers)

@@ -13,7 +13,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * File: moe.ouom.neriplayer.mv/BiliMvPlayerActivity
+ * File: moe.ouom.neriplayer.mv/MvPlayerActivity
  */
 
 package moe.ouom.neriplayer.mv
@@ -94,9 +94,11 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import moe.ouom.neriplayer.core.di.AppContainer
 import moe.ouom.neriplayer.core.player.PlayerManager
-import moe.ouom.neriplayer.data.model.bilibili.mv.BiliMvTarget
-import moe.ouom.neriplayer.platform.bilibili.playback.mv.BiliMvStream
+import moe.ouom.neriplayer.data.model.mv.MvPlatform
+import moe.ouom.neriplayer.data.model.mv.MvStream
+import moe.ouom.neriplayer.data.model.mv.MvTarget
 import moe.ouom.neriplayer.platform.bilibili.playback.mv.resolveBiliMvStream
+import moe.ouom.neriplayer.platform.netease.mv.resolveNeteaseMvStream
 import moe.ouom.neriplayer.util.format.formatDuration
 
 internal enum class MvPhase { Loading, Ready, Failed }
@@ -119,13 +121,13 @@ internal data class MvUiState(
  * 这样不必去动播放队列和音频焦点状态机，风险最低。
  */
 @UnstableApi
-class BiliMvPlayerActivity : ComponentActivity() {
+class MvPlayerActivity : ComponentActivity() {
 
     private var player: ExoPlayer? = null
     private var videoSurface: SurfaceView? = null
     private var resumeAfterExit = false
     private var progressJob: Job? = null
-    private var stream: BiliMvStream? = null
+    private var stream: MvStream? = null
     private var urlIndex = 0
 
     private val ui = MutableStateFlow(MvUiState())
@@ -137,7 +139,7 @@ class BiliMvPlayerActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         hideSystemBars()
 
-        val target = intent.biliMvTargetOrNull()
+        val target = intent.mvTargetOrNull()
         if (target == null) {
             finish()
             return
@@ -188,12 +190,12 @@ class BiliMvPlayerActivity : ComponentActivity() {
         }
     }
 
-    private fun startPlayback(target: BiliMvTarget) {
+    private fun startPlayback(target: MvTarget) {
         releasePlayer()
         urlIndex = 0
         ui.update { it.copy(phase = MvPhase.Loading, message = "解析中…") }
         lifecycleScope.launch {
-            val result = runCatching { resolveBiliMvStream(AppContainer.biliClient, target) }
+            val result = runCatching { resolveMvStream(target) }
             result.onFailure { error ->
                 ui.update {
                     it.copy(
@@ -208,7 +210,12 @@ class BiliMvPlayerActivity : ComponentActivity() {
         }
     }
 
-    private fun buildPlayer(resolved: BiliMvStream, index: Int) {
+    private suspend fun resolveMvStream(target: MvTarget): MvStream = when (target.platform) {
+        MvPlatform.BILIBILI -> resolveBiliMvStream(AppContainer.biliClient, target)
+        MvPlatform.NETEASE -> resolveNeteaseMvStream(AppContainer.neteaseClient, target)
+    }
+
+    private fun buildPlayer(resolved: MvStream, index: Int) {
         val videoUrl = resolved.videoUrls.getOrNull(index)
         if (videoUrl == null) {
             ui.update { it.copy(phase = MvPhase.Failed, message = "没有可用的视频流") }
@@ -219,7 +226,7 @@ class BiliMvPlayerActivity : ComponentActivity() {
 
         releasePlayer()
 
-        val factory = biliMvDataSourceFactory()
+        val factory = mvDataSourceFactory(resolved.headers)
         val videoSource = ProgressiveMediaSource.Factory(factory)
             .createMediaSource(MediaItem.fromUri(videoUrl))
         val mediaSource = if (audioUrl != null) {
@@ -274,7 +281,7 @@ class BiliMvPlayerActivity : ComponentActivity() {
     }
 
     /** PCDN 节点会抽风，dash 里每个流都带备用地址，失败就换一个再试。 */
-    private fun tryNextSource(resolved: BiliMvStream, error: PlaybackException) {
+    private fun tryNextSource(resolved: MvStream, error: PlaybackException) {
         val sourceCount = maxOf(resolved.videoUrls.size, resolved.audioUrls.size)
         if (urlIndex + 1 < sourceCount) {
             urlIndex += 1
@@ -328,10 +335,10 @@ class BiliMvPlayerActivity : ComponentActivity() {
         player = null
     }
 
-    private fun Intent.biliMvTargetOrNull(): BiliMvTarget? {
+    private fun Intent.mvTargetOrNull(): MvTarget? {
         @Suppress("DEPRECATION")
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            getParcelableExtra(EXTRA_TARGET, BiliMvTarget::class.java)
+            getParcelableExtra(EXTRA_TARGET, MvTarget::class.java)
         } else {
             getParcelableExtra(EXTRA_TARGET)
         }
