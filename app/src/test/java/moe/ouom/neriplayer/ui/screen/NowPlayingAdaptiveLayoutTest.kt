@@ -203,10 +203,18 @@ class NowPlayingAdaptiveLayoutTest {
     }
 
     @Test
-    fun `expanded tablet keeps controls together and gives lyrics the wider pane`() {
+    fun `expanded tablet splits the player and lyrics panes evenly`() {
         val spec = resolveNowPlayingWideLayoutSpec(1280.dp, 800.dp)
         val lyricsWidth = 1280.dp - spec.playerPaneWidth - spec.paneSpacing
-        assertTrue(spec.playerPaneWidth <= 500.dp)
+        assertEquals(spec.playerPaneWidth, lyricsWidth)
+        assertEquals((1280.dp - spec.paneSpacing) / 2f, spec.playerPaneWidth)
+    }
+
+    @Test
+    fun `short tablet still narrows the player pane for the trailing controls`() {
+        val spec = resolveNowPlayingWideLayoutSpec(1280.dp, 480.dp)
+        val lyricsWidth = 1280.dp - spec.playerPaneWidth - spec.paneSpacing
+        assertTrue(spec.playerPaneWidth <= 340.dp)
         assertTrue(lyricsWidth > spec.playerPaneWidth)
     }
 

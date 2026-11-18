@@ -35,7 +35,6 @@ import moe.ouom.neriplayer.ui.screen.nowplaying.cover.NowPlayingTrailingControls
 import moe.ouom.neriplayer.util.platform.PHONE_SMALLEST_SCREEN_WIDTH_DP
 
 private val NowPlayingCompactLandscapeHeight = 520.dp
-private val NowPlayingExpandedPlayerPaneMaxWidth = 500.dp
 private val NowPlayingCompactPlayerPaneMaxWidth = 340.dp
 private val NowPlayingPhoneLandscapeMinimumContentHeight = 240.dp
 private val NowPlayingTabletPortraitFixedContentReserve = 480.dp
@@ -108,16 +107,19 @@ internal fun resolveNowPlayingWideLayoutSpec(
     val compactHeight = phoneLandscape || availableHeight < NowPlayingCompactLandscapeHeight
     val contentHeight = nowPlayingWideContentHeight(availableHeight, phoneLandscape)
     val controlAreaOffset = nowPlayingWideControlAreaOffset(phoneLandscape, compactHeight)
+    val paneSpacing = if (compactHeight) 16.dp else 40.dp
     return NowPlayingWideLayoutSpec(
         compactHeight = compactHeight,
         contentHeight = contentHeight,
         scrollEnabled = contentHeight > availableHeight,
+        // 平板横屏左右各占一半（扣掉栏间距）：封面与控件在左半屏居中，歌词在右半屏居中。
+        // 短横屏和手机横屏仍按比例收窄左栏，右侧还要放歌名和控件。
         playerPaneWidth = if (compactHeight) {
             minOf(availableWidth * 0.40f, NowPlayingCompactPlayerPaneMaxWidth)
         } else {
-            minOf(availableWidth * 0.44f, NowPlayingExpandedPlayerPaneMaxWidth)
+            ((availableWidth - paneSpacing) / 2f).coerceAtLeast(0.dp)
         },
-        paneSpacing = if (compactHeight) 16.dp else 40.dp,
+        paneSpacing = paneSpacing,
         sectionSpacing = if (compactHeight) 4.dp else 16.dp,
         coverVerticalPadding = 8.dp,
         progressVerticalOffset = if (compactHeight) controlAreaOffset * 2 else (-24).dp,
