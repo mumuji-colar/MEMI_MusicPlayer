@@ -435,6 +435,7 @@ class MainActivity : ComponentActivity() {
                             controller.isAppearanceLightStatusBars = !useDark
                             controller.isAppearanceLightNavigationBars = !useDark
                             window.applyMainWindowCaptionAppearance(useLightSystemBarIcons = useDark)
+                            window.applyNeriSystemBarTransparency()
                         }
                         SafeModeScreen(
                             onRestoreNormal = ::restoreFromSafeMode
@@ -598,6 +599,7 @@ class MainActivity : ComponentActivity() {
                             controller.isAppearanceLightStatusBars = !useLightSystemBarIcons
                             controller.isAppearanceLightNavigationBars = !useLightSystemBarIcons
                             window.applyMainWindowCaptionAppearance(useLightSystemBarIcons)
+                            window.applyNeriSystemBarTransparency()
                         }
 
                         var playedEntrance by rememberSaveable { mutableStateOf(false) }
