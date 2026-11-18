@@ -59,7 +59,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -105,6 +104,7 @@ import moe.ouom.neriplayer.ui.theme.neriRoundedShape
 import moe.ouom.neriplayer.ui.viewmodel.playlist.NeteaseCloudUiState
 import moe.ouom.neriplayer.ui.viewmodel.playlist.NeteaseCloudViewModel
 import moe.ouom.neriplayer.ui.viewmodel.playlist.canQueueNeteaseCloudTracks
+import moe.ouom.neriplayer.ui.component.navigation.NeriMochiTopBar
 
 /**
  * 网易云云盘歌曲页
@@ -199,7 +199,7 @@ fun NeteaseCloudScreen(
                 color = Color.Transparent
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
-                    TopAppBar(
+                    NeriMochiTopBar(
                         title = {
                             Text(
                                 text = stringResource(CoreCommonR.string.netease_cloud_title),
