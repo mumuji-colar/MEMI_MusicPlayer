@@ -987,8 +987,13 @@ fun NowPlayingScreen(
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val phoneLandscape = isNowPlayingPhoneLandscape(isLandscape, configuration.smallestScreenWidthDp)
     val tabletLandscape = isLandscape && !phoneLandscape
-    // 平板横屏始终同时呈现封面与完整歌词，保留的手机页状态不能多消费一次返回
-    val effectiveShowLyricsScreen = showLyricsScreen && !tabletLandscape
+    // 平板横屏始终同时呈现封面与完整歌词；手机横屏只保留整屏歌词页。
+    // 两者都只改变当前朝向下的呈现，不改写用户原本停在封面页还是歌词页。
+    val effectiveShowLyricsScreen = when {
+        tabletLandscape -> false
+        phoneLandscape -> true
+        else -> showLyricsScreen
+    }
 
     LaunchedEffect(Unit) { contentVisible = true }
     LaunchedEffect(currentSong?.id) { showQualitySwitchDialog = false }
@@ -1289,22 +1294,9 @@ fun NowPlayingScreen(
                                 )
                             }
 
-                            // 手机横屏仍可左右切页，平板分栏不再切换隐藏的歌词子页
-                            if (phoneLandscape && (isLyricsMode || lyrics.isNotEmpty())) {
-                                contentModifier = contentModifier.pointerInput(isLyricsMode, lyrics) {
-                                    var horizontalDragDistance = 0f
-                                    detectHorizontalDragGestures(
-                                        onDragStart = { horizontalDragDistance = 0f }
-                                    ) { _, dragAmount ->
-                                        horizontalDragDistance += dragAmount
-                                        if (isLyricsMode && horizontalDragDistance > 60f) {
-                                            onShowLyricsScreenChange(false)
-                                        } else if (!isLyricsMode && horizontalDragDistance < -60f) {
-                                            onShowLyricsScreenChange(true)
-                                        }
-                                    }
-                                }
-                            } else if (!useWideLandscapeLayout && lyrics.isNotEmpty()) {
+                            // 手机横屏只剩整屏歌词页，不再提供左右滑动切页；
+                            // 竖屏保留右滑进入歌词页
+                            if (!useWideLandscapeLayout && lyrics.isNotEmpty()) {
                                 contentModifier = contentModifier.pointerInput(lyrics) {
                                     detectHorizontalDragGestures { _, dragAmount ->
                                         if (dragAmount < -20) onShowLyricsScreenChange(true)
@@ -1524,7 +1516,8 @@ fun NowPlayingScreen(
                                     },
                                     onSwitchPage = { onShowLyricsScreenChange(!showLyricsScreen) }
                                 ),
-                                onAddToPlaylist = { showAddSheet = true }
+                                onAddToPlaylist = { showAddSheet = true },
+                                lyricsVisible = !phoneLandscape
                             )
 
                             val coverTopBar: @Composable () -> Unit = {
@@ -1580,7 +1573,8 @@ fun NowPlayingScreen(
                                         onVolume = { showVolumeSheet = true },
                                         onLyrics = { onShowLyricsScreenChange(!showLyricsScreen) },
                                         onAddToPlaylist = { showAddSheet = true },
-                                        onMoreOptions = onCoverMoreOptions
+                                        onMoreOptions = onCoverMoreOptions,
+                                        lyricsVisible = !phoneLandscape
                                     )
                                 )
                             }

@@ -58,7 +58,9 @@ internal data class NowPlayingCoverOverflowActions(
     val onVolume: () -> Unit,
     val onLyrics: () -> Unit,
     val onAddToPlaylist: () -> Unit,
-    val onMoreOptions: () -> Unit
+    val onMoreOptions: () -> Unit,
+    /** 手机横屏只剩整屏歌词页，切页入口没有意义，整项不渲染。 */
+    val lyricsVisible: Boolean = true
 )
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -156,23 +158,25 @@ internal fun NowPlayingCoverOverflowAction(
                     actions.onVolume()
                 }
             )
-            NowPlayingCoverOverflowItem(
-                tag = "overflow_lyrics",
-                icon = nowPlayingLyricsToolbarIcon(lyricsAdjustBehavior = false),
-                label = stringResource(
-                    nowPlayingLyricsToolbarDescription(lyricsAdjustBehavior = false)
-                ),
-                enabled = actions.lyricsAvailable,
-                tint = if (actions.lyricsShowing) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    LocalContentColor.current
-                },
-                onClick = {
-                    expanded = false
-                    actions.onLyrics()
-                }
-            )
+            if (actions.lyricsVisible) {
+                NowPlayingCoverOverflowItem(
+                    tag = "overflow_lyrics",
+                    icon = nowPlayingLyricsToolbarIcon(lyricsAdjustBehavior = false),
+                    label = stringResource(
+                        nowPlayingLyricsToolbarDescription(lyricsAdjustBehavior = false)
+                    ),
+                    enabled = actions.lyricsAvailable,
+                    tint = if (actions.lyricsShowing) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        LocalContentColor.current
+                    },
+                    onClick = {
+                        expanded = false
+                        actions.onLyrics()
+                    }
+                )
+            }
             NowPlayingCoverOverflowItem(
                 tag = "overflow_add",
                 icon = Icons.AutoMirrored.Outlined.PlaylistAdd,

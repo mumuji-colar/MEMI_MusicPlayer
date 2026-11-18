@@ -91,7 +91,9 @@ internal data class NowPlayingCoverToolbarActions(
     val onSleepTimer: () -> Unit,
     val onVolume: () -> Unit,
     val onLyrics: () -> Unit,
-    val onAddToPlaylist: () -> Unit
+    val onAddToPlaylist: () -> Unit,
+    /** 手机横屏只剩整屏歌词页，切页按钮没有意义，直接不渲染。 */
+    val lyricsVisible: Boolean = true
 )
 
 internal fun resolveNowPlayingLyricsToolbarAction(
@@ -283,10 +285,12 @@ private fun NowPlayingCoverToolbarRow(
             layout.iconSize, buttonModifier, sharedTransitionScope, animatedVisibilityScope,
             actions.onVolume, LocalContentColor.current
         )
-        NowPlayingCoverLyricsButton(
-            status, layout.iconSize, buttonModifier, sharedTransitionScope,
-            animatedVisibilityScope, actions.onLyrics, spec.lyricsAdjustBehavior
-        )
+        if (actions.lyricsVisible) {
+            NowPlayingCoverLyricsButton(
+                status, layout.iconSize, buttonModifier, sharedTransitionScope,
+                animatedVisibilityScope, actions.onLyrics, spec.lyricsAdjustBehavior
+            )
+        }
         NowPlayingCoverToolbarButton(
             "btn_add", Icons.AutoMirrored.Outlined.PlaylistAdd, stringResource(CoreCommonR.string.playlist_add_to),
             layout.iconSize, buttonModifier, sharedTransitionScope, animatedVisibilityScope,
