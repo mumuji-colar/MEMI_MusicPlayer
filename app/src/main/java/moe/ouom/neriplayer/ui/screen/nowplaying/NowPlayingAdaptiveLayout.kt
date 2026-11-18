@@ -41,6 +41,9 @@ private val NowPlayingTabletPortraitFixedContentReserve = 480.dp
 private val NowPlayingTabletPortraitCoverMaxSize = 336.dp
 private val NowPlayingExpandedCoverIdentitySpacing = 20.dp
 private const val NOW_PLAYING_EXPANDED_CONTROLS_SPACER_WEIGHT = 0.12f
+
+/** 平板横屏进度条宽度：占左栏的 2/3，铺满整栏会显得过长。 */
+private const val NOW_PLAYING_EXPANDED_PROGRESS_WIDTH_FRACTION = 2f / 3f
 private const val NOW_PLAYING_TABLET_LANDSCAPE_COVER_WIDTH_FRACTION = 0.72f
 private const val NOW_PLAYING_EXPANDED_TABLET_COVER_WIDTH_FRACTION = 0.78f
 
@@ -336,6 +339,13 @@ private fun NowPlayingTabletLandscape(
         // 利用上方已有空白抬高进度区，不挤占封面和歌词的测量高度
         Box(Modifier.offset(y = offsets.progress)) { progress() }
     }
+    val expandedProgress: @Composable () -> Unit = {
+        // 宽屏左栏铺满一整条进度太长，收成 2/3 并保持居中
+        Box(
+            Modifier.offset(y = offsets.progress)
+                .width(spec.playerPaneWidth * NOW_PLAYING_EXPANDED_PROGRESS_WIDTH_FRACTION)
+        ) { progress() }
+    }
     val tabletControls: @Composable () -> Unit = {
         Box(Modifier.offset(y = offsets.controls)) { controls() }
     }
@@ -348,7 +358,7 @@ private fun NowPlayingTabletLandscape(
         )
     } else {
         NowPlayingExpandedLandscape(
-            spec, placement, topBar, cover, tabletIdentity, tabletProgress, tabletControls, tabletToolbar, lyrics
+            spec, placement, topBar, cover, tabletIdentity, expandedProgress, tabletControls, tabletToolbar, lyrics
         )
     }
 }
