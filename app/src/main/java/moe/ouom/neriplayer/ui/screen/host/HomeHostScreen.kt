@@ -68,6 +68,8 @@ import moe.ouom.neriplayer.ui.screen.playlist.NeteaseAlbumDetailScreen
 import moe.ouom.neriplayer.ui.screen.playlist.NeteasePlaylistDetailScreen
 import moe.ouom.neriplayer.ui.screen.playlist.YouTubeMusicPlaylistDetailScreen
 import moe.ouom.neriplayer.ui.screen.tab.home.HomeScreen
+import moe.ouom.neriplayer.ui.screen.tab.home.NeteaseHomeSongListScreen
+import moe.ouom.neriplayer.ui.viewmodel.tab.NeteaseHomeSongSource
 import moe.ouom.neriplayer.ui.effect.glass.AdvancedGlassSceneMotion
 import moe.ouom.neriplayer.ui.effect.glass.advancedGlassHostNavigationTransition
 import moe.ouom.neriplayer.ui.effect.glass.animateAdvancedGlassSceneMotion
@@ -120,6 +122,15 @@ internal sealed class HomeSelectedItem {
     // 榜单类型（热门榜 / 原创榜）不放在这里：它是详情页内部可切换的展示状态，若并入导航身份，
     // 详情内切换类型就会改变 AnimatedContent 的 targetState 而触发一次多余的转场动画。类型单独
     // 持久化在宿主侧（见 biliMusicRankTypeKey），与导航身份解耦。
+    /**
+     * 首页网易云歌曲分区的二级页：首页横滑只展示前 30 首，这里看完整列表。
+     */
+    data class NeteaseSongSection(val source: NeteaseHomeSongSource) : HomeSelectedItem() {
+        override fun saveState() = hashMapOf(
+            SAVED_TYPE_KEY to "neteaseSongSection",
+            "source" to source.name
+        )
+    }
     object BiliMusicRank : HomeSelectedItem() {
         override fun saveState() = hashMapOf(SAVED_TYPE_KEY to "biliMusicRank")
     }
@@ -504,6 +515,11 @@ fun HomeHostScreen(
                                 },
                                 onBiliMusicHotPlay = { videos, index ->
                                     onPlayBiliAudioWithSourceRoute(videos, index, null)
+                                },
+                                onSongSectionMore = { source ->
+                                    skipDetailCloseAnimation = false
+                                    captureHomeScrollPosition()
+                                    openHomeSelectedItem(HomeSelectedItem.NeteaseSongSection(source))
                                 }
                             )
                         }
@@ -601,6 +617,15 @@ fun HomeHostScreen(
                                 )
                             }
 
+                            is HomeSelectedItem.NeteaseSongSection -> {
+                                NeteaseHomeSongListScreen(
+                                    source = current.source,
+                                    onBack = { selected = null },
+                                    onSongClick = onSongClick,
+                                    offlineMode = offlineMode
+                                )
+                            }
+
                             is HomeSelectedItem.BiliMusicRank -> {
                                 BiliMusicRankDetailScreen(
                                     onBack = { selected = null },
@@ -642,6 +667,11 @@ private val homeSelectedItemRestorers: Map<String, (Map<String, Any?>) -> HomeSe
     "netease" to { saved -> restorePlaylistSummary(saved.savedMap("playlist"))?.let(HomeSelectedItem::Netease) },
     "bili" to { saved -> restoreBiliPlaylist(saved.savedMap("playlist"))?.let(HomeSelectedItem::Bili) },
     "ytmusic" to { saved -> restoreYouTubeMusicPlaylist(saved.savedMap("playlist"))?.let(HomeSelectedItem::YouTubeMusic) },
+    "neteaseSongSection" to { saved ->
+        saved.savedNonBlankString("source")
+            ?.let { name -> NeteaseHomeSongSource.entries.firstOrNull { it.name == name } }
+            ?.let(HomeSelectedItem::NeteaseSongSection)
+    },
     "biliMusicRank" to { _ -> HomeSelectedItem.BiliMusicRank },
     "biliMusicHot" to { _ -> HomeSelectedItem.BiliMusicHot }
 )

@@ -150,7 +150,8 @@ class ListenTogetherLocalControlOwnerTest {
         port.nowElapsedMs += 2_000L
         owner.retryPendingMemberRequest(null)
         assertEquals(1, port.sent.size)
-        port.nowElapsedMs += 1_000L
+        // 重试节拍与 watchdog 的 8s tick 对齐, 不足 8s 不应该重发
+        port.nowElapsedMs += 6_000L
         owner.retryPendingMemberRequest(null)
         assertEquals(2, port.sent.size)
         owner.acknowledgeMember(ListenTogetherCause(eventId = "request"))
@@ -175,7 +176,7 @@ class ListenTogetherLocalControlOwnerTest {
         assertEquals(1, port.sent.size)
 
         owner.enqueueOrDispatch(event("REQUEST_PAUSE", "expired"), "room")
-        port.nowElapsedMs += 19_000L
+        port.nowElapsedMs += 33_000L
         owner.retryPendingMemberRequest(null)
         assertEquals(2, port.sent.size)
     }

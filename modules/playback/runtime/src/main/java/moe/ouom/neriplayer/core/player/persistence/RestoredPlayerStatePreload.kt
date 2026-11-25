@@ -163,7 +163,17 @@ private fun buildRestoredStateSnapshot(
         )
         val identities = playbackLyricIdentityKeys(snapshot.playlist.getOrNull(snapshot.currentIndex),
             snapshot.playlist, snapshot.shuffleRestorePlaylist)
-        PlaybackLyricOverrideProjection(readLyricOverrides(identities)).restoredSnapshot(snapshot)
+        // 歌词覆盖是可选数据: 加密存储解不开(例如 Keystore 密钥失效导致 AEADBadTagException)时,
+        // 不能让异常冒泡到外层的 runCatching, 否则整份播放状态都会作废, 队列和进度一起丢失
+        val lyricOverrides = runCatching { readLyricOverrides(identities) }
+            .onFailure { error ->
+                NPLogger.w(
+                    "NERI-PlayerManager",
+                    "restoreState: lyric override read failed, restoring without it: ${error.message}"
+                )
+            }
+            .getOrDefault(emptyList())
+        PlaybackLyricOverrideProjection(lyricOverrides).restoredSnapshot(snapshot)
     }.onFailure { error ->
         if (error is CancellationException) throw error
         NPLogger.w("NERI-PlayerManager", "Failed to restore state: ${error.message}")

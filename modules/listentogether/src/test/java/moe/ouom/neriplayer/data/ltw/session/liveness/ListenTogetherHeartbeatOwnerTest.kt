@@ -91,8 +91,9 @@ class ListenTogetherHeartbeatOwnerTest {
         override fun playbackPositionMs(): Long = 500L
         override fun buildHeartbeat(state: String, positionMs: Long): ListenTogetherEvent =
             ListenTogetherEvent(type = "HEARTBEAT", eventId = "heartbeat", positionMs = positionMs)
-        override fun sendHeartbeat(event: ListenTogetherEvent) {
+        override fun sendHeartbeat(event: ListenTogetherEvent): Boolean {
             sent += event
+            return true
         }
     }
 }

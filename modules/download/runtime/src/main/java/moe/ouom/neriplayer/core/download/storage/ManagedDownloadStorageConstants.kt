@@ -5,6 +5,8 @@ import moe.ouom.neriplayer.common.units.MINUTE_MS
 import moe.ouom.neriplayer.common.units.SECOND_MS
 
 internal const val ROOT_DIR_NAME = "NeriPlayer"
+// 公共 Download 下的默认目录名；直写公共目录需要 MANAGE_EXTERNAL_STORAGE
+internal const val PUBLIC_DOWNLOAD_DIR_NAME = "MEMIplayer"
 internal const val LYRIC_SUBDIRECTORY = "Lyrics"
 internal const val DOWNLOAD_STAGING_DIR_NAME = "download_staging"
 internal const val DOWNLOAD_STAGING_FILE_PREFIX = "npdl_"

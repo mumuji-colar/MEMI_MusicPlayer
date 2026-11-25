@@ -26,7 +26,7 @@ package moe.ouom.neriplayer.ui.screen.tab.home
 import moe.ouom.neriplayer.ui.i18n.UiText
 import moe.ouom.neriplayer.ui.i18n.asString
 import moe.ouom.neriplayer.ui.theme.NeriDesign
-import moe.ouom.neriplayer.ui.theme.neriRoundedShape
+import moe.ouom.neriplayer.ui.theme.neriCoverShape
 import moe.ouom.neriplayer.ui.screen.playlist.FavoriteSongLookup
 import android.app.Application
 import android.content.ClipData
@@ -192,7 +192,9 @@ fun HomeScreen(
     onBiliMusicRankMore: (BiliMusicRankType) -> Unit = {},
     onBiliMusicHotMore: () -> Unit = {},
     onBiliMusicRankPlay: (List<BiliVideoItem>, Int) -> Unit = { _, _ -> },
-    onBiliMusicHotPlay: (List<BiliVideoItem>, Int) -> Unit = { _, _ -> }
+    onBiliMusicHotPlay: (List<BiliVideoItem>, Int) -> Unit = { _, _ -> },
+    /** 分区标题右侧「查看全部」：进入该歌曲分区的完整列表页 */
+    onSongSectionMore: (NeteaseHomeSongSource) -> Unit = {}
 ) {
     val context = LocalContext.current
     val appContext = remember(context) { context.applicationContext }
@@ -794,7 +796,8 @@ fun HomeScreen(
                                         favoriteSongLookup = favoriteSongLookup,
                                         onFavoriteToggle = ::toggleHomeSongFavorite,
                                         onShowSnackbar = showHomeSnackbar,
-                                        offlineMode = offlineMode
+                                        offlineMode = offlineMode,
+                                        onMoreClick = { onSongSectionMore(sectionState.source) }
                                     )
                                 }
 
@@ -853,7 +856,8 @@ fun HomeScreen(
                                             favoriteSongLookup = favoriteSongLookup,
                                             onFavoriteToggle = ::toggleHomeSongFavorite,
                                             onShowSnackbar = showHomeSnackbar,
-                                            offlineMode = offlineMode
+                                            offlineMode = offlineMode,
+                                            onMoreClick = { onSongSectionMore(sectionState.source) }
                                         )
                                     }
                             }
@@ -879,7 +883,8 @@ fun HomeScreen(
                                         favoriteSongLookup = favoriteSongLookup,
                                         onFavoriteToggle = ::toggleHomeSongFavorite,
                                         onShowSnackbar = showHomeSnackbar,
-                                        offlineMode = offlineMode
+                                        offlineMode = offlineMode,
+                                        onMoreClick = { onSongSectionMore(sectionState.source) }
                                     )
                                 }
                             }
@@ -959,7 +964,8 @@ private fun LazyGridScope.addNeteaseSongSection(
     favoriteSongLookup: FavoriteSongLookup,
     onFavoriteToggle: (SongItem, Boolean) -> Unit,
     onShowSnackbar: (String) -> Unit,
-    offlineMode: Boolean
+    offlineMode: Boolean,
+    onMoreClick: (() -> Unit)? = null
 ) {
     item(
         key = registerKey("$sectionKey:header"),
@@ -967,7 +973,8 @@ private fun LazyGridScope.addNeteaseSongSection(
     ) {
         SectionHeader(
             icon = icon,
-            title = stringResource(sectionState.source.titleRes)
+            title = stringResource(sectionState.source.titleRes),
+            onMoreClick = onMoreClick
         )
     }
     sectionContent(
@@ -1115,7 +1122,7 @@ private fun SongRowMini(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(neriRoundedShape(8.dp))
+            .clip(neriCoverShape(8.dp))
             .clickable { onClick() }
             .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -1142,7 +1149,7 @@ private fun SongRowMini(
                 modifier = Modifier
                     .width(44.dp)
                     .aspectRatio(1f)
-                    .clip(neriRoundedShape(8.dp))
+                    .clip(neriCoverShape(8.dp))
             )
             Spacer(Modifier.width(10.dp))
         } else {
@@ -1316,7 +1323,7 @@ private fun RadarPlaylistCard(
 
     Column(
         modifier = modifier
-            .clip(neriRoundedShape(8.dp))
+            .clip(neriCoverShape(8.dp))
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = { showMenu = true }
@@ -1326,7 +1333,7 @@ private fun RadarPlaylistCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(neriRoundedShape(8.dp))
+                .clip(neriCoverShape(8.dp))
                 .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
@@ -1355,7 +1362,7 @@ private fun RadarPlaylistCard(
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(8.dp)
-                    .clip(neriRoundedShape(8.dp))
+                    .clip(neriCoverShape(8.dp))
                     .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.86f))
                     .padding(horizontal = 8.dp, vertical = 4.dp),
                 style = MaterialTheme.typography.labelSmall,
@@ -1452,7 +1459,7 @@ fun PlaylistCard(
 
     Column(
         modifier = Modifier
-            .clip(neriRoundedShape(8.dp))
+            .clip(neriCoverShape(8.dp))
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = { showMenu = true }
@@ -1486,7 +1493,7 @@ fun PlaylistCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .clip(neriRoundedShape(8.dp))
+                    .clip(neriCoverShape(8.dp))
             )
             Column(modifier = Modifier.padding(top = 6.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)) {
                 Text(

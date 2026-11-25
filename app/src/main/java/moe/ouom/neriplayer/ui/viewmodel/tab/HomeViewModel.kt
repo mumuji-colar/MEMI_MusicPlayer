@@ -66,6 +66,8 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val TAG = "NERI-HomeVM"
 private const val HOME_NETEASE_SONG_LIMIT = 30
+/** 二级列表页用的上限：首页横滑只放 30 首，点「查看全部」才请求全量 */
+private const val HOME_FULL_SONG_LIMIT = 100
 private const val HOME_NETEASE_PLAYLIST_LIMIT = 30
 private const val HOME_PRIVATE_FM_MAX_BATCHES = 10
 private const val HOME_MAX_FAILURE_BEFORE_WARNING = 3
@@ -1049,9 +1051,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             parseNeteaseHomePlaylists(raw, limit = HOME_NETEASE_PLAYLIST_LIMIT)
         }
 
-    private suspend fun parseSongsOnWorker(raw: String): List<SongItem> =
+    private suspend fun parseSongsOnWorker(
+        raw: String,
+        limit: Int = HOME_NETEASE_SONG_LIMIT
+    ): List<SongItem> =
         withContext(Dispatchers.Default) {
-            parseNeteaseHomeSongs(raw, limit = HOME_NETEASE_SONG_LIMIT)
+            parseNeteaseHomeSongs(raw, limit = limit)
         }
 
     private suspend fun fetchSongSection(
@@ -1144,6 +1149,59 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         return parseSongsOnWorker(raw)
     }
 
+    /**
+     * 拉取某个首页歌曲分区的完整列表，供二级页使用。
+     *
+     * 首页那份是截断到 [HOME_NETEASE_SONG_LIMIT] 的横滑预览，点「查看全部」后
+     * 必须按 [HOME_FULL_SONG_LIMIT] 重新请求，否则进去看到的还是同样 30 首。
+     */
+    suspend fun fetchFullSongSection(
+        source: NeteaseHomeSongSource
+    ): Result<List<SongItem>> = runCatching {
+        if (source == NeteaseHomeSongSource.PRIVATE_FM) {
+            fetchPrivateFmSongs(limit = HOME_FULL_SONG_LIMIT)
+        } else {
+            val raw = withContext(Dispatchers.IO) {
+                fetchFullSongSourceRaw(source)
+            }
+            parseSongsOnWorker(raw, limit = HOME_FULL_SONG_LIMIT)
+        }
+    }
+
+    /** 全量版请求参数：与首页预览同一套接口，只把 n / limit 换成二级页上限 */
+    private fun fetchFullSongSourceRaw(source: NeteaseHomeSongSource): String {
+        return when (source) {
+            NeteaseHomeSongSource.TOP_SOARING -> client.getPlaylistDetail(
+                playlistId = NETEASE_TOPLIST_SOARING_ID,
+                n = HOME_FULL_SONG_LIMIT,
+                s = 0
+            )
+            NeteaseHomeSongSource.PERSONAL_RADAR -> client.getPlaylistDetail(
+                playlistId = NETEASE_PRIVATE_RADAR_PLAYLIST_ID,
+                n = HOME_FULL_SONG_LIMIT,
+                s = 0
+            )
+            NeteaseHomeSongSource.DAILY_RECOMMEND -> client.getDailyRecommendedSongs(
+                afresh = true
+            )
+            NeteaseHomeSongSource.PRIVATE_FM -> client.getPersonalFmSongs()
+            NeteaseHomeSongSource.PERSONALIZED_NEW_SONGS -> client.getPersonalizedNewSongs(
+                limit = HOME_FULL_SONG_LIMIT,
+                usePersistedCookies = hasRecommendLogin
+            )
+            NeteaseHomeSongSource.TOP_HOT -> client.getPlaylistDetail(
+                playlistId = NETEASE_TOPLIST_HOT_ID,
+                n = HOME_FULL_SONG_LIMIT,
+                s = 0
+            )
+            NeteaseHomeSongSource.TOP_NEW -> client.getPlaylistDetail(
+                playlistId = NETEASE_TOPLIST_NEW_ID,
+                n = HOME_FULL_SONG_LIMIT,
+                s = 0
+            )
+        }
+    }
+
     /** 将首页来源的请求参数集中在一起，避免登录态契约在调用点分散 */
     private fun fetchSongSourceRaw(source: NeteaseHomeSongSource): String {
         return when (source) {
@@ -1178,7 +1236,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private suspend fun fetchPrivateFmSongs(): List<SongItem> {
+    private suspend fun fetchPrivateFmSongs(
+        limit: Int = HOME_NETEASE_SONG_LIMIT
+    ): List<SongItem> {
         var songs = emptyList<SongItem>()
         for (batchIndex in 0 until HOME_PRIVATE_FM_MAX_BATCHES) {
             val raw = withContext(Dispatchers.IO) {
@@ -1190,14 +1250,14 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             val merged = appendUniqueNeteaseHomeSongs(
                 current = songs,
                 next = batch,
-                limit = HOME_NETEASE_SONG_LIMIT
+                limit = limit
             )
             if (merged.size == songs.size) {
                 NPLogger.d(TAG, "private FM returned no new songs at batch=$batchIndex")
                 break
             }
             songs = merged
-            if (songs.size >= HOME_NETEASE_SONG_LIMIT) break
+            if (songs.size >= limit) break
         }
         return songs
     }

@@ -1,4 +1,6 @@
 [versions]
+nanoHttpd = "2.3.1"
+javaWebSocket = "1.6.0"
 zstd = "1.5.7-20"
 androidxAnnotation = "1.11.0"
 accompanistNavigationAnimation = "0.36.0"
@@ -62,6 +64,8 @@ mochiCompose = "0.1.180"
 kotlinxCollectionsImmutable = "0.5.2"
 
 [libraries]
+nanohttpd = { module = "org.nanohttpd:nanohttpd", version.ref = "nanoHttpd" }
+java-websocket = { module = "org.java-websocket:Java-WebSocket", version.ref = "javaWebSocket" }
 zstd-jni = { module = "com.github.luben:zstd-jni", version.ref = "zstd" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
 accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }

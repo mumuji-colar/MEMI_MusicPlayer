@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -109,9 +110,9 @@ fun WaveformSlider(
     playbackSessionKey: String? = null
 ) {
     val clampedValue = normalizeWaveProgress(value)
-    val activeColor = activeTint.copy(alpha = if (enabled) 1f else 0.55f)
+    val activeColor = if (enabled) activeTint else MaterialTheme.colorScheme.onSurface.copy(alpha = .38f)
     val inactiveColor = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 0.3f else 0.18f)
-    val thumbColor = activeTint.copy(alpha = if (enabled) 1f else 0.55f)
+    val thumbColor = if (enabled) activeTint else MaterialTheme.colorScheme.onSurface.copy(alpha = .38f)
 
     var isDragging by remember { mutableStateOf(false) }
     val latestOnValueChangeCanceled by rememberUpdatedState(onValueChangeCanceled)
@@ -252,6 +253,8 @@ fun WaveformSlider(
                         true
                     }
                 }
+            } else {
+                disabled()
             }
         }
     val wavePath = remember { Path() }

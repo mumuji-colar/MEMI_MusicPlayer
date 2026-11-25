@@ -1,6 +1,7 @@
 package moe.ouom.neriplayer.ui.screen.playlist
 
 import moe.ouom.neriplayer.ui.theme.neriRoundedShape
+import moe.ouom.neriplayer.ui.theme.ContinuousRoundedCornerShape
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -1131,7 +1132,7 @@ internal fun PlaylistModernHeroHeader(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(PlaylistHeroCoverSize)
-                        .clip(RoundedCornerShape(PlaylistHeroCoverCornerRadius))
+                        .clip(ContinuousRoundedCornerShape(PlaylistHeroCoverCornerRadius))
                 )
                 Column(
                     modifier = Modifier.weight(1f),

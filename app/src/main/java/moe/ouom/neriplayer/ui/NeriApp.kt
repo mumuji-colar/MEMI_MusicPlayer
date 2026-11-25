@@ -446,8 +446,8 @@ private fun NeriAppContent(
         .collectAsStateWithLifecycle(
             initialValue = DEFAULT_ENHANCED_ADVANCED_BLUR_RADIUS_DP
         )
-    val initialAdvancedBlurQuality = remember {
-        AdvancedBlurQualityPreference.defaultForDevice(isCurrentBuildDimensity())
+    val initialAdvancedBlurQuality = remember(context) {
+        AdvancedBlurQualityPreference.defaultForCurrentDevice(context)
     }
     val advancedBlurQuality by repo.advancedBlurQualityFlow.collectAsStateWithLifecycle(
         initialValue = initialAdvancedBlurQuality

@@ -180,14 +180,20 @@ class ListenTogetherConnectionRecoveryOwner(
     ) {
         delay(delayMs.milliseconds)
         val currentJob = currentCoroutineContext()[Job]
-        synchronized(lock) {
+        // connectWebSocket() 会拉起前台服务并建立 socket, 属于阻塞操作;
+        // 在锁内执行会让 OkHttp 回调线程上的 scheduleReconnect 一起排队, 拖慢整条重连链路
+        val membershipRecoveryStarted = synchronized(lock) {
             val latest = port.session()
             if (!canRunListenTogetherReconnect(scheduledSession, latest, enabled, generation == scheduledGeneration)) return
             if (reconnectJob == currentJob) reconnectJob = null
             port.updateBackgroundKeepAlive("reconnect_attempt:$reason")
             NPLogger.d(TAG, "reconnect(): roomId=${latest.roomId}, attempt=$attempt")
-            if (!recoverMembershipBeforeReconnect("scheduled_reconnect:$reason")) port.connectWebSocket()
+            recoverMembershipBeforeReconnect("scheduled_reconnect:$reason")
         }
+        if (membershipRecoveryStarted) return
+        // 出锁到建连之间可能已经退房或被重连, 再确认一次再动 socket
+        val stillWanted = synchronized(lock) { enabled && !stopped }
+        if (stillWanted) port.connectWebSocket()
     }
 
     fun recoverMissingListenerMembership(state: ListenTogetherRoomState, reason: String) {

@@ -21,7 +21,9 @@ interface ListenTogetherHeartbeatPort {
     fun playbackStateName(): String
     fun playbackPositionMs(): Long
     fun buildHeartbeat(state: String, positionMs: Long): ListenTogetherEvent
-    fun sendHeartbeat(event: ListenTogetherEvent)
+
+    /** 返回是否已成功投递; 失败时调用方需要尽快重试而不是空等一个间隔 */
+    fun sendHeartbeat(event: ListenTogetherEvent): Boolean
 }
 
 class ListenTogetherHeartbeatOwner(
@@ -66,10 +68,14 @@ class ListenTogetherHeartbeatOwner(
         val remainingMs = intervalMs - idleMs
         if (remainingMs > 0L) return minOf(remainingMs, STATE_RECHECK_INTERVAL_MS)
         val event = port.buildHeartbeat(playbackState, port.playbackPositionMs().coerceAtLeast(0L))
-        noteOutboundSync()
         NPLogger.d(TAG, "heartbeat(): eventId=${event.eventId}, positionMs=${event.positionMs}, idleMs=$idleMs")
-        port.sendHeartbeat(event)
-        return 0L
+        // 只有投递成功才推进同步时钟: 失败时保留旧的 idle, 下一个 tick 仍满足发送条件,
+        // 于是能在 STATE_RECHECK_INTERVAL_MS 内重试, 而不是等满一整个心跳间隔
+        if (port.sendHeartbeat(event)) {
+            noteOutboundSync()
+            return minOf(intervalMs, STATE_RECHECK_INTERVAL_MS)
+        }
+        return STATE_RECHECK_INTERVAL_MS
     }
 
     fun stop() {

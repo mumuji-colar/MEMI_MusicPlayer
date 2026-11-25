@@ -1,12 +1,14 @@
 package moe.ouom.neriplayer.core.download.storage.root
 
 import android.content.Context
+import android.os.Build
 import android.os.Environment
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
+import moe.ouom.neriplayer.core.download.storage.PUBLIC_DOWNLOAD_DIR_NAME
 import moe.ouom.neriplayer.core.download.storage.ROOT_DIR_NAME
 import moe.ouom.neriplayer.core.download.storage.TREE_ROOT_CACHE_VALIDATE_INTERVAL_MS
 import moe.ouom.neriplayer.common.storage.directory.ManagedDownloadDirectoryIdentity
@@ -166,6 +168,9 @@ internal class ManagedDownloadRootResolver(
             "com.android.externalstorage.documents"
 
         internal fun defaultRootDirectory(context: Context): File {
+            // 公共 Download 目录其他应用才读得到；Android 11+ 直写它必须持有
+            // MANAGE_EXTERNAL_STORAGE，未授权时回退到应用私有目录，避免下载直接失败
+            publicDownloadRootDirectory()?.let { return it }
             // Android 单元测试的 Context 可能返回空或相对路径，避免把回退目录落到项目中
             val externalFilesDir = runCatching {
                 context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
@@ -176,6 +181,14 @@ internal class ManagedDownloadRootResolver(
                 ?: jvmFallbackDirectory()
             return File(baseDir, ROOT_DIR_NAME)
         }
+
+        private fun publicDownloadRootDirectory(): File? = runCatching {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return@runCatching null
+            if (!Environment.isExternalStorageManager()) return@runCatching null
+            val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            if (!downloads.isAbsolute) return@runCatching null
+            File(downloads, PUBLIC_DOWNLOAD_DIR_NAME)
+        }.getOrNull()
 
         private fun jvmFallbackDirectory(): File {
             val tempDir = System.getProperty("java.io.tmpdir")

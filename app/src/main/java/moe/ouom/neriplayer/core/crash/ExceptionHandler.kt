@@ -97,11 +97,21 @@ object ExceptionHandler {
         // 设置全局未捕获异常处理器
         previousHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            val recoverableServiceTimeout = isForegroundServiceStartTimeout(throwable)
             releaseUsbExclusiveRuntimeBeforeCrash(thread.name)
             runCatching {
                 handleException(thread.name, throwable, isUncaught = true)
             }.onFailure { loggingError ->
                 NPLogger.e("ExceptionHandler", "Failed while handling uncaught exception", loggingError)
+            }
+            if (recoverableServiceTimeout) {
+                // 前台服务启动超时说明系统已经回收了该服务, 播放界面本身仍然可用。
+                // 交给系统只会让用户看到闪退; 记录后放行, 用户下次操作会重新拉起服务。
+                NPLogger.w(
+                    "ExceptionHandler",
+                    "Foreground service start timeout is recoverable; keeping process alive"
+                )
+                return@setDefaultUncaughtExceptionHandler
             }
             delegateOrTerminate(thread, throwable)
         }
@@ -266,8 +276,19 @@ object ExceptionHandler {
      * 尽量保持系统原始崩溃链路; 若系统未提供默认处理器, 则显式终止进程
      * 避免异常被吞掉后应用继续运行在损坏状态
      */
-    private fun delegateOrTerminate(thread: Thread, throwable: Throwable) {
-        val handler = previousHandler
+    /**
+     * 前台服务启动超时: startForegroundService 之后 5 秒内没等到 startForeground。
+     * 此时系统已经回收了该服务, 进程本身没有损坏, 可以放行。
+     * 用类名匹配是因为异常子类的形态随 API 版本变化, 直接引用有兼容风险。
+     */
+    private fun isForegroundServiceStartTimeout(throwable: Throwable): Boolean {
+        val className = throwable.javaClass.name
+        if (className.endsWith("ForegroundServiceDidNotStartInTimeException")) return true
+        return className.endsWith("RemoteServiceException") &&
+            throwable.message.orEmpty().contains("did not then call Service.startForeground")
+    }
+
+    private fun delegateOrTerminate(thread: Thread, throwable: Throwable) {        val handler = previousHandler
         if (handler != null) {
             runCatching {
                 handler.uncaughtException(thread, throwable)

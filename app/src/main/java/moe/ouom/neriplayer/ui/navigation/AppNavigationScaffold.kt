@@ -263,7 +263,9 @@ private fun bottomBarVisibilityTarget(visible: Boolean): Float =
     if (visible) 1f else 0f
 
 private fun bottomBarVisibilityDuration(visible: Boolean): Int =
-    if (visible) 280 else 220
+    // 隐藏(打开播放页)原来只有 220ms, 比播放页入场(350/400)快太多, tab 会先"飞"走;
+    // 拉到 300ms 让它跟画面主体一起收
+    if (visible) 280 else 300
 
 private fun Modifier.collapseBottomBarSlot(collapsed: Boolean): Modifier = layout { measurable, constraints ->
     val placeable = measurable.measure(constraints)
@@ -514,6 +516,7 @@ private fun AppMiniPlayerOverlay(
     onBoundsChanged: (Rect) -> Unit
 ) {
     val controls = rememberMiniPlayerPlaybackControls()
+    val lanControls = moe.ouom.neriplayer.ui.component.playback.lan.rememberLanPlaybackControls()
     val resources = LocalResources.current
     val miniPlayerVisible = floatingPlaybackChromeVisible(
         requested = shouldShowMiniPlayer(miniPlayer.hasSong, showNowPlaying)
@@ -557,7 +560,8 @@ private fun AppMiniPlayerOverlay(
                 hasCurrentSong = miniPlayer.hasSong,
                 clearCover = miniPlayer.song.hasKnownEmptyLocalCover(),
                 isPlaying = controls.playbackRequested,
-                playPauseEnabled = !controls.usbPreparing,
+                playPauseEnabled = !controls.usbPreparing && lanControls.permissions.playPause,
+                skipEnabled = lanControls.permissions.seek,
                 modifier = Modifier.testTag("appMiniPlayer")
                     .onGloballyPositioned { coordinates ->
                         onBoundsChanged(coordinates.boundsInRoot())
@@ -571,7 +575,8 @@ private fun AppMiniPlayerOverlay(
                 isPlaybackWaiting = resolvePlaybackWaiting(
                     playbackRequested = controls.playbackRequested,
                     isPlaying = controls.playing,
-                    usbPlaybackPreparing = controls.usbPreparing
+                    usbPlaybackPreparing = controls.usbPreparing,
+                    lanPreparing = lanControls.preparing
                 ),
                 isAudioRouteMuted = controls.routeMuted,
                 tabletControls = tabletControls

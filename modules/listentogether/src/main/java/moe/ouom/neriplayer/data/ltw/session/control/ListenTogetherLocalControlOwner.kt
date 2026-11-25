@@ -235,8 +235,11 @@ class ListenTogetherLocalControlOwner(
         const val TAG = "NERI-ListenTogether"
         const val COALESCING_WINDOW_MS = 100L
         val COALESCED_EVENT_TYPES = setOf("SET_QUEUE", "REQUEST_SET_QUEUE", "PLAYBACK_MODE", "REQUEST_PLAYBACK_MODE")
-        const val PENDING_MEMBER_REQUEST_RETRY_INTERVAL_MS = 3_000L
-        const val PENDING_MEMBER_REQUEST_TTL_MS = 18_000L
+
+        // 重试只能由 ListenerWatchdog 的 8s tick 驱动 (onWatchdogTick -> retryPendingMemberRequest),
+        // 所以间隔必须 >= 8s, TTL 必须覆盖 MAX_ATTEMPTS 次重试, 否则后面几次永远不会发生
+        const val PENDING_MEMBER_REQUEST_RETRY_INTERVAL_MS = 8_000L
+        const val PENDING_MEMBER_REQUEST_TTL_MS = 32_000L
         const val PENDING_MEMBER_REQUEST_MAX_ATTEMPTS = 4
         const val PENDING_MEMBER_SEEK_SATISFIED_DRIFT_MS = 1_500L
         const val TRACK_FINISHED_FALLBACK_TTL_MS = 15_000L

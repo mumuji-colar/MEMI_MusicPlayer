@@ -44,6 +44,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import moe.ouom.neriplayer.ui.theme.ContinuousRoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Download
@@ -91,7 +92,7 @@ import kotlin.math.roundToInt
 
 private const val CoverPreviewMinRequestSizePx = 512
 private const val CoverPreviewMaxRequestSizePx = 2048
-private val CoverPreviewArtworkShape = RoundedCornerShape(28.dp)
+private val CoverPreviewArtworkShape = ContinuousRoundedCornerShape(28.dp)
 
 @Composable
 private fun LightDialogSystemBarIcons() {

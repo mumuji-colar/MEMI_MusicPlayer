@@ -53,8 +53,10 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 private const val MorphOpenDamping = 0.9f
-private const val MorphOpenStiffness = 260f
-private const val MorphCloseDurationMillis = 250
+// 160 是让 spring 的视觉时长落在 350ms 附近的刚度值, 与关闭的 tween(350) 对齐
+private const val MorphOpenStiffness = 160f
+// 打开用 spring 保留 morph 的回弹手感; 关闭用 tween(400), 比平板的 slide(350) 略长
+private const val MorphCloseDurationMillis = 400
 private const val MorphSettleFrames = 2
 /** On close the card dissolves into the returning mini player instead of covering it. */
 private const val CloseCardFadeSpan = 0.2f

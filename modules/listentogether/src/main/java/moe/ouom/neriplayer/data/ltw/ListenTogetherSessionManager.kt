@@ -96,6 +96,9 @@ import moe.ouom.neriplayer.data.ltw.session.state.prepareListenTogetherSessionUp
 import moe.ouom.neriplayer.data.ltw.validation.requireValidListenTogetherRoomId
 import moe.ouom.neriplayer.common.units.MINUTE_MS
 import moe.ouom.neriplayer.common.units.SECOND_MS
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 
@@ -125,6 +128,10 @@ class ListenTogetherSessionManager(
     private val forwardedRequestDeduper = ListenTogetherForwardedRequestDeduper()
     @Volatile
     private var webSocketConnectingAtElapsedMs: Long = 0L
+
+    // 握手卡住(onOpen/onClosed/onFailure 都没到达)时没有任何路径能离开 CONNECTING,
+    // 界面会一直停在"正在同步一起听状态"; 用一次性超时任务兜底重启连接
+    private var connectTimeoutJob: Job? = null
 
     private val clientInstanceId = UUID.randomUUID().toString()
     private val clientSequence = AtomicLong(0L)
@@ -246,9 +253,9 @@ class ListenTogetherSessionManager(
             override fun playbackPositionMs(): Long = playback.playbackPositionFlow.value
             override fun buildHeartbeat(state: String, positionMs: Long): ListenTogetherEvent =
                 buildHeartbeatEvent(state, positionMs, includeQueue = false)
-            override fun sendHeartbeat(event: ListenTogetherEvent) {
+            override fun sendHeartbeat(event: ListenTogetherEvent): Boolean {
                 markOutboundEvent(event.eventId)
-                sendControlEventPureWebSocket(event, "heartbeat")
+                return sendControlEventPureWebSocket(event, "heartbeat")
             }
         },
         elapsedRealtimeMs = elapsedRealtimeMs
@@ -627,6 +634,7 @@ class ListenTogetherSessionManager(
             wsUrl = wsUrl,
             listener = object : ListenTogetherWebSocketClient.Listener {
                 override fun onOpen() {
+                    cancelConnectTimeout()
                     NPLogger.d(TAG, "websocket.onOpen()")
                     if (!connectionRecoveryOwner.enabled || !roomStateOwner.hasActiveRoom()) {
                         webSocketConnectingAtElapsedMs = 0L
@@ -666,6 +674,7 @@ class ListenTogetherSessionManager(
                 }
 
                 override fun onClosed(code: Int, reason: String) {
+                    cancelConnectTimeout()
                     webSocketConnectingAtElapsedMs = 0L
                     heartbeatOwner.stop()
                     listenerWatchdogOwner.stop()
@@ -682,6 +691,7 @@ class ListenTogetherSessionManager(
                 }
 
                 override fun onFailure(error: Throwable) {
+                    cancelConnectTimeout()
                     webSocketConnectingAtElapsedMs = 0L
                     heartbeatOwner.stop()
                     listenerWatchdogOwner.stop()
@@ -708,6 +718,22 @@ class ListenTogetherSessionManager(
                 }
             }
         )
+        scheduleConnectTimeout()
+    }
+
+    private fun scheduleConnectTimeout() {
+        connectTimeoutJob?.cancel()
+        connectTimeoutJob = scope.launch {
+            delay(CONNECTING_HANDSHAKE_TIMEOUT_MS)
+            if (_sessionState.value.connectionState != ListenTogetherConnectionState.CONNECTING) return@launch
+            NPLogger.w(TAG, "connectWebSocket(): handshake stuck in CONNECTING, restarting")
+            connectWebSocket()
+        }
+    }
+
+    private fun cancelConnectTimeout() {
+        connectTimeoutJob?.cancel()
+        connectTimeoutJob = null
     }
 
     internal fun receiveSocketEnvelope(message: ListenTogetherSocketEnvelope) {
@@ -739,6 +765,7 @@ class ListenTogetherSessionManager(
         localControlOwner.resetTransientRequests()
         listenerWatchdogOwner.resetRefreshTime()
         socketHealthOwner.resetConnectionTiming()
+        cancelConnectTimeout()
         webSocketConnectingAtElapsedMs = 0L
         listenerWatchdogOwner.resetRecovery()
         backgroundKeepAlive.release("disconnect")
@@ -831,6 +858,7 @@ class ListenTogetherSessionManager(
         localControlOwner.resetTransientRequests()
         listenerWatchdogOwner.resetRefreshTime()
         socketHealthOwner.clearLastMessage()
+        cancelConnectTimeout()
         webSocketConnectingAtElapsedMs = 0L
         socketHealthOwner.resetProtocolSupport()
         roomSocketEventOwner.reset()
@@ -1452,6 +1480,7 @@ class ListenTogetherSessionManager(
         localControlOwner.clearPendingMemberRequest()
         listenerWatchdogOwner.resetRefreshTime()
         socketHealthOwner.clearLastMessage()
+        cancelConnectTimeout()
         webSocketConnectingAtElapsedMs = 0L
         socketHealthOwner.resetProtocolSupport()
         roomSocketEventOwner.reset()
@@ -1554,5 +1583,6 @@ class ListenTogetherSessionManager(
         private const val SOFT_SYNC_MIN_DRIFT_MS = 600L
         private const val SOFT_SYNC_FAST_DRIFT_MS = 1_500L
         private const val UNEXPECTED_ZERO_POSITION_ROLLBACK_GUARD_MS = 2 * SECOND_MS
+        private const val CONNECTING_HANDSHAKE_TIMEOUT_MS = 15 * SECOND_MS
     }
 }

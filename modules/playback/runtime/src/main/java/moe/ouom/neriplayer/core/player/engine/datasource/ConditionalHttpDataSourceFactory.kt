@@ -26,8 +26,10 @@ package moe.ouom.neriplayer.core.player.engine.datasource
 import moe.ouom.neriplayer.platform.youtube.api.auth.normalized
 import androidx.media3.common.C
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.datasource.DataSpec
+import androidx.media3.datasource.okhttp.OkHttpDataSource
 import android.net.Uri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +47,8 @@ import moe.ouom.neriplayer.platform.youtube.api.transport.isYouTubeGoogleVideoHo
 import moe.ouom.neriplayer.data.traffic.TrafficStatsRepository
 import moe.ouom.neriplayer.network.range.ResumableHttpRangeSupport
 import moe.ouom.neriplayer.network.security.normalizeTrustedHost
+
+internal const val BILI_AKAMAI_HOST = "upos-hz-mirrorakam.akamaized.net"
 
 internal fun removeExplicitRangeHeader(headers: Map<String, String>): Map<String, String> {
     return LinkedHashMap<String, String>().apply {
@@ -71,7 +75,6 @@ class ConditionalHttpDataSourceFactory(
 
     companion object {
         private const val BILI_OVERSEAS_COS_HOST = "upos-sz-mirrorcosov.bilivideo.com"
-        private const val BILI_AKAMAI_HOST = "upos-hz-mirrorakam.akamaized.net"
         private const val BILI_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
                 "AppleWebKit/537.36 (KHTML, like Gecko) " +
                 "Chrome/124.0.0.0 Safari/537.36"
@@ -96,9 +99,16 @@ class ConditionalHttpDataSourceFactory(
         }
     }
 
-    override fun createDataSource(): HttpDataSource {
+    override fun createDataSource(): HttpDataSource = createDataSource(baseFactory)
+
+    internal fun forLanRelay(calls: okhttp3.Call.Factory): DataSource.Factory {
+        val relayFactory = OkHttpDataSource.Factory(calls)
+        return DataSource.Factory { createDataSource(relayFactory) }
+    }
+
+    private fun createDataSource(upstream: HttpDataSource.Factory): HttpDataSource {
         val dataSource = ServerAwareHttpDataSource(ResumableChunkedHttpDataSource(
-            upstreamFactory = baseFactory,
+            upstreamFactory = upstream,
             transformDataSpec = { dataSpec ->
                 val host = normalizeTrustedHost(dataSpec.uri.host)
                 when {

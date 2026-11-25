@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import moe.ouom.neriplayer.ui.theme.ContinuousRoundedCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import moe.ouom.neriplayer.ui.theme.NeriDesign
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -99,7 +99,6 @@ import moe.ouom.neriplayer.data.model.playback.PlaybackAudioInfo
 import moe.ouom.neriplayer.data.local.media.LocalMediaSupport
 import moe.ouom.neriplayer.data.local.media.isLocalSong
 import moe.ouom.neriplayer.data.model.SongItem
-import moe.ouom.neriplayer.data.model.server.isServerSong
 import moe.ouom.neriplayer.data.local.media.displayArtist
 import moe.ouom.neriplayer.data.local.media.displayName
 import moe.ouom.neriplayer.data.model.stableKey
@@ -227,10 +226,6 @@ internal fun MoreOptionsMainContent(
                 title = stringResource(CoreCommonR.string.listen_together_title),
                 icon = Icons.Outlined.Headphones,
                 hue = MoreHueIndigo,
-                enabled = !originalSong.isServerSong(),
-                subtitle = if (originalSong.isServerSong()) {
-                    stringResource(CoreCommonR.string.server_listen_together_unavailable)
-                } else null,
                 onClick = onOpenListenTogether
             )
         }
@@ -692,9 +687,9 @@ private val MoreHueViolet = Color(0xFF7D7AFF)
 private val MoreHueMint = Color(0xFF00C7BE)
 private val MoreHuePink = Color(0xFFFF375F)
 private val MoreHueIndigo = Color(0xFF5E5CE6)
-private val MoreRowShape = ContinuousRoundedCornerShape(14.dp)
-private val MoreGlyphShape = ContinuousRoundedCornerShape(8.dp)
-private val MoreGroupShape = ContinuousRoundedCornerShape(20.dp)
+private val MoreRowShape = RoundedCornerShape(14.dp)
+private val MoreGlyphShape = RoundedCornerShape(8.dp)
+private val MoreGroupShape = RoundedCornerShape(20.dp)
 
 /** Clean sheets group related actions into cards; Material keeps its flat list. */
 @Composable

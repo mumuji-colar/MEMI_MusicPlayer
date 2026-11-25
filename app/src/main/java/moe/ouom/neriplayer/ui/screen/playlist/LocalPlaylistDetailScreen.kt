@@ -1615,7 +1615,10 @@ fun LocalPlaylistDetailScreen(
                 handleLocalSongDeleteResult = ::handleLocalSongDeleteResult,
                 launchWithLocalSyncWarningAction = ::launchWithLocalSyncWarning,
                 openNeteaseSyncPreview = ::openNeteaseSyncPreview,
-                playPlaylistAction = ::playPlaylist,
+                playPlaylistAction = { shuffle ->
+                    requestedBiliParts = null
+                    playPlaylist(shuffle)
+                },
                 copyText = { text ->
                     scope.launch {
                         clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("text", text)))
@@ -1710,8 +1713,11 @@ fun LocalPlaylistDetailScreen(
                     title = song.name,
                     loadVideo = { AppContainer.biliClient.getVideoBasicInfoByBvid(it) },
                     onDismiss = { requestedBiliParts = null },
-                    onPlayOriginal = {
-                        val index = tabSongs.indexOfFirst { it.sameIdentityAs(song) }
+                    onPlayOriginal = playOriginal@{
+                        val (pendingSong, pendingBvid) = requestedBiliParts ?: return@playOriginal
+                        if (pendingBvid != bvid || !detailVisibilityState.targetState) return@playOriginal
+                        requestedBiliParts = null
+                        val index = tabSongs.indexOfFirst { it.sameIdentityAs(pendingSong) }
                         if (index >= 0) onSongClick(tabSongs, index)
                     },
                     onPlayPart = { info, index ->

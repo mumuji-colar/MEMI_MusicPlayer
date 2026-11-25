@@ -1,7 +1,7 @@
 package moe.ouom.neriplayer.ui.screen.tab.home
 
 import moe.ouom.neriplayer.ui.theme.NeriDesign
-import moe.ouom.neriplayer.ui.theme.neriRoundedShape
+import moe.ouom.neriplayer.ui.theme.neriCoverShape
 import moe.ouom.neriplayer.data.identity.sameIdentityAs
 import android.app.Application
 import android.content.ClipData
@@ -160,7 +160,7 @@ internal fun YtMusicPlaylistCard(
 
     Column(
         modifier = Modifier
-            .clip(neriRoundedShape(8.dp))
+            .clip(neriCoverShape(8.dp))
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = { showMenu = true }
@@ -190,7 +190,7 @@ internal fun YtMusicPlaylistCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .clip(neriRoundedShape(8.dp))
+                    .clip(neriCoverShape(8.dp))
             )
             Column(modifier = Modifier.padding(top = 6.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)) {
                 Text(
@@ -283,7 +283,7 @@ internal fun YtMusicHomeItemCard(
 
     Column(
         modifier = Modifier
-            .clip(neriRoundedShape(8.dp))
+            .clip(neriCoverShape(8.dp))
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = {
@@ -305,7 +305,7 @@ internal fun YtMusicHomeItemCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(neriRoundedShape(8.dp))
+                .clip(neriCoverShape(8.dp))
         )
         Column(modifier = Modifier.padding(top = 6.dp, start = 4.dp, end = 4.dp, bottom = 4.dp)) {
             Text(

@@ -16,6 +16,7 @@ from verify_instrumentation import case_is_skipped, is_assumption_failure
 MODULE_TASKS = {
     ":database:connectedDebugAndroidTest": "modules/database",
     ":local:connectedDebugAndroidTest": "modules/local",
+    ":ltwlan:connectedDebugAndroidTest": "modules/ltwlan",
     ":playback:runtime:connectedDebugAndroidTest": "modules/playback/runtime",
 }
 GRADLE_FLAGS = [
