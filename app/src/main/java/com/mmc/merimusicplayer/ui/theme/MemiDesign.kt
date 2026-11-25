@@ -82,7 +82,7 @@ internal fun neriDesignTokensFor(style: UiStyle): MemiDesignTokens = when (style
     UiStyle.Clean -> CleanDesignTokens
 }
 
-val LocalNeriDesign = staticCompositionLocalOf { MaterialDesignTokens }
+val LocalMemiDesign = staticCompositionLocalOf { MaterialDesignTokens }
 
 /** True while a custom background image is shown; clean chrome must stay translucent over it. */
 val LocalHasCustomBackground = staticCompositionLocalOf { false }
@@ -91,12 +91,12 @@ object MemiDesign {
     val tokens: MemiDesignTokens
         @Composable
         @ReadOnlyComposable
-        get() = LocalNeriDesign.current
+        get() = LocalMemiDesign.current
 
     val isClean: Boolean
         @Composable
         @ReadOnlyComposable
-        get() = LocalNeriDesign.current.isClean
+        get() = LocalMemiDesign.current.isClean
 }
 
 /**

@@ -121,7 +121,7 @@ import com.mmc.merimusicplayer.data.local.media.displayName
 import com.mmc.merimusicplayer.ui.navigation.LocalMiniPlayerHeight
 import com.mmc.merimusicplayer.ui.component.download.SongDownloadSubtitle
 import com.mmc.merimusicplayer.ui.feedback.MemiSnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.haptic.HapticIconButton
 import com.mmc.merimusicplayer.ui.haptic.HapticTextButton
 import com.mmc.merimusicplayer.ui.haptic.performHapticFeedback
@@ -170,7 +170,7 @@ fun RecentScreen(
             onResult = { result ->
                 if (result.isSuccess) {
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(message)
+                        snackbarHostState.showMemiSnackbar(message)
                     }
                 }
             }

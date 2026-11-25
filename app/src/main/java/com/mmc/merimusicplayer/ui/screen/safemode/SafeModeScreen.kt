@@ -50,7 +50,7 @@ import com.mmc.merimusicplayer.common.R as CoreCommonR
 import com.mmc.merimusicplayer.util.crash.CrashReportStore
 import com.mmc.merimusicplayer.core.startup.safemode.SafeModeManager
 import com.mmc.merimusicplayer.ui.feedback.MemiOverlaySnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.util.ClipboardCopyResult
 import com.mmc.merimusicplayer.ui.util.copyPlainTextSafely
 import com.mmc.merimusicplayer.R as AppR
@@ -75,7 +75,7 @@ fun SafeModeScreen(
         duration: SnackbarDuration = SnackbarDuration.Short
     ) {
         scope.launch {
-            snackbarHostState.showNeriSnackbar(
+            snackbarHostState.showMemiSnackbar(
                 message = message,
                 duration = duration
             )

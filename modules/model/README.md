@@ -14,9 +14,9 @@ Most sources are in `src/main/java/com/mmc/merimusicplayer/data/model`, grouped 
 
 Field names, defaults, and Protobuf field numbers must remain compatible with older caches, backups, and sync snapshots. Some types support Parcelable. `consumer-rules.pro` preserves Gson fields for historical Bilibili caches and playback state.
 
-`playback/effects/NeriDspParams.kt` 的参数数量、下标和枚举值须与 `:native` 的 `dsp/neri_dsp_params.h` 同步；`AudioEffectsSettings` 的归一化和路由选择决定是否启用 DSP。音效总开关关闭时也旁路外放优化，USB bit-perfect 模式保持旁路。
+`playback/effects/MemiDspParams.kt` 的参数数量、下标和枚举值须与 `:native` 的 `dsp/neri_dsp_params.h` 同步；`AudioEffectsSettings` 的归一化和路由选择决定是否启用 DSP。音效总开关关闭时也旁路外放优化，USB bit-perfect 模式保持旁路。
 
-The parameter count, indexes, and enum values in `playback/effects/NeriDspParams.kt` must match `:native`'s `dsp/neri_dsp_params.h`. `AudioEffectsSettings` normalization and route selection determine whether DSP is active. Disabling the effects master switch also bypasses speaker optimization, and USB bit-perfect mode remains bypassed.
+The parameter count, indexes, and enum values in `playback/effects/MemiDspParams.kt` must match `:native`'s `dsp/neri_dsp_params.h`. `AudioEffectsSettings` normalization and route selection determine whether DSP is active. Disabling the effects master switch also bypasses speaker optimization, and USB bit-perfect mode remains bypassed.
 
 ## 测试 / Tests
 

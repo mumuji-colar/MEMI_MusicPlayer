@@ -6,7 +6,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ManagedMigrationSafIdentityMatchTest {
-    private val documentId = "primary%3AMusic%2FNeriPlayer%2Fsong.flac"
+    private val documentId = "primary%3AMusic%2FMemiPlayer%2Fsong.flac"
 
     @Test
     fun `tree and document uris of one saf document share a migration identity`() {

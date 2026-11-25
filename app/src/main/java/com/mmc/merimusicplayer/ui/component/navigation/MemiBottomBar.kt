@@ -141,7 +141,7 @@ internal fun resolveBottomBarSelectionAlpha(
     DEFAULT_BOTTOM_BAR_SELECTION_ALPHA
 }
 
-internal fun isNeriNavigationDestinationSelected(
+internal fun isMemiNavigationDestinationSelected(
     currentDestination: NavDestination?,
     destination: Destinations
 ): Boolean = currentDestination?.hierarchy?.any { it.route == destination.route } == true
@@ -174,7 +174,7 @@ fun MemiBottomBar(
  * [MemiBottomBar] 的 Mochi 版本。
  *
  * 标签、图标、跳转回调都跟原来一致，只是外观和手感换成 Mochi 的胶囊标签栏；
- * 选中态仍按 [isNeriNavigationDestinationSelected] 的层级判断，子页面里也能正确高亮。
+ * 选中态仍按 [isMemiNavigationDestinationSelected] 的层级判断，子页面里也能正确高亮。
  *
  * [alignWithMiniPlayer] 打开时把左右留白收到播放条的 8dp、并按可用宽度均分格宽，
  * 让胶囊和上方的迷你播放器齐边；关闭时保持原先「20dp 留白 + 按内容收窄」的样子。
@@ -190,7 +190,7 @@ private fun MochiNavigationBar(
     if (items.isEmpty()) return
     val labels = items.map { stringResource(it.first.labelResId) }
     val selectedIndex = items.indexOfFirst { (destination, _) ->
-        isNeriNavigationDestinationSelected(currentDestination, destination)
+        isMemiNavigationDestinationSelected(currentDestination, destination)
     }
     // 只按 items 记忆：labels 每次重组都是新 List，用它当 key 会让缓存完全失效
     val mochiItems = remember(items) {

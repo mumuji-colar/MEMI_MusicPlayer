@@ -129,7 +129,7 @@ import com.mmc.merimusicplayer.ui.util.rememberSongDisplayCoverUrl
 import com.mmc.merimusicplayer.ui.util.currentWindowWidthDp
 import com.mmc.merimusicplayer.util.platform.PHONE_SMALLEST_SCREEN_WIDTH_DP
 import com.mmc.merimusicplayer.ui.feedback.MemiOverlaySnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.data.model.youtube.music.YouTubeMusicHomeShelf
 import com.mmc.merimusicplayer.data.model.youtube.music.YouTubeMusicHomeItem
 import com.mmc.merimusicplayer.platform.youtube.api.parser.YouTubeMusicParser

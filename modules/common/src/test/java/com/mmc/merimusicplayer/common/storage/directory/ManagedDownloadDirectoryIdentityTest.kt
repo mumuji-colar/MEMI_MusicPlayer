@@ -10,7 +10,7 @@ class ManagedDownloadDirectoryIdentityTest {
 
     private val identity = ManagedDownloadDirectoryIdentity
     private val authority = "com.android.externalstorage.documents"
-    private val treeUri = "content://$authority/tree/primary%3AMusic%2FNeri"
+    private val treeUri = "content://$authority/tree/primary%3AMusic%2FMemi"
 
     @Test
     fun `blank directory uris normalise to null and others are trimmed`() {
@@ -23,11 +23,11 @@ class ManagedDownloadDirectoryIdentityTest {
     fun `configured document and tree uris collapse to the tree uri`() {
         assertEquals(
             treeUri,
-            identity.normalizeConfiguredDirectoryUri("$treeUri/document/primary%3AMusic%2FNeri%2FAlbum?mode=1#top")
+            identity.normalizeConfiguredDirectoryUri("$treeUri/document/primary%3AMusic%2FMemi%2FAlbum?mode=1#top")
         )
         assertEquals(
             treeUri,
-            identity.normalizeConfiguredDirectoryUri("content://$authority/document/primary%3AMusic%2FNeri/")
+            identity.normalizeConfiguredDirectoryUri("content://$authority/document/primary%3AMusic%2FMemi/")
         )
         assertEquals(
             "content://$authority/root/primary",
@@ -42,7 +42,7 @@ class ManagedDownloadDirectoryIdentityTest {
         assertEquals("tree:$authority:primary:Music/Memi", identity.directoryIdentity("$treeUri/"))
         assertEquals(
             "tree:$authority:primary:Music/Memi",
-            identity.directoryIdentity("content://$authority/document/primary%3AMusic%2FNeri")
+            identity.directoryIdentity("content://$authority/document/primary%3AMusic%2FMemi")
         )
         assertEquals("document::primary:Music", identity.directoryIdentity("primary/document/primary%3AMusic"))
         assertEquals("/storage/emulated/0/Music", identity.directoryIdentity("/storage/emulated/0/Music"))
@@ -52,7 +52,7 @@ class ManagedDownloadDirectoryIdentityTest {
     @Test
     fun `equivalent directories share an identity`() {
         assertTrue(
-            identity.areEquivalentDirectoryUris(treeUri, "content://$authority/document/primary%3AMusic%2FNeri?x=1")
+            identity.areEquivalentDirectoryUris(treeUri, "content://$authority/document/primary%3AMusic%2FMemi?x=1")
         )
         assertTrue(identity.areEquivalentDirectoryUris(null, " "))
         assertFalse(identity.areEquivalentDirectoryUris(null, treeUri))

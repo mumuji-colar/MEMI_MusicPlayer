@@ -66,7 +66,7 @@ import com.mmc.merimusicplayer.data.local.media.LocalMediaSupport
 import com.mmc.merimusicplayer.data.model.SongItem
 import com.mmc.merimusicplayer.ui.haptic.HapticTextButton
 import com.mmc.merimusicplayer.ui.feedback.MemiSnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.util.format.convertTimestampToDate
 import com.mmc.merimusicplayer.util.format.formatDuration
 import com.mmc.merimusicplayer.common.format.formatFileSize
@@ -124,7 +124,7 @@ fun LocalSongDetailsDialog(
             fun copyValue(value: String) {
                 scope.launch {
                     clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("text", value)))
-                    snackbarHostState.showNeriSnackbar(composeResources.getString(CoreCommonR.string.toast_copied))
+                    snackbarHostState.showMemiSnackbar(composeResources.getString(CoreCommonR.string.toast_copied))
                 }
             }
 

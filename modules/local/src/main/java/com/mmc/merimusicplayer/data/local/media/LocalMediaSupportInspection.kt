@@ -1004,7 +1004,7 @@ internal fun LocalMediaSupport.inspectTagLibMetadata(
                 null
             },
             coverBytes = coverBytes?.takeIf { it.isNotEmpty() },
-            sourceStableKey = propertyMap.readNeriSourceStableKey()
+            sourceStableKey = propertyMap.readMemiSourceStableKey()
         )
     }
 }

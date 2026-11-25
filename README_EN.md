@@ -4,7 +4,7 @@
 
 <div align="center">
 
-<h3>✨ A GPLv3 fork of NeriPlayer — Mochi UI redesign, multi-source streaming, word-level lyrics 🎵</h3>
+<h3>✨ A GPLv3 fork of MemiPlayer — Mochi UI redesign, multi-source streaming, word-level lyrics 🎵</h3>
 
 <p>
   <a href="https://github.com/mumuji-colar/MEMI_MusicPlayer/releases">
@@ -102,7 +102,7 @@ MEMI輕音 is based on [NeriPlayer](https://github.com/cwuom/NeriPlayer), a nati
 - **Self-hosted music (Preview)**: connect to Navidrome / OpenSubsonic under Library → Music servers to browse and search albums, songs, and artists with the existing player, artwork, lyrics, local favorites, playlists, and original-file offline downloads (see [Connecting a music server](#connecting-a-music-server)).
 - **Local-first**: playback cache, downloads, playlists, history, settings, and auth data are stored locally on the device by default.
 - **Optional sync**: playlists, favorites, recent plays, and playback stats can be synced two-way with your own GitHub repository (creating a new repository in-app defaults to private, or you can connect an existing public or private repository) or a WebDAV remote file.
-- **Decentralized and account-safety first**: synced data is written only to storage you control, never to a maintainer-operated server. Because third-party music platforms use risk-control and behavior-sampling systems where uploading local playback history may trigger abnormal login or account restrictions, NeriPlayer never uploads local playback history or stats back to those platforms.
+- **Decentralized and account-safety first**: synced data is written only to storage you control, never to a maintainer-operated server. Because third-party music platforms use risk-control and behavior-sampling systems where uploading local playback history may trigger abnormal login or account restrictions, MemiPlayer never uploads local playback history or stats back to those platforms.
 
 > 💡 **How the remote features differ**: **Music servers** stream your own Navidrome / OpenSubsonic library; **Listen Together** syncs real-time room playback state across devices; **GitHub / WebDAV sync** performs two-way sync of local playlists, history, and stats metadata (without uploading audio files or migrating music server profiles and credentials). Each works independently.
 
@@ -139,7 +139,7 @@ See the [API contract](docs/music-server-api.md) for protocol and client behavio
 - **YouTube playback compatibility**: valid identity cookies are preserved and rotated; when a cached `player.js` or playback candidate is rejected, the app falls back to EJS/HLS instead of retrying the same candidate.
 - **Audio effects**: a self-built DSP with built-in presets, a 10-band equalizer, AutoEQ import, loudness leveling, and 32-bit high-resolution output — fully bypassed when off.
 - **USB exclusive output**: UAC1.0 and UAC2.0 Type I PCM DACs with bit-perfect output; responding to USB attach events can be disabled separately.
-- **Background playback**: music can continue through the foreground media service when you switch apps or swipe NeriPlayer out of Recents. An optional invisible 1-pixel floating window reduces the chance of the system freezing background playback.
+- **Background playback**: music can continue through the foreground media service when you switch apps or swipe MemiPlayer out of Recents. An optional invisible 1-pixel floating window reduces the chance of the system freezing background playback.
 - **Playback behavior**: fade in/out, crossfade on track change, pause on Bluetooth disconnect, mix with other apps, and audio focus policy, with resume position and play mode restored.
 - **Bilibili skipping**: SponsorBlock auto-skip and custom ranges, off by default, disabled during Listen Together.
 
@@ -288,22 +288,22 @@ dedicated document:
 MEMI輕音 ships a Listen Together feature. You can deploy your own server or use one
 someone else deployed.
 
-- In-repo server source: `np-submodule/NeriPlayer-LTW`
-- Public deployment template: [TheSmallHanCat/NeriPlayer-LTW](https://github.com/TheSmallHanCat/NeriPlayer-LTW)
+- In-repo server source: `np-submodule/MemiPlayer-LTW`
+- Public deployment template: [TheSmallHanCat/MemiPlayer-LTW](https://github.com/TheSmallHanCat/MemiPlayer-LTW)
 
 The server is built on **Cloudflare Workers** and **Durable Objects** and syncs in real
 time over WebSocket.
 
 ### One-click deploy to Cloudflare Workers
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/TheSmallHanCat/NeriPlayer-LTW)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/TheSmallHanCat/MemiPlayer-LTW)
 
 In the app, Settings lets you configure the server address, test availability, and reset
 the local Listen Together identity. Room ids are fixed at 6 readable characters and
 nicknames are 1-24 characters (currently Chinese, Latin letters, and digits). The first
 join must use the key in the invite link, and local songs cannot create a room.
 For the full protocol, event model, and deployment details, see
-[np-submodule/NeriPlayer-LTW/README.md](./np-submodule/NeriPlayer-LTW/README.md).
+[np-submodule/MemiPlayer-LTW/README.md](./np-submodule/MemiPlayer-LTW/README.md).
 
 ---
 
@@ -353,8 +353,8 @@ the commit history.
   on plain file logging, and crash logs are written separately.
 - Open an [issue](https://github.com/mumuji-colar/MEMI_MusicPlayer/issues) with the OS version, device
   model, app version, reproduction steps, and relevant logs.
-- Filter logs on Windows: `adb logcat | findstr NeriPlayer` (log tags keep the upstream naming)
-- Filter logs on Linux / macOS: `adb logcat | grep NeriPlayer`
+- Filter logs on Windows: `adb logcat | findstr MemiPlayer` (log tags keep the upstream naming)
+- Filter logs on Linux / macOS: `adb logcat | grep MemiPlayer`
 
 ---
 
@@ -422,7 +422,7 @@ the commit history.
   modified distributions must stay under GPL-3.0 (keep copyright notices, mark your changes,
   and provide the corresponding source).
   The [native source license note](./modules/native/src/main/cpp/README.md) grants an
-  alternative license with attribution conditions only for the NeriPlayer-owned native
+  alternative license with attribution conditions only for the MemiPlayer-owned native
   sources it lists; third-party sources and unlisted repository content are excluded.
   External native contributions do not enter that scope automatically through a pull
   request — only an explicit dual-license statement does. The Xiaomi Super Island lyric

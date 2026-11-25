@@ -13,15 +13,15 @@ class MemiNavigationDestinationSelectionTest {
 
     @Test
     fun `no current destination selects no tab`() {
-        assertFalse(isNeriNavigationDestinationSelected(null, Destinations.Home))
+        assertFalse(isMemiNavigationDestinationSelected(null, Destinations.Home))
     }
 
     @Test
     fun `a top level route selects only its own tab`() {
         val explore = destination(route = "explore")
 
-        assertTrue(isNeriNavigationDestinationSelected(explore, Destinations.Explore))
-        assertFalse(isNeriNavigationDestinationSelected(explore, Destinations.Home))
+        assertTrue(isMemiNavigationDestinationSelected(explore, Destinations.Explore))
+        assertFalse(isMemiNavigationDestinationSelected(explore, Destinations.Home))
     }
 
     @Test
@@ -30,8 +30,8 @@ class MemiNavigationDestinationSelectionTest {
         val library = graph(route = "library", parent = root)
         val playlistDetail = destination(route = "playlist_detail/{id}", parent = library)
 
-        assertTrue(isNeriNavigationDestinationSelected(playlistDetail, Destinations.Library))
-        assertFalse(isNeriNavigationDestinationSelected(playlistDetail, Destinations.Settings))
+        assertTrue(isMemiNavigationDestinationSelected(playlistDetail, Destinations.Library))
+        assertFalse(isMemiNavigationDestinationSelected(playlistDetail, Destinations.Settings))
     }
 
     private fun destination(route: String?, parent: NavGraph? = null): NavDestination =

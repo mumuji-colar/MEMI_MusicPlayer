@@ -1,6 +1,6 @@
 package com.mmc.merimusicplayer.ui.component
 
-import com.mmc.merimusicplayer.ui.theme.isNeriDarkTheme
+import com.mmc.merimusicplayer.ui.theme.isMemiDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +35,7 @@ fun AppleMusicLyric(
     lyrics: List<LyricEntry>,
     currentTimeMs: Long,
     modifier: Modifier = Modifier,
-    textColor: Color = if (isNeriDarkTheme()) Color.White else Color.Black,
+    textColor: Color = if (isMemiDarkTheme()) Color.White else Color.Black,
     inactiveAlphaNear: Float = 0.4f,
     inactiveAlphaFar: Float = 0.35f,
     blurInactiveAlphaNear: Float = 0.72f,
@@ -90,7 +90,7 @@ fun SyncedLyricsView(
     lyrics: List<LyricEntry>,
     currentTimeMs: Long,
     modifier: Modifier = Modifier,
-    textColor: Color = if (isNeriDarkTheme()) Color.White else Color.Black,
+    textColor: Color = if (isMemiDarkTheme()) Color.White else Color.Black,
     inactiveAlphaNear: Float = 0.4f,
     inactiveAlphaFar: Float = 0.35f,
     blurInactiveAlphaNear: Float = 0.72f,

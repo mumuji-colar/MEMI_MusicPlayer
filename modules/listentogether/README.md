@@ -1,8 +1,8 @@
 # 一起听 / Listen Together
 
-`:listentogether` 管理房间会话、连接恢复、控制与播放同步，以及 HTTP/WebSocket 协议。共享模型在 `:model`，服务端在 `np-submodule/NeriPlayer-LTW`。
+`:listentogether` 管理房间会话、连接恢复、控制与播放同步，以及 HTTP/WebSocket 协议。共享模型在 `:model`，服务端在 `np-submodule/MemiPlayer-LTW`。
 
-`:listentogether` handles room sessions, reconnection, playback controls and synchronization, and the HTTP/WebSocket protocol. Shared models live in `:model`; the server is in `np-submodule/NeriPlayer-LTW`.
+`:listentogether` handles room sessions, reconnection, playback controls and synchronization, and the HTTP/WebSocket protocol. Shared models live in `:model`; the server is in `np-submodule/MemiPlayer-LTW`.
 
 ## 结构 / Layout
 

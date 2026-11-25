@@ -171,7 +171,7 @@ import com.mmc.merimusicplayer.ui.onboarding.StartupOnboardingScreen
 import com.mmc.merimusicplayer.ui.screen.safemode.SafeModeScreen
 import com.mmc.merimusicplayer.ui.sync.upgrade.StartupSyncUpgradePrompt
 import com.mmc.merimusicplayer.ui.theme.rememberActualSystemDarkTheme
-import com.mmc.merimusicplayer.ui.theme.LocalNeriTargetColorScheme
+import com.mmc.merimusicplayer.ui.theme.LocalMemiTargetColorScheme
 import com.mmc.merimusicplayer.ui.theme.MemiMochiTheme
 import com.mmc.merimusicplayer.util.crash.CrashReportStore
 import com.mmc.merimusicplayer.core.crash.ExceptionHandler
@@ -314,7 +314,7 @@ internal fun LocalizedAppContent(
     )
 }
 
-private fun MainActivity.setNeriContent(
+private fun MainActivity.setMemiContent(
     safeModeActive: Boolean,
     content: @Composable () -> Unit
 ) {
@@ -326,8 +326,8 @@ private fun MainActivity.setNeriContent(
             safeModeActive = safeModeActive
         )
         CompositionLocalProvider(
-            LocalActivity provides this@setNeriContent,
-            LocalActivityResultRegistryOwner provides this@setNeriContent,
+            LocalActivity provides this@setMemiContent,
+            LocalActivityResultRegistryOwner provides this@setMemiContent,
             LocalOverscrollFactory provides AdvancedGlassOverscrollFactory,
             LocalOverlayNavigationBarHidden provides hideNavigationBar,
             content = content
@@ -411,7 +411,7 @@ class MainActivity : ComponentActivity() {
         preferHighRefreshRate = startupSettingsSnapshot.preferHighRefreshRate
         updateWindowRefreshRate()
         observePreferredHighRefreshRate()
-        enableNeriEdgeToEdge()
+        enableMemiEdgeToEdge()
         applySystemBarVisibility()
         observeImeDismissal()
         window.applyMainWindowBackground(
@@ -422,7 +422,7 @@ class MainActivity : ComponentActivity() {
         )
 
         if (safeModeActive) {
-            setNeriContent(safeModeActive = safeModeActive) {
+            setMemiContent(safeModeActive = safeModeActive) {
                 val uiDensityScale by settingsRepository.uiDensityScaleFlow
                     .collectAsStateWithLifecycle(initialValue = 1.0f)
                 AppUiDensityRoot(uiDensityScale) {
@@ -439,7 +439,7 @@ class MainActivity : ComponentActivity() {
                             controller.isAppearanceLightStatusBars = !useDark
                             controller.isAppearanceLightNavigationBars = !useDark
                             window.applyMainWindowCaptionAppearance(useLightSystemBarIcons = useDark)
-                            window.applyNeriSystemBarTransparency()
+                            window.applyMemiSystemBarTransparency()
                         }
                         SafeModeScreen(
                             onRestoreNormal = ::restoreFromSafeMode
@@ -450,7 +450,7 @@ class MainActivity : ComponentActivity() {
             return
         }
 
-        setNeriContent(safeModeActive = safeModeActive) {
+        setMemiContent(safeModeActive = safeModeActive) {
             var selectedAppLanguage by remember {
                 mutableStateOf(LanguageManager.getCurrentLanguage(this@MainActivity))
             }
@@ -603,7 +603,7 @@ class MainActivity : ComponentActivity() {
                             controller.isAppearanceLightStatusBars = !useLightSystemBarIcons
                             controller.isAppearanceLightNavigationBars = !useLightSystemBarIcons
                             window.applyMainWindowCaptionAppearance(useLightSystemBarIcons)
-                            window.applyNeriSystemBarTransparency()
+                            window.applyMemiSystemBarTransparency()
                         }
 
                         var playedEntrance by rememberSaveable { mutableStateOf(false) }
@@ -1350,7 +1350,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun applySystemBarVisibility() {
-        window.applyNeriSystemBarTransparency()
+        window.applyMemiSystemBarTransparency()
         val configuration = resources.configuration
         val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         val hideNavigationBar = shouldHideTabletNavigationBar(
@@ -1845,7 +1845,7 @@ fun MemiTheme(
             // 启动阶段（免责声明 / 初次设置）同样要把配色交给 Mochi：
             // 少了这一层，Mochi 开关、滑块和对话框会退回库自带浅色默认值，
             // 深色模式下就会看到一块白底弹窗。
-            CompositionLocalProvider(LocalNeriTargetColorScheme provides colorScheme) {
+            CompositionLocalProvider(LocalMemiTargetColorScheme provides colorScheme) {
                 MemiMochiTheme(colorScheme = colorScheme) {
                     content()
                 }

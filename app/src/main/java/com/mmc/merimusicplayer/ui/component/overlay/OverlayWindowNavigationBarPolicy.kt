@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.mmc.merimusicplayer.activity.applyNeriSystemBarTransparency
+import com.mmc.merimusicplayer.activity.applyMemiSystemBarTransparency
 
 internal val LocalOverlayNavigationBarHidden = compositionLocalOf { false }
 
@@ -77,7 +77,7 @@ private fun View.findOverlayDialogWindow(): Window? {
 }
 
 private fun Window.applyOverlayNavigationBarVisibility(hidden: Boolean) {
-    applyNeriSystemBarTransparency()
+    applyMemiSystemBarTransparency()
     WindowInsetsControllerCompat(this, decorView).apply {
         systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
         if (hidden) hide(WindowInsetsCompat.Type.navigationBars())

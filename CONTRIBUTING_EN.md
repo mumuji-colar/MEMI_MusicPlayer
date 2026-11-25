@@ -17,7 +17,7 @@ implementation**. Keep documentation aligned with the source code and runtime be
 
 ### Scope
 
-- MEMI輕音 is based on NeriPlayer and is a **native Android audio player**, not a public cloud music service.
+- MEMI輕音 is based on MemiPlayer and is a **native Android audio player**, not a public cloud music service.
 - Online source capabilities mainly come from **NetEase Cloud Music**,
   **Bilibili**, and **YouTube Music**.
 - Playback metadata and lyrics completion currently use **NetEase + QQ Music**,
@@ -25,7 +25,7 @@ implementation**. Keep documentation aligned with the source code and runtime be
 - Data is local by default. GitHub / WebDAV sync is **optional** and syncs
   metadata such as playlists, favorites, recent plays, and playback stats,
   not media files.
-- The Listen Together server lives in `np-submodule/NeriPlayer-LTW` and is based
+- The Listen Together server lives in `np-submodule/MemiPlayer-LTW` and is based
   on Cloudflare Workers and Durable Objects.
 - The main changes compared with upstream (branding, Mochi UI visual system,
   now-playing interactions, three-tier performance mode) are listed in
@@ -45,10 +45,10 @@ When maintaining docs, split them by audience:
 | [Kotlin helpers](docs/kotlin-helpers_EN.md) | Usage and boundaries for request generations, units, player reads, and coroutine results. |
 | [Music server API](docs/music-server-api.md) | **Preview feature; not sufficiently tested.** Current music-server HTTP endpoints, authentication, identity, and cache contracts (Chinese); see the platform README for core file responsibilities. |
 | [Quality gates](tools_pub/quality/README_EN.md) | Scope, commands, and verification limits for CRAP, source ownership, and dependency checks. |
-| [Native source licensing](modules/native/src/main/cpp/README.md) | Alternative-license scope for NeriPlayer-owned native source, third-party exclusions, and the explicit dual-license statement required for external contributions to enter that scope. |
+| [Native source licensing](modules/native/src/main/cpp/README.md) | Alternative-license scope for MemiPlayer-owned native source, third-party exclusions, and the explicit dual-license statement required for external contributions to enter that scope. |
 | [Native USB host gate](modules/native/src/main/cpp/tests/usb/config/host-gate-contract.md) | Public native USB host gate, CI coverage, and real-device boundary. |
 | [USB test corpus](modules/native/src/main/cpp/tests/usb/corpus/README.md) and [fixtures](modules/native/src/main/cpp/tests/usb/fixtures/README.md) | Public test corpus and fixtures must use synthetic or auditable sources; device-derived evidence stays in the private evidence tree. |
-| [Listen Together server](https://github.com/TheSmallHanCat/NeriPlayer-LTW#readme) | For server deployers: Worker API, event model, deployment, and local checks. |
+| [Listen Together server](https://github.com/TheSmallHanCat/MemiPlayer-LTW#readme) | For server deployers: Worker API, event model, deployment, and local checks. |
 
 If a behavior change affects user understanding, update the README.
 If it affects extension paths, tests, or module boundaries, update CONTRIBUTING.
@@ -69,7 +69,7 @@ If it affects extension paths, tests, or module boundaries, update CONTRIBUTING.
 | CMake | `3.22.1`, pinned by the Android build script |
 | Node.js | 22, for Listen Together Worker checks |
 | Version name format | `<git_short_hash>.<MMddHHmm>` |
-| Release APK (build output) | `NeriPlayer-<versionName>[-abi].apk` |
+| Release APK (build output) | `MemiPlayer-<versionName>[-abi].apk` |
 | Release APK (published) | Renamed to `MEMI-<versionName>-<versionCode>.apk` |
 
 Additional notes:
@@ -94,7 +94,7 @@ Additional notes:
 
 ### Quality Guardrails
 
-NeriPlayer covers a broad product surface. Protect these paths first:
+MemiPlayer covers a broad product surface. Protect these paths first:
 
 - **Playback**: `PlayerManager`, playback resolution, cache, URL refresh,
   playback fallback, long-form progress memory, BilibiliSponsorBlock skip
@@ -192,7 +192,7 @@ extra Gradle property.
 
 4. Artifacts are generated in `app/build/outputs/apk/release/`:
    ```text
-   NeriPlayer-<git_short_hash>.<MMddHHmm>[-abi].apk
+   MemiPlayer-<git_short_hash>.<MMddHHmm>[-abi].apk
    ```
 
 Security reminders:
@@ -228,7 +228,7 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
 
 #### Android client key paths
 
-- `app/src/main/java/com/mmc/merimusicplayer/NeriPlayerApplication.kt`
+- `app/src/main/java/com/mmc/merimusicplayer/MemiPlayerApplication.kt`
   - Application initialization. Handles language, crash handling, `AppContainer`,
     Lyricon, global downloads, and the shared image loader.
 
@@ -249,14 +249,14 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
     `BiliWebLoginActivity.kt`, `BiliQrLoginActivity.kt`, and `YouTubeWebLoginActivity.kt`:
     internal platform sign-in pages.
 
-- `app/src/main/java/com/mmc/merimusicplayer/ui/NeriApp.kt`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/MemiApp.kt`
   - Top-level Compose app shell. Handles `NavHost`, dynamic bottom bar, `MiniPlayer`,
     `Now Playing` overlay, Debug routes, themes, cache cleanup, and playback service sync.
   - `MainTabLayerHost.kt` retains outgoing and incoming main-tab scenes,
     performs interruptible directional transitions, and preserves saveable state
     plus a glass owner for each scene.
-  - `ui/theme/NeriTheme.kt` switches Material / Clean through one content host.
-    `NeriDesign.kt` supplies style geometry; `CleanTheme.kt` supplies Clean colors
+  - `ui/theme/MemiTheme.kt` switches Material / Clean through one content host.
+    `MemiDesign.kt` supplies style geometry; `CleanTheme.kt` supplies Clean colors
     and typography. Theme changes must preserve navigation. `AppGlobalDialogHosts.kt`
     displays global download traffic confirmations, while `globalDialogVisible`
     coordinates their visibility with Now Playing and its More sheet.
@@ -273,7 +273,7 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
     `ui/component/LyricsCompatibility.kt`. New code should use `SyncedLyricsView`.
 
 - `app/src/main/java/com/mmc/merimusicplayer/ui/component/playback/`
-  - `NeriMiniPlayer.kt`: bottom Mini Player, play/pause, and horizontal swipe for previous/next.
+  - `MemiMiniPlayer.kt`: bottom Mini Player, play/pause, and horizontal swipe for previous/next.
     The sleep-timer sheet also lives here; the audio effects & speed settings page lives in `ui/screen/tab/settings/audio/`.
   - Same-named files in the `ui/component/` root are primarily legacy package
     compatibility entry points. New implementations belong in responsibility-based
@@ -817,7 +817,7 @@ Use this for cover, lyrics, and track metadata completion, not for `Explore`.
    `DownloadParallelism.kt`, `AudioDownloadManager.kt`, and `GlobalDownloadManager.kt`.
 5. Changes to migration, delete semantics, resume checkpoints, or sidecar writes
    must update or add unit tests.
-6. High-risk mobile-data download confirmation reaches `NeriApp`'s global dialog
+6. High-risk mobile-data download confirmation reaches `MemiApp`'s global dialog
    host through `GlobalDownloadManager.trafficRiskDownloadRequests`. Check visibility
    and input above Now Playing and its More sheet, and retain actual-entry-point
    coverage in `MainActivityTrafficRiskDownloadTest`.
@@ -886,7 +886,7 @@ Use this for cover, lyrics, and track metadata completion, not for `Explore`.
 #### 13. Modify Listen Together
 
 1. Client sessions, HTTP/WebSocket transport, codecs, and bounded reading live together in `modules/listentogether`, under the existing `data/ltw`, `api/ltw`, and `listentogether/protocol` packages. Protocol models remain in `modules/model`. App binds platform capabilities under `core/di/ltw`; player adapters live in `modules/playback/runtime` under `core/player/ltw`.
-2. Server logic is under `np-submodule/NeriPlayer-LTW`.
+2. Server logic is under `np-submodule/MemiPlayer-LTW`.
 3. Protocol field changes must stay compatible across the Android client and Worker,
    and tests must be updated.
 4. When `shareAudioLinks=false`, HTTP and WebSocket room snapshots must not expose
@@ -921,7 +921,7 @@ Use this for cover, lyrics, and track metadata completion, not for `Explore`.
 
 #### 14. Modify main navigation and glass transitions
 
-1. The production main-tab path is shared by `NeriApp.kt` and
+1. The production main-tab path is shared by `MemiApp.kt` and
    `MainTabLayerHost.kt`; tab order and direction come from
    `resolveMainTabTransitionDirection`.
 2. Keep both outgoing and incoming scenes alive during transitions and preserve
@@ -936,10 +936,10 @@ Use this for cover, lyrics, and track metadata completion, not for `Explore`.
 5. Cover forward, reverse, interrupted, repeated-request, state-restoration, and
    startup-first-frame behavior. Geometry tests must not treat an unlaid-out
    `Rect(0, 0, 0, 0)` scene as a real overlap.
-6. At minimum, check `NeriAppMainTabTransitionPolicyTest`,
-   `AdvancedGlassNavigationTransitionTest`, `NeriAppNavigationTransitionTest`,
+6. At minimum, check `MemiAppMainTabTransitionPolicyTest`,
+   `AdvancedGlassNavigationTransitionTest`, `MemiAppNavigationTransitionTest`,
    and `HostNavigationTransitionGeometryTest`.
-7. Reuse geometry from `ui/theme/NeriDesign.kt` and colors/typography from
+7. Reuse geometry from `ui/theme/MemiDesign.kt` and colors/typography from
    `MaterialTheme`; dialogs use the existing `ui/component/overlay/` entry points.
    Theme-selection changes also need `SettingsThemeControls.kt`, theme snapshots,
    and preview-prompt state to stay aligned.
@@ -1000,13 +1000,13 @@ Use this for cover, lyrics, and track metadata completion, not for `Explore`.
 Common command:
 
 ```bash
-adb logcat | findstr NeriPlayer
+adb logcat | findstr MemiPlayer
 ```
 
 Linux / macOS:
 
 ```bash
-adb logcat | grep NeriPlayer
+adb logcat | grep MemiPlayer
 ```
 
 ---
@@ -1069,8 +1069,8 @@ Before submitting, consider at least these checks:
    and undefined-behavior checks. USB sanitizer profiles do not run DSP tests.
 7. If you changed the Listen Together Worker:
    ```bash
-   npm ci --prefix np-submodule/NeriPlayer-LTW
-   npm run check --prefix np-submodule/NeriPlayer-LTW
+   npm ci --prefix np-submodule/MemiPlayer-LTW
+   npm run check --prefix np-submodule/MemiPlayer-LTW
    ```
    `npm run check` runs the Node.js version check, `node --check`, protocol tests, and
    `wrangler deploy --dry-run`. Protocol or room-state changes still need real
@@ -1119,7 +1119,7 @@ and access external capabilities through narrow interfaces. Player and global
 service access for the extracted `PlayerManager` components belongs in their
 `PlayerManager*Port` adapters. Listen Together components under `:listentogether`'s `session/` own
 membership, room state, connection recovery, and control results; platform and player implementations use injected host interfaces. Wake locks are released with the session, async owners cancel their jobs, and components cannot read the global container.
-`NowPlayingScreen`, `SettingsScreen`, and `NeriApp` compose pages and feature
+`NowPlayingScreen`, `SettingsScreen`, and `MemiApp` compose pages and feature
 components; editing sessions, directory selection, settings domain bindings,
 and navigation effects belong to the corresponding components. Do not move
 logic into extension files with the original entry point as receiver or make
@@ -1194,7 +1194,7 @@ Commit messages should follow Conventional Commits when possible, for example:
   Source (public at the same repository), keep copyright and license notices, and
   state prominently that this is a modified version.
 - The alternative license in `modules/native/src/main/cpp/README.md` covers only the listed
-  NeriPlayer-owned native source, not third-party code or other repository content.
+  MemiPlayer-owned native source, not third-party code or other repository content.
 - A native PR does not itself grant the alternative license. Contributors who
   agree to dual licensing must record the README's statement in the PR, commit,
   or another auditable form accepted by the copyright holder.

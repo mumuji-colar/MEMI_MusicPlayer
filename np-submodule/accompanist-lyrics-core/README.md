@@ -6,8 +6,8 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-green.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 > [!IMPORTANT]
-> 此目录是 `NeriPlayer` 工程内维护的 `accompanist-lyrics` fork 子模块，用于项目集成与定制修改；它**不是**上游官方仓库。若你要查阅官方说明、发布、Issue 或提交记录，请优先访问上游项目，并以原作者/上游仓库信息为准。  
-> This directory is a `NeriPlayer`-maintained forked `accompanist-lyrics` submodule for project integration and custom changes. It is **not** the official upstream repository. If you are looking for official docs, releases, issues, or commit history, please refer to the upstream project and treat the original authors/upstream repository as the source of truth.
+> 此目录是 `MemiPlayer` 工程内维护的 `accompanist-lyrics` fork 子模块，用于项目集成与定制修改；它**不是**上游官方仓库。若你要查阅官方说明、发布、Issue 或提交记录，请优先访问上游项目，并以原作者/上游仓库信息为准。  
+> This directory is a `MemiPlayer`-maintained forked `accompanist-lyrics` submodule for project integration and custom changes. It is **not** the official upstream repository. If you are looking for official docs, releases, issues, or commit history, please refer to the upstream project and treat the original authors/upstream repository as the source of truth.
 
 ## 📦 Repository
 

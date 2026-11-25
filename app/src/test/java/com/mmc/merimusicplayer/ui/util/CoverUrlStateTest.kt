@@ -393,7 +393,7 @@ class CoverUrlStateTest {
             audioId = "11"
         )
         val safSong = privateSong.copy(
-            mediaUri = "content://com.android.externalstorage.documents/document/primary%3ANeriPlayer-Download%2FTrack.mp3",
+            mediaUri = "content://com.android.externalstorage.documents/document/primary%3AMemiPlayer-Download%2FTrack.mp3",
             localFilePath = null
         )
 
@@ -418,7 +418,7 @@ class CoverUrlStateTest {
             coverUrl = "content://new-tree/Covers/track.jpg",
             originalCoverUrl = "content://new-tree/Covers/track.jpg",
             mediaUri = "content://com.android.externalstorage.documents/document/" +
-                "primary%3ANeriPlayer%2FTrack.mp3",
+                "primary%3AMemiPlayer%2FTrack.mp3",
             localFilePath = null
         )
 

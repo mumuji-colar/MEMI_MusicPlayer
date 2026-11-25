@@ -95,7 +95,7 @@ import com.mmc.merimusicplayer.data.model.SongItem
 import com.mmc.merimusicplayer.ui.component.playlist.PlaylistLoadErrorDialog
 import com.mmc.merimusicplayer.ui.component.playlist.playlistLoadErrorText
 import com.mmc.merimusicplayer.ui.feedback.MemiOverlaySnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.haptic.HapticIconButton
 import com.mmc.merimusicplayer.ui.i18n.asString
 import com.mmc.merimusicplayer.ui.navigation.LocalMiniPlayerHeight
@@ -156,7 +156,7 @@ fun NeteaseCloudScreen(
             operation = "toggleNeteaseCloudSongFavorite",
             onResult = { result ->
                 if (result.isSuccess) {
-                    scope.launch { snackbarHostState.showNeriSnackbar(message) }
+                    scope.launch { snackbarHostState.showMemiSnackbar(message) }
                 }
             }
         ) {
@@ -172,7 +172,7 @@ fun NeteaseCloudScreen(
     val errorText = if (error != null) playlistLoadErrorText(error).asString() else null
     LaunchedEffect(errorText, ui.tracks.isNotEmpty()) {
         if (errorText != null && ui.tracks.isNotEmpty()) {
-            snackbarHostState.showNeriSnackbar(errorText)
+            snackbarHostState.showMemiSnackbar(errorText)
         }
     }
     if (error != null && ui.tracks.isEmpty() && !ui.loginRequired) {

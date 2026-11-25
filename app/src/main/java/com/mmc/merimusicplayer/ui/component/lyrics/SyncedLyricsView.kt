@@ -55,7 +55,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
-import com.mmc.merimusicplayer.ui.theme.isNeriDarkTheme
+import com.mmc.merimusicplayer.ui.theme.isMemiDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -615,7 +615,7 @@ fun SyncedLyricsView(
     lyrics: List<LyricEntry>,
     currentTimeMs: Long,
     modifier: Modifier = Modifier,
-    textColor: Color = if (isNeriDarkTheme()) Color.White else Color.Black,
+    textColor: Color = if (isMemiDarkTheme()) Color.White else Color.Black,
     inactiveAlphaNear: Float = 0.4f,
     inactiveAlphaFar: Float = 0.35f,
     blurInactiveAlphaNear: Float = 0.72f,

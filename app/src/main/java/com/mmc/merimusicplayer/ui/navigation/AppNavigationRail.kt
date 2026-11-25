@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mmc.merimusicplayer.ui.BottomBarLayoutInsets
 import com.mmc.merimusicplayer.ui.banner.OfflineModeBottomBanner
-import com.mmc.merimusicplayer.ui.component.navigation.isNeriNavigationDestinationSelected
+import com.mmc.merimusicplayer.ui.component.navigation.isMemiNavigationDestinationSelected
 import com.mmc.merimusicplayer.ui.component.navigation.resolveBottomBarFallbackScrimAlpha
 import com.mmc.merimusicplayer.ui.component.navigation.resolveBottomBarSelectionAlpha
 import com.mmc.merimusicplayer.ui.effect.glass.AdvancedGlassRole
@@ -175,7 +175,7 @@ internal fun AppNavigationRail(
                 ) {
                     presentation.items.forEach { (destination, icon) ->
                         val label = stringResource(destination.labelResId)
-                        val selected = isNeriNavigationDestinationSelected(presentation.currentDestination, destination)
+                        val selected = isMemiNavigationDestinationSelected(presentation.currentDestination, destination)
                         NavigationRailItem(
                             selected = selected,
                             onClick = {

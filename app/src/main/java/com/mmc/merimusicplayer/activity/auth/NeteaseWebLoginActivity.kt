@@ -57,11 +57,11 @@ import com.mmc.merimusicplayer.data.auth.web.clearWebViewLoginState
 import com.mmc.merimusicplayer.data.auth.web.normalizeNeteaseWebLoginCookies
 import com.mmc.merimusicplayer.data.auth.web.shouldAutoCompleteNeteaseWebLogin
 import com.mmc.merimusicplayer.common.logging.NPLogger
-import com.mmc.merimusicplayer.ui.feedback.showNeriViewSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiViewSnackbar
 import com.mmc.merimusicplayer.network.security.hostMatchesAnyDomain
 import com.mmc.merimusicplayer.network.security.isAllowedMainFrameRequest
 import com.mmc.merimusicplayer.util.platform.lockPortraitIfPhone
-import com.mmc.merimusicplayer.activity.enableNeriEdgeToEdge
+import com.mmc.merimusicplayer.activity.enableMemiEdgeToEdge
 
 class NeteaseWebLoginActivity : ComponentActivity() {
 
@@ -91,7 +91,7 @@ class NeteaseWebLoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (finishIfWebViewUnavailable()) return
         lockPortraitIfPhone()
-        enableNeriEdgeToEdge()
+        enableMemiEdgeToEdge()
         foregroundWebLoginToken = ForegroundWebLoginGuard.enter("netease")
         val webLoginSettings = resolveNeteaseWebLoginWebSettings(
             smallestScreenWidthDp = resources.configuration.smallestScreenWidthDp,
@@ -231,7 +231,7 @@ class NeteaseWebLoginActivity : ComponentActivity() {
         try {
             val map = readCookieMap()
             if (map.isEmpty()) {
-                showNeriViewSnackbar(
+                showMemiViewSnackbar(
                     webView,
                     getString(CoreCommonR.string.snackbar_cookie_empty),
                     Snackbar.LENGTH_SHORT
@@ -243,7 +243,7 @@ class NeteaseWebLoginActivity : ComponentActivity() {
             setResult(RESULT_OK, Intent().putExtra(RESULT_COOKIE, json))
             finish()
         } catch (e: Throwable) {
-            showNeriViewSnackbar(
+            showMemiViewSnackbar(
                 webView,
                 getString(CoreCommonR.string.snackbar_read_failed, e.message ?: e.javaClass.simpleName),
                 Snackbar.LENGTH_LONG

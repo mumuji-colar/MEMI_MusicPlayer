@@ -21,7 +21,7 @@
 
 ## 协议与限制
 
-NeriPlayer LAN 使用 `protocolVersion=4`，房间内的设备都需要升级到支持 v4 的版本。协议沿用 BeatSync 的 NTP、PLAY/PAUSE、SYNC、AUDIO_SOURCE_LOADED、SCHEDULED_ACTION 和 ROOM_EVENT 消息，并增加握手、曲目元数据、细分权限、装载代次和暂停态同步。
+MemiPlayer LAN 使用 `protocolVersion=4`，房间内的设备都需要升级到支持 v4 的版本。协议沿用 BeatSync 的 NTP、PLAY/PAUSE、SYNC、AUDIO_SOURCE_LOADED、SCHEDULED_ACTION 和 ROOM_EVENT 消息，并增加握手、曲目元数据、细分权限、装载代次和暂停态同步。
 
 房间最多 16 个在线成员，昵称 1–24 字符，握手超时 5 秒。WebSocket 控制消息及帧上限为 64 KiB。共享歌词和逐字时间轴通过会话内的 HTTP 资源传输，上限为 8 MiB，成员按长度和 SHA-256 校验。服务端对输入限速，并断开积压过多消息的连接。主控身份只能由进程内创建的随机 token 建立，token 不进入 UI 状态或发现广播。局域网允许发现后直接加入，无邀请确认。
 

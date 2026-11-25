@@ -47,7 +47,7 @@ import com.mmc.merimusicplayer.network.weblogin.ForegroundWebLoginGuard
 import com.mmc.merimusicplayer.data.auth.web.shouldAutoCompleteBiliWebLogin
 import com.mmc.merimusicplayer.common.logging.NPLogger
 import com.mmc.merimusicplayer.util.platform.lockPortraitIfPhone
-import com.mmc.merimusicplayer.activity.enableNeriEdgeToEdge
+import com.mmc.merimusicplayer.activity.enableMemiEdgeToEdge
 import org.json.JSONObject
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.milliseconds
@@ -93,7 +93,7 @@ class BiliQrLoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lockPortraitIfPhone()
-        enableNeriEdgeToEdge()
+        enableMemiEdgeToEdge()
         foregroundWebLoginToken = ForegroundWebLoginGuard.enter("bilibili")
 
         buildLayout()

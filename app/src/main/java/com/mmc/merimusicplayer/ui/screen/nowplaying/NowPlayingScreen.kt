@@ -151,8 +151,8 @@ import com.mmc.merimusicplayer.ui.component.playback.SleepTimerDialog
 import com.mmc.merimusicplayer.ui.component.playback.resolvePlaybackWaiting
 import com.mmc.merimusicplayer.ui.component.sheet.bottomSheetScrollGuard
 import com.mmc.merimusicplayer.ui.screen.nowplaying.actions.NeteaseCollectionFeedbackHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
-import com.mmc.merimusicplayer.ui.theme.LocalNeriTargetColorScheme
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
+import com.mmc.merimusicplayer.ui.theme.LocalMemiTargetColorScheme
 import com.mmc.merimusicplayer.ui.component.lyrics.resolveLyricSeekPosition
 import com.mmc.merimusicplayer.ui.viewmodel.NowPlayingViewModel
 import com.mmc.merimusicplayer.data.model.NeteaseArtistSummary
@@ -518,7 +518,7 @@ fun NowPlayingScreen(
         .collectAsStateWithLifecycle(initialValue = PlayerManager.defaultLyricSource)
     val lyricsPreferenceRevision by PlayerManager.lyricsPreferenceRevisionFlow
         .collectAsStateWithLifecycle()
-    val targetNowPlayingColorScheme = LocalNeriTargetColorScheme.current
+    val targetNowPlayingColorScheme = LocalMemiTargetColorScheme.current
     val targetNowPlayingActiveIconColor = resolveNowPlayingActiveIconColor(
         accentColor = targetNowPlayingColorScheme.primary,
         seedColor = resolveNowPlayingThemeSeedColor(themeSeedColorHex),
@@ -709,7 +709,7 @@ fun NowPlayingScreen(
         val song = currentSong
         if (song == null || actualCoverUrl.isNullOrBlank()) {
             screenScope.launch {
-                snackbarHostState.showNeriSnackbar(
+                snackbarHostState.showMemiSnackbar(
                     composeResources.getString(CoreCommonR.string.cover_download_unavailable)
                 )
             }
@@ -722,13 +722,13 @@ fun NowPlayingScreen(
                         AppR.string.media_cover_file_name, song.displayArtist(), song.displayName()
                     )
                 ).onSuccess { fileName ->
-                    snackbarHostState.showNeriSnackbar(
+                    snackbarHostState.showMemiSnackbar(
                         composeResources.getString(CoreCommonR.string.cover_download_success, fileName)
                     )
                 }.onFailure { error ->
                     val errorMessage =
                         error.message ?: composeResources.getString(CoreCommonR.string.download_failed)
-                    snackbarHostState.showNeriSnackbar(
+                    snackbarHostState.showMemiSnackbar(
                         composeResources.getString(CoreCommonR.string.cover_download_failed, errorMessage)
                     )
                 }
@@ -743,7 +743,7 @@ fun NowPlayingScreen(
             downloadCurrentCover()
         } else {
             screenScope.launch {
-                snackbarHostState.showNeriSnackbar(
+                snackbarHostState.showMemiSnackbar(
                     composeResources.getString(CoreCommonR.string.cover_download_permission_required)
                 )
             }
@@ -783,7 +783,7 @@ fun NowPlayingScreen(
     val secondaryLyricsResolved = lyricsLoadOwner.secondaryResolved
     LaunchedEffect(lyricsLoadOwner, lyricsLoadOwner.errorMessage) {
         val message = lyricsLoadOwner.errorMessage ?: return@LaunchedEffect
-        val result = snackbarHostState.showNeriSnackbar(
+        val result = snackbarHostState.showMemiSnackbar(
             message = composeResources.getString(CoreCommonR.string.server_lyrics_error, message),
             actionLabel = composeResources.getString(CoreCommonR.string.server_retry),
             withDismissAction = true
@@ -828,7 +828,7 @@ fun NowPlayingScreen(
         val distinctArtists = artists.distinctBy { it.id }
         when (distinctArtists.size) {
             0 -> screenScope.launch {
-                snackbarHostState.showNeriSnackbar(composeResources.getString(CoreCommonR.string.artist_not_available))
+                snackbarHostState.showMemiSnackbar(composeResources.getString(CoreCommonR.string.artist_not_available))
             }
 
             1 -> openResolvedArtist(distinctArtists.first())
@@ -842,7 +842,7 @@ fun NowPlayingScreen(
             .distinctBy(YouTubeMusicCreatorSummary::browseId)
         when (distinctCreators.size) {
             0 -> screenScope.launch {
-                snackbarHostState.showNeriSnackbar(
+                snackbarHostState.showMemiSnackbar(
                     composeResources.getString(CoreCommonR.string.youtube_creator_not_available)
                 )
             }
@@ -865,7 +865,7 @@ fun NowPlayingScreen(
                 onError = {
                     resolvingArtistNavigation = false
                     screenScope.launch {
-                        snackbarHostState.showNeriSnackbar(composeResources.getString(CoreCommonR.string.artist_not_available))
+                        snackbarHostState.showMemiSnackbar(composeResources.getString(CoreCommonR.string.artist_not_available))
                     }
                 }
             )
@@ -887,7 +887,7 @@ fun NowPlayingScreen(
                 onUnavailable = {
                     resolvingBiliUploader = false
                     screenScope.launch {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(CoreCommonR.string.bili_uploader_owner_unavailable)
                         )
                     }
@@ -895,7 +895,7 @@ fun NowPlayingScreen(
                 onError = { error ->
                     resolvingBiliUploader = false
                     screenScope.launch {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(
                                 CoreCommonR.string.bili_uploader_open_failed,
                                 error.message ?: error.javaClass.simpleName
@@ -922,7 +922,7 @@ fun NowPlayingScreen(
                 onError = { error ->
                     resolvingYouTubeCreator = false
                     screenScope.launch {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(
                                 CoreCommonR.string.youtube_creator_open_failed,
                                 error.message ?: error.javaClass.simpleName
@@ -1116,7 +1116,7 @@ fun NowPlayingScreen(
                 onDismiss = { lyricShareInitialLine = null },
                 onShowMessage = { message ->
                     screenScope.launch {
-                        snackbarHostState.showNeriSnackbar(message)
+                        snackbarHostState.showMemiSnackbar(message)
                     }
                 }
             )
@@ -1472,7 +1472,7 @@ fun NowPlayingScreen(
                             }
                             val onCoverPreviewUnavailable: () -> Unit = {
                                 screenScope.launch {
-                                    snackbarHostState.showNeriSnackbar(
+                                    snackbarHostState.showMemiSnackbar(
                                         composeResources.getString(CoreCommonR.string.cover_preview_unavailable)
                                     )
                                 }

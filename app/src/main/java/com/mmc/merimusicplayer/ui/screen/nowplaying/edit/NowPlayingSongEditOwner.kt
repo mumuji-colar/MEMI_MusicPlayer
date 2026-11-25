@@ -30,7 +30,7 @@ import com.mmc.merimusicplayer.data.model.lyrics.LyricsEditorSource
 import com.mmc.merimusicplayer.lyrics.parser.resolveLocalLyricsEditorSeed
 import com.mmc.merimusicplayer.lyrics.parser.resolveLyricsEditorSeed
 import com.mmc.merimusicplayer.lyrics.parser.toEditableLyricsText
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.viewmodel.NowPlayingViewModel
 
 internal class NowPlayingSongEditOwner(
@@ -197,7 +197,7 @@ internal class NowPlayingSongEditOwner(
                 song.isLocalSong()
             )
         scope.launch {
-            snackbarHostState.showNeriSnackbar(
+            snackbarHostState.showMemiSnackbar(
                 message = message,
                 withDismissAction = true,
                 duration = SnackbarDuration.Long
@@ -521,7 +521,7 @@ internal class NowPlayingSongEditOwner(
         resources: Resources
     ) {
         NPLogger.e("NowPlayingSongEdit", "保存歌曲信息失败", error)
-        snackbarHostState.showNeriSnackbar(
+        snackbarHostState.showMemiSnackbar(
             message = resources.getString(CoreCommonR.string.toast_save_failed, error.message.orEmpty()),
             withDismissAction = true,
             duration = SnackbarDuration.Long
@@ -691,7 +691,7 @@ internal class NowPlayingSongEditOwner(
         resources: Resources
     ) {
         NPLogger.e("NowPlayingSongEdit", "回写填充歌词失败", error)
-        snackbarHostState.showNeriSnackbar(
+        snackbarHostState.showMemiSnackbar(
             message = resources.getString(CoreCommonR.string.toast_save_failed, error.message.orEmpty()),
             withDismissAction = true,
             duration = SnackbarDuration.Long
@@ -703,7 +703,7 @@ internal class NowPlayingSongEditOwner(
         resources: Resources,
         message: Int
     ) {
-        snackbarHostState.showNeriSnackbar(
+        snackbarHostState.showMemiSnackbar(
             message = resources.getString(message),
             withDismissAction = true,
             duration = SnackbarDuration.Long
@@ -1086,7 +1086,7 @@ internal class NowPlayingSongEditOwner(
         snackbarHostState: SnackbarHostState,
         composeResources: Resources
     ) {
-        snackbarHostState.showNeriSnackbar(
+        snackbarHostState.showMemiSnackbar(
             message = composeResources.getString(CoreCommonR.string.settings_download_directory_permission_lost),
             withDismissAction = true,
             duration = SnackbarDuration.Long

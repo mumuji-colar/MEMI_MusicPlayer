@@ -1,7 +1,7 @@
 package com.mmc.merimusicplayer.ui.effect.glass
 
 import androidx.compose.foundation.shape.CornerBasedShape
-import com.mmc.merimusicplayer.ui.theme.isNeriDarkTheme
+import com.mmc.merimusicplayer.ui.theme.isMemiDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.material3.MaterialTheme
@@ -104,7 +104,7 @@ internal fun AdvancedGlassSurface(
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     // 用 App 实际生效的深浅色，而不是系统值：用户可能手选了强制深色
-    val isDarkTheme = isNeriDarkTheme()
+    val isDarkTheme = isMemiDarkTheme()
     val enhancedBlurRadiusDp = if (controller.isBaseBlurEnabled) {
         controller.normalizedBlurAmountDp
     } else {

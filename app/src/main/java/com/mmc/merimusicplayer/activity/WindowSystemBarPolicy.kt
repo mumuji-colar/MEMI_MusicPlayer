@@ -7,10 +7,10 @@ import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.core.view.WindowCompat
 
-internal fun ComponentActivity.enableNeriEdgeToEdge() {
+internal fun ComponentActivity.enableMemiEdgeToEdge() {
     // Activity 的默认 auto 样式会在配置变化后重新打开系统对比度遮罩
     WindowCompat.enableEdgeToEdge(window)
-    window.applyNeriSystemBarTransparency()
+    window.applyMemiSystemBarTransparency()
     val isDark = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
         Configuration.UI_MODE_NIGHT_YES
     WindowCompat.getInsetsController(window, window.decorView).apply {
@@ -20,7 +20,7 @@ internal fun ComponentActivity.enableNeriEdgeToEdge() {
 }
 
 @Suppress("DEPRECATION")
-internal fun Window.applyNeriSystemBarTransparency() {
+internal fun Window.applyMemiSystemBarTransparency() {
     // 弹窗只恢复栏背景，保留各自的布局、图标和键盘处理
     if (statusBarColor != Color.TRANSPARENT) statusBarColor = Color.TRANSPARENT
     if (navigationBarColor != Color.TRANSPARENT) navigationBarColor = Color.TRANSPARENT

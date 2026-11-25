@@ -180,7 +180,7 @@ import com.mmc.merimusicplayer.ui.component.playlist.showPlaylistBatchExportAdde
 import com.mmc.merimusicplayer.ui.component.playlist.showPlaylistBatchExportCreatedResult
 import com.mmc.merimusicplayer.ui.component.sheet.bottomSheetScrollGuard
 import com.mmc.merimusicplayer.ui.feedback.MemiSnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.data.model.SongItem
 import com.mmc.merimusicplayer.ui.viewmodel.tab.ExploreSearchResult
 import com.mmc.merimusicplayer.ui.viewmodel.tab.ExploreViewModel
@@ -1021,7 +1021,7 @@ fun ExploreScreen(
                                                             song
                                                         )
                                                         scope.launch {
-                                                            snackbarHostState.showNeriSnackbar(
+                                                            snackbarHostState.showMemiSnackbar(
                                                                 composeResources.getString(
                                                                     CoreCommonR.string.download_starting,
                                                                     song.displayName()
@@ -1061,7 +1061,7 @@ fun ExploreScreen(
                                                                         song
                                                                     )
                                                                 )
-                                                            snackbarHostState.showNeriSnackbar(
+                                                            snackbarHostState.showMemiSnackbar(
                                                                 composeResources.getString(
                                                                     exploreClipboardMessageRes(
                                                                         result

@@ -161,7 +161,7 @@ import com.mmc.merimusicplayer.ui.component.local.LocalSongSyncConfirmDialog
 import com.mmc.merimusicplayer.ui.component.lyrics.LyricVisualSpec
 import com.mmc.merimusicplayer.ui.component.playback.PlaybackControlIndicator
 import com.mmc.merimusicplayer.ui.component.playback.NowPlayingSongTitle
-import com.mmc.merimusicplayer.ui.theme.LocalNeriTargetColorScheme
+import com.mmc.merimusicplayer.ui.theme.LocalMemiTargetColorScheme
 import com.mmc.merimusicplayer.ui.component.playback.scaleButtonSize
 import com.mmc.merimusicplayer.ui.component.playback.scaleIconSize
 import com.mmc.merimusicplayer.ui.component.playback.rememberDelayedPlaybackWaiting
@@ -170,7 +170,7 @@ import com.mmc.merimusicplayer.ui.component.playback.resolvePlaybackWaiting
 import com.mmc.merimusicplayer.ui.component.overlay.DensityScaledModalBottomSheet
 import com.mmc.merimusicplayer.ui.component.sheet.bottomSheetScrollGuard
 import com.mmc.merimusicplayer.ui.feedback.MemiOverlaySnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.component.lyrics.rememberLyricSeekHapticFeedback
 import com.mmc.merimusicplayer.ui.viewmodel.tab.AlbumSummary
 import com.mmc.merimusicplayer.data.model.SongItem
@@ -420,7 +420,7 @@ fun LyricsScreen(
                 onDismiss = { lyricShareInitialLine = null },
                 onShowMessage = { message ->
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(message)
+                        snackbarHostState.showMemiSnackbar(message)
                     }
                 }
             )
@@ -570,7 +570,7 @@ fun LyricsScreen(
                         text = currentSong?.displayName() ?: stringResource(CoreCommonR.string.lyrics_unknown_song),
                         marqueeEnabled = nowPlayingSongTitleMarqueeEnabled,
                         style = MaterialTheme.typography.titleMedium,
-                        color = LocalNeriTargetColorScheme.current.onSurface,
+                        color = LocalMemiTargetColorScheme.current.onSurface,
                         modifier = Modifier
                             .widthIn(max = maxWidth)
                             .clip(RoundedCornerShape(6.dp))
@@ -851,7 +851,7 @@ fun LyricsScreen(
                                     if (secondaryMode == LyricsSecondaryLineMode.NONE) {
                                         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                                     } else {
-                                        LocalNeriTargetColorScheme.current.primary.copy(alpha = 0.15f)
+                                        LocalMemiTargetColorScheme.current.primary.copy(alpha = 0.15f)
                                     }
                                 )
                                 .clickable(role = Role.Button) {
@@ -905,7 +905,7 @@ fun LyricsScreen(
                                         text = stringResource(CoreCommonR.string.lyrics_translation_short),
                                         style = MaterialTheme.typography.labelMedium,
                                         color = if (secondaryMode == LyricsSecondaryLineMode.TRANSLATION) {
-                                            LocalNeriTargetColorScheme.current.primary
+                                            LocalMemiTargetColorScheme.current.primary
                                         } else {
                                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                         }
@@ -923,7 +923,7 @@ fun LyricsScreen(
                                         text = stringResource(CoreCommonR.string.lyrics_phonetic_short),
                                         style = MaterialTheme.typography.labelMedium,
                                         color = if (secondaryMode == LyricsSecondaryLineMode.PHONETIC) {
-                                            LocalNeriTargetColorScheme.current.primary
+                                            LocalMemiTargetColorScheme.current.primary
                                         } else {
                                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                         }

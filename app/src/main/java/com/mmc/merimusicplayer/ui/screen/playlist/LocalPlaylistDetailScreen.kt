@@ -133,8 +133,8 @@ import com.mmc.merimusicplayer.ui.component.playlist.showPlaylistBatchExportCrea
 import com.mmc.merimusicplayer.ui.component.playlist.showPlaylistBatchExportFailure
 import com.mmc.merimusicplayer.ui.component.playlist.showPlaylistSongDeleteResult
 import com.mmc.merimusicplayer.ui.component.local.LocalSongSyncConfirmDialog
-import com.mmc.merimusicplayer.ui.feedback.dismissCurrentNeriSnackbar
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.dismissCurrentMemiSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.util.rememberPlaylistDisplayCoverUrl
 import com.mmc.merimusicplayer.ui.viewmodel.playlist.LocalPlaylistDetailViewModel
 import com.mmc.merimusicplayer.ui.viewmodel.playlist.LocalPlaylistDetailUiState
@@ -558,7 +558,7 @@ fun LocalPlaylistDetailScreen(
                     onResult = { result ->
                         if (result.isSuccess) {
                             scope.launch {
-                                snackbarHostState.showNeriSnackbar(message)
+                                snackbarHostState.showMemiSnackbar(message)
                             }
                         }
                     }
@@ -624,7 +624,7 @@ fun LocalPlaylistDetailScreen(
                             )
                         }
                     }
-                    snackbarHostState.showNeriSnackbar(message)
+                    snackbarHostState.showMemiSnackbar(message)
                 }
             }
 
@@ -667,21 +667,21 @@ fun LocalPlaylistDetailScreen(
                     } else {
                         composeResources.getString(CoreCommonR.string.local_playlist_add_scanned_no_new)
                     }
-                    snackbarHostState.showNeriSnackbar(message)
+                    snackbarHostState.showMemiSnackbar(message)
                 }
             }
 
             fun handleLocalAudioScanResult(result: LocalAudioImportResult) {
                 scope.launch {
                     if (!result.completed) {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(CoreCommonR.string.local_playlist_scan_preserve_existing)
                         )
                         return@launch
                     }
 
                     if (result.failedCount > 0) {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             context.resources.getQuantityString(
                                 AppR.plurals.download_scan_failed,
                                 result.failedCount,
@@ -693,13 +693,13 @@ fun LocalPlaylistDetailScreen(
             }
 
             fun startDeviceAudioScan() {
-                snackbarHostState.dismissCurrentNeriSnackbar()
+                snackbarHostState.dismissCurrentMemiSnackbar()
                 detailSong = null
                 vm.scanDeviceSongs(::handleLocalAudioScanResult)
             }
 
             fun startFolderAudioScan(folderUri: Uri) {
-                snackbarHostState.dismissCurrentNeriSnackbar()
+                snackbarHostState.dismissCurrentMemiSnackbar()
                 detailSong = null
                 vm.scanFolderSongs(folderUri, ::handleLocalAudioScanResult)
             }
@@ -734,7 +734,7 @@ fun LocalPlaylistDetailScreen(
                 }.isSuccess
                 if (!persistGranted) {
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(AppR.string.media_folder_persist_permission_failed)
                         )
                     }
@@ -749,7 +749,7 @@ fun LocalPlaylistDetailScreen(
                     startDeviceAudioScan()
                 } else {
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(CoreCommonR.string.download_scan_permission_required)
                         )
                     }
@@ -759,7 +759,7 @@ fun LocalPlaylistDetailScreen(
             fun launchFolderScanPicker() {
                 if (!folderScanLauncher.tryLaunch(null)) {
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(CoreCommonR.string.local_playlist_scan_folder_unavailable)
                         )
                     }
@@ -940,7 +940,7 @@ fun LocalPlaylistDetailScreen(
                 val message = listOfNotNull(targetMessage, syncMessage, rejectedMessage, unsupportedMessage)
                     .joinToString(" ")
                 scope.launch {
-                    snackbarHostState.showNeriSnackbar(message)
+                    snackbarHostState.showMemiSnackbar(message)
                 }
             }
 
@@ -961,7 +961,7 @@ fun LocalPlaylistDetailScreen(
                 val allSongs = playlist.songs
                 if (allSongs.isEmpty()) {
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(CoreCommonR.string.local_playlist_sync_netease_empty)
                         )
                     }
@@ -976,7 +976,7 @@ fun LocalPlaylistDetailScreen(
                     )
                     syncInProgress = false
                     if (plan.pendingSongs.isEmpty()) {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             plan.message ?: composeResources.getString(CoreCommonR.string.local_playlist_sync_netease_all_synced)
                         )
                         return@launch
@@ -1345,7 +1345,7 @@ fun LocalPlaylistDetailScreen(
                 if (supportedSongs.isEmpty()) {
                     dismissNeteaseRemotePlaylistPicker()
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(
                                 CoreCommonR.string.local_playlist_sync_netease_no_supported
                             )
@@ -1376,7 +1376,7 @@ fun LocalPlaylistDetailScreen(
                     repo.filterNeteaseLikeSyncCandidatesPreservingDuplicates(selectedSongs)
                 if (supportedSongs.isEmpty()) {
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(
                                 CoreCommonR.string.local_playlist_sync_netease_no_supported
                             )
@@ -1416,7 +1416,7 @@ fun LocalPlaylistDetailScreen(
 
             LaunchedEffect(scanPreviewState.visible) {
                 if (scanPreviewState.visible) {
-                    snackbarHostState.dismissCurrentNeriSnackbar()
+                    snackbarHostState.dismissCurrentMemiSnackbar()
                 }
             }
 

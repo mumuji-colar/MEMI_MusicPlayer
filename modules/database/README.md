@@ -1,8 +1,8 @@
 # 数据库 / Database
 
-`:database` 管理 `NeriUserDataDatabase`、Room 实体、DAO、存储入口和版本升级，保存歌单、历史、统计、播放队列、下载记录与平台缓存。
+`:database` 管理 `MemiUserDataDatabase`、Room 实体、DAO、存储入口和版本升级，保存歌单、历史、统计、播放队列、下载记录与平台缓存。
 
-`:database` owns `NeriUserDataDatabase`, Room entities, DAOs, stores, and migrations. It persists playlists, history, statistics, the playback queue, download records, and platform caches.
+`:database` owns `MemiUserDataDatabase`, Room entities, DAOs, stores, and migrations. It persists playlists, history, statistics, the playback queue, download records, and platform caches.
 
 源码在 `src/main/java/com/mmc/merimusicplayer/data/local/database`，历史 schema 在 `schemas`。模块仅依赖 `:model`，通过 KSP 生成 Room 代码。业务映射由 `:local` 维护，平台缓存策略由 `:platform` 维护；数据库仅在应用主进程打开。
 

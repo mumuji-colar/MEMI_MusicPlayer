@@ -35,7 +35,7 @@ internal fun cleanCornerRadiusFor(materialRadius: Dp): Dp = when {
 @Composable
 @ReadOnlyComposable
 fun neriRoundedShape(radius: Dp): CornerBasedShape =
-    if (LocalNeriDesign.current.isClean) {
+    if (LocalMemiDesign.current.isClean) {
         RoundedCornerShape(cleanCornerRadiusFor(radius))
     } else {
         RoundedCornerShape(radius)
@@ -58,7 +58,7 @@ fun neriRoundedShape(
     bottomEnd: Dp = 0.dp,
     bottomStart: Dp = 0.dp
 ): CornerBasedShape =
-    if (LocalNeriDesign.current.isClean) {
+    if (LocalMemiDesign.current.isClean) {
         RoundedCornerShape(
             topStart = cleanCornerRadiusFor(topStart),
             topEnd = cleanCornerRadiusFor(topEnd),
@@ -71,7 +71,7 @@ fun neriRoundedShape(
 
 /** Search inputs: borderless filled capsule in the clean style, stock outline in Material. */
 @Composable
-fun neriSearchFieldColors(): TextFieldColors = if (LocalNeriDesign.current.isClean) {
+fun neriSearchFieldColors(): TextFieldColors = if (LocalMemiDesign.current.isClean) {
     val colors = MaterialTheme.colorScheme
     OutlinedTextFieldDefaults.colors(
         focusedContainerColor = colors.onSurface.copy(alpha = 0.06f),
@@ -86,4 +86,4 @@ fun neriSearchFieldColors(): TextFieldColors = if (LocalNeriDesign.current.isCle
 @Composable
 @ReadOnlyComposable
 fun neriSearchFieldShape(materialShape: Shape): Shape =
-    if (LocalNeriDesign.current.isClean) LocalNeriDesign.current.groupShape else materialShape
+    if (LocalMemiDesign.current.isClean) LocalMemiDesign.current.groupShape else materialShape

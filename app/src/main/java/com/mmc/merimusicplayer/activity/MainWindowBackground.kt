@@ -11,7 +11,7 @@ import androidx.core.graphics.toColorInt
 internal fun Window.applyMainWindowBackground(isDark: Boolean) {
     val bgColor = if (isDark) "#121212".toColorInt() else Color.WHITE
     setBackgroundDrawable(bgColor.toDrawable())
-    applyNeriSystemBarTransparency()
+    applyMemiSystemBarTransparency()
 }
 
 internal fun Window.applyMainWindowCaptionAppearance(useLightSystemBarIcons: Boolean) {

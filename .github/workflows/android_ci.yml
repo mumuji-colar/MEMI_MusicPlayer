@@ -1,4 +1,4 @@
-name: NeriPlayer Android CI
+name: MemiPlayer Android CI
 
 on:
   push:
@@ -356,20 +356,20 @@ jobs:
         with:
           fetch-depth: 1
           submodules: recursive
-          sparse-checkout: np-submodule/NeriPlayer-LTW
+          sparse-checkout: np-submodule/MemiPlayer-LTW
 
       - name: Set up Node.js 22
         uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: np-submodule/NeriPlayer-LTW/package-lock.json
+          cache-dependency-path: np-submodule/MemiPlayer-LTW/package-lock.json
 
       - name: Install Worker dependencies
-        run: npm ci --prefix np-submodule/NeriPlayer-LTW
+        run: npm ci --prefix np-submodule/MemiPlayer-LTW
 
       - name: Run Worker check
-        run: npm run check --prefix np-submodule/NeriPlayer-LTW
+        run: npm run check --prefix np-submodule/MemiPlayer-LTW
 
   release-build:
     name: Release build
@@ -384,7 +384,7 @@ jobs:
       NERI_BUILD_UUID: ${{ needs.ci-tooling.outputs.build_uuid }}
       NERI_BUILD_TIMESTAMP: ${{ needs.ci-tooling.outputs.build_timestamp }}
       NERI_BUILD_VERSION_TIMESTAMP: ${{ needs.ci-tooling.outputs.build_version_timestamp }}
-      NERI_SIGNING_MODE: ${{ github.repository == 'cwuom/NeriPlayer' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'signed' || 'unsigned' }}
+      NERI_SIGNING_MODE: ${{ github.repository == 'cwuom/MemiPlayer' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'signed' || 'unsigned' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -526,7 +526,7 @@ jobs:
       - name: Publish CI APKs after all gates pass
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ github.repository == 'cwuom/NeriPlayer' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'neri-apk' || 'neri-apk-unsigned' }}
+          name: ${{ github.repository == 'cwuom/MemiPlayer' && github.event_name == 'push' && github.ref == 'refs/heads/master' && 'neri-apk' || 'neri-apk-unsigned' }}
           path: build/release-artifacts/*
           if-no-files-found: error
           compression-level: 0
@@ -544,7 +544,7 @@ jobs:
     needs:
       - build
     runs-on: ubuntu-latest
-    if: ${{ success() && github.repository == 'cwuom/NeriPlayer' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    if: ${{ success() && github.repository == 'cwuom/MemiPlayer' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

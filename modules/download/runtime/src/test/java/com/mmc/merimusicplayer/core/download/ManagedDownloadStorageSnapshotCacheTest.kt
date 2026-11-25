@@ -772,14 +772,14 @@ class ManagedDownloadStorageSnapshotCacheTest {
         assertEquals(
             "track.mp3",
             ManagedDownloadStorage.normalizeManagedAudioFileName(
-                "primary%3ANeriPlayer%2Ftrack.mp3"
+                "primary%3AMemiPlayer%2Ftrack.mp3"
             )
         )
         assertEquals(
             "track.mp3",
             ManagedDownloadStorage.normalizeManagedAudioFileName(
                 "content://com.android.externalstorage.documents/document/" +
-                    "primary%3ANeriPlayer%2Ftrack.mp3"
+                    "primary%3AMemiPlayer%2Ftrack.mp3"
             )
         )
         assertEquals(

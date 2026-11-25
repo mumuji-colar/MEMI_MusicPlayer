@@ -170,7 +170,7 @@ SOURCE_OWNERS = {
 FORBIDDEN_IMPORT = re.compile(
     r'^import moe\.ouom\.memiplayer\.(?:'
     r'core\.di\.|core\.player\.PlayerManager\b|ui\.|activity\.|'
-    r'(?:R|BuildConfig|NeriPlayerApplication)\b)', re.MULTILINE
+    r'(?:R|BuildConfig|MemiPlayerApplication)\b)', re.MULTILINE
 )
 PROJECT_SOURCE_REFERENCE = re.compile(
     r'\b(?:moe\.ouom\.memiplayer|io\.github\.proify\.lyricon|com\.hchen\.superlyricapi)'

@@ -115,7 +115,7 @@ class MemiSnackbarHostTest {
     private fun show(message: String, actionLabel: String? = null, withDismissAction: Boolean = false) {
         composeRule.runOnIdle {
             scope.launch {
-                results += hostState.showNeriSnackbar(
+                results += hostState.showMemiSnackbar(
                     message = message,
                     actionLabel = actionLabel,
                     withDismissAction = withDismissAction,

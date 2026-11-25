@@ -46,7 +46,7 @@ object SnackbarManager {
         duration: SnackbarDuration = SnackbarDuration.Short
     ) {
         scope.launch {
-            snackbarHostState.showNeriSnackbar(
+            snackbarHostState.showMemiSnackbar(
                 message = message,
                 duration = duration
             )
@@ -65,7 +65,7 @@ object SnackbarManager {
         onActionPerformed: () -> Unit = {}
     ) {
         scope.launch {
-            val result = snackbarHostState.showNeriSnackbar(
+            val result = snackbarHostState.showMemiSnackbar(
                 message = message,
                 actionLabel = actionLabel,
                 duration = duration

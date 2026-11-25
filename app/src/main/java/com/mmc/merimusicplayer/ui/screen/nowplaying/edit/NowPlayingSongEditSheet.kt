@@ -109,7 +109,7 @@ import com.mmc.merimusicplayer.data.model.stableKey
 import com.mmc.merimusicplayer.ui.component.local.LocalSongSyncConfirmDialog
 import com.mmc.merimusicplayer.data.model.lyrics.LyricEntry
 import com.mmc.merimusicplayer.ui.component.sheet.bottomSheetScrollGuard
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.lyrics.parser.toEditableLyricsText
 import com.mmc.merimusicplayer.ui.viewmodel.NowPlayingViewModel
 import com.mmc.merimusicplayer.data.model.SongItem
@@ -495,7 +495,7 @@ fun EditSongInfoSheet(
             onSaveLyrics = { draft -> owner.saveEditorLyrics(actualSong, draft) },
             onSaveFailed = {
                 coroutineScope.launch {
-                    snackbarHostState.showNeriSnackbar(
+                    snackbarHostState.showMemiSnackbar(
                         message = composeResources.getString(CoreCommonR.string.local_song_lyrics_write_failed),
                         withDismissAction = true,
                         duration = SnackbarDuration.Long

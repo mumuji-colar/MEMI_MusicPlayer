@@ -70,7 +70,7 @@ class AppFeedbackPolicyTest {
     fun snackbarWithActionUsesOneMessageLine() {
         assertEquals(
             1,
-            resolveNeriSnackbarMessageMaxLines(
+            resolveMemiSnackbarMessageMaxLines(
                 actionLabel = "Undo",
                 withDismissAction = false
             )
@@ -81,7 +81,7 @@ class AppFeedbackPolicyTest {
     fun snackbarWithDismissActionUsesOneMessageLine() {
         assertEquals(
             1,
-            resolveNeriSnackbarMessageMaxLines(
+            resolveMemiSnackbarMessageMaxLines(
                 actionLabel = null,
                 withDismissAction = true
             )
@@ -92,7 +92,7 @@ class AppFeedbackPolicyTest {
     fun plainSnackbarCanUseTwoMessageLines() {
         assertEquals(
             2,
-            resolveNeriSnackbarMessageMaxLines(
+            resolveMemiSnackbarMessageMaxLines(
                 actionLabel = null,
                 withDismissAction = false
             )

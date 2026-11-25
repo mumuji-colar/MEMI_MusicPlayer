@@ -12,7 +12,7 @@ import com.mmc.merimusicplayer.data.model.playlist.LocalPlaylistSongAddResult
 import com.mmc.merimusicplayer.data.model.playlist.LocalPlaylist
 import com.mmc.merimusicplayer.data.local.playlist.runLocalPlaylistMutationSafely
 import com.mmc.merimusicplayer.data.model.SongItem
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.R as AppR
 
 internal fun CoroutineScope.showPlaylistBatchExportCreatedResult(
@@ -100,7 +100,7 @@ internal fun CoroutineScope.showPlaylistBatchExportFailure(
     snackbarHostState: SnackbarHostState
 ) {
     launch {
-        snackbarHostState.showNeriSnackbar(context.getString(CoreCommonR.string.playlist_export_failed))
+        snackbarHostState.showMemiSnackbar(context.getString(CoreCommonR.string.playlist_export_failed))
     }
 }
 
@@ -119,7 +119,7 @@ private fun CoroutineScope.showPlaylistBatchExportSnackbar(
         targetPlaylistName
     )
     launch {
-        val result = snackbarHostState.showNeriSnackbar(
+        val result = snackbarHostState.showMemiSnackbar(
             message = message,
             actionLabel = context.getString(CoreCommonR.string.playlist_batch_export_undo),
             withDismissAction = true,
@@ -135,6 +135,6 @@ private fun CoroutineScope.showPlaylistBatchExportSnackbar(
         } else {
             context.getString(CoreCommonR.string.playlist_batch_export_undo_failed)
         }
-        snackbarHostState.showNeriSnackbar(undoMessage)
+        snackbarHostState.showMemiSnackbar(undoMessage)
     }
 }

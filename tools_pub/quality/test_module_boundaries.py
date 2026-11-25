@@ -135,7 +135,7 @@ class ModuleBoundariesTest(unittest.TestCase):
             directory.mkdir(parents=True)
             (directory / "Future.kt").write_text(
                 f"package com.mmc.merimusicplayer.data.local.storage.{family}\n"
-                "class Future(val database: com.mmc.merimusicplayer.data.local.database.NeriUserDataDatabase)\n"
+                "class Future(val database: com.mmc.merimusicplayer.data.local.database.MemiUserDataDatabase)\n"
             )
         errors = verify(self.root)
         self.assertEqual(5, sum("forbidden package dependency" in error for error in errors), errors)
@@ -780,7 +780,7 @@ class ModuleBoundariesTest(unittest.TestCase):
         self.module(":platform")
         for index, reference in enumerate((
             "platform.lyrics.repository.EditableLyricsMatcher", "lyrics.lyricon.LyriconManager",
-            "lyrics.output.LyriconPlaybackOutput", "data.local.database.NeriUserDataDatabase",
+            "lyrics.output.LyriconPlaybackOutput", "data.local.database.MemiUserDataDatabase",
         )):
             directory = self.root / "modules/platform/src/main/java/com/mmc/merimusicplayer/platform/lyrics/api/client"
             directory.mkdir(parents=True, exist_ok=True)

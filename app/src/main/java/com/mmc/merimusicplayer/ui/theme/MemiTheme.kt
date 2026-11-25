@@ -68,7 +68,7 @@ private val MemiShapes = Shapes(
 )
 private const val ThemeColorTransitionDurationMs = 420
 
-internal val LocalNeriTargetColorScheme = staticCompositionLocalOf {
+internal val LocalMemiTargetColorScheme = staticCompositionLocalOf {
     lightColorScheme()
 }
 
@@ -83,8 +83,8 @@ internal val LocalNeriTargetColorScheme = staticCompositionLocalOf {
  * 手动覆盖、动态取色、Clean 中性色都不会跑偏。
  */
 @Composable
-internal fun isNeriDarkTheme(): Boolean =
-    LocalNeriTargetColorScheme.current.surface.luminance() < 0.5f
+internal fun isMemiDarkTheme(): Boolean =
+    LocalMemiTargetColorScheme.current.surface.luminance() < 0.5f
 
 @Composable
 fun MemiTheme(
@@ -144,8 +144,8 @@ fun MemiTheme(
     }
 
     CompositionLocalProvider(
-        LocalNeriTargetColorScheme provides targetColorScheme,
-        LocalNeriDesign provides designTokens
+        LocalMemiTargetColorScheme provides targetColorScheme,
+        LocalMemiDesign provides designTokens
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

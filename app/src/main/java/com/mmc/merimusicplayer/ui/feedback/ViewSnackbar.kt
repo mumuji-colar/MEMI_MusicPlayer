@@ -12,7 +12,7 @@ private const val ViewSnackbarElevationDp = 12
 private const val ViewSnackbarBottomMarginDp = 16
 private const val ViewSnackbarMaxLines = 2
 
-fun showNeriViewSnackbar(
+fun showMemiViewSnackbar(
     anchor: View,
     message: CharSequence,
     duration: Int

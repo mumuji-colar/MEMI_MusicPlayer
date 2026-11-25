@@ -61,7 +61,7 @@ import kotlinx.coroutines.withContext
 import com.mmc.merimusicplayer.common.R as CoreCommonR
 import com.mmc.merimusicplayer.ui.navigation.LocalMiniPlayerHeight
 import com.mmc.merimusicplayer.ui.feedback.MemiSnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.util.ClipboardCopyResult
 import com.mmc.merimusicplayer.ui.util.copyPlainTextSafely
 import java.io.File
@@ -96,11 +96,11 @@ fun LogViewerScreen(
                             File(decodedFilePath).inputStream().copyTo(outputStream)
                         }
                         withContext(Dispatchers.Main) {
-                            snackbarHostState.showNeriSnackbar(composeResources.getString(AppR.string.log_exported))
+                            snackbarHostState.showMemiSnackbar(composeResources.getString(AppR.string.log_exported))
                         }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
-                            snackbarHostState.showNeriSnackbar(composeResources.getString(AppR.string.log_export_failed, e.message))
+                            snackbarHostState.showMemiSnackbar(composeResources.getString(AppR.string.log_export_failed, e.message))
                         }
                     }
                 }
@@ -118,7 +118,7 @@ fun LogViewerScreen(
             } catch (e: FileNotFoundException) {
                 withContext(Dispatchers.Main) {
                     logContent = emptyList()
-                    snackbarHostState.showNeriSnackbar(composeResources.getString(AppR.string.log_cannot_read))
+                    snackbarHostState.showMemiSnackbar(composeResources.getString(AppR.string.log_cannot_read))
                 }
             }
         }
@@ -162,7 +162,7 @@ fun LogViewerScreen(
                                 }
                                 ClipboardCopyResult.TransactionTooLarge -> CoreCommonR.string.toast_copy_failed
                             }
-                            snackbarHostState.showNeriSnackbar(composeResources.getString(messageRes))
+                            snackbarHostState.showMemiSnackbar(composeResources.getString(messageRes))
                         }
                     }) {
                         Icon(Icons.Outlined.ContentCopy, contentDescription = stringResource(AppR.string.debug_copy_all))

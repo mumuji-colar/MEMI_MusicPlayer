@@ -75,10 +75,10 @@ import com.mmc.merimusicplayer.platform.youtube.api.transport.isTrustedYouTubeLo
 import com.mmc.merimusicplayer.platform.youtube.api.transport.resolveYouTubeMobileWebLoginUserAgent
 import com.mmc.merimusicplayer.network.proxy.DynamicProxySelector
 import com.mmc.merimusicplayer.common.logging.NPLogger
-import com.mmc.merimusicplayer.ui.feedback.showNeriViewSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiViewSnackbar
 import com.mmc.merimusicplayer.network.security.isAllowedMainFrameRequest
 import com.mmc.merimusicplayer.util.platform.lockPortraitIfPhone
-import com.mmc.merimusicplayer.activity.enableNeriEdgeToEdge
+import com.mmc.merimusicplayer.activity.enableMemiEdgeToEdge
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -177,7 +177,7 @@ class YouTubeWebLoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (finishIfWebViewUnavailable()) return
         lockPortraitIfPhone()
-        enableNeriEdgeToEdge()
+        enableMemiEdgeToEdge()
         foregroundWebLoginToken = ForegroundWebLoginGuard.enter("youtube")
         persistedAuthBaseline = YouTubeAuthRepository(applicationContext).getAuthOnce()
 
@@ -329,7 +329,7 @@ class YouTubeWebLoginActivity : ComponentActivity() {
                 )
             }
         } catch (error: Throwable) {
-            showNeriViewSnackbar(
+            showMemiViewSnackbar(
                 webView,
                 getString(
                     CoreCommonR.string.snackbar_read_failed,
@@ -560,7 +560,7 @@ class YouTubeWebLoginActivity : ComponentActivity() {
 
     private fun showCookieMissingSnack() {
         dismissVerifyingSnack()
-        showNeriViewSnackbar(
+        showMemiViewSnackbar(
             webView,
             getString(CoreCommonR.string.settings_youtube_auth_missing),
             Snackbar.LENGTH_LONG
@@ -572,7 +572,7 @@ class YouTubeWebLoginActivity : ComponentActivity() {
         if (verifyingSnack?.isShown == true) {
             return
         }
-        verifyingSnack = showNeriViewSnackbar(
+        verifyingSnack = showMemiViewSnackbar(
             webView,
             getString(CoreCommonR.string.settings_youtube_auth_verifying),
             Snackbar.LENGTH_INDEFINITE

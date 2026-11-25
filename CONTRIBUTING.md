@@ -22,7 +22,7 @@
   并接入 LRCLIB、酷狗和 AMLL TTML 外部歌词来源。
 - 数据默认保存在本地；GitHub / WebDAV 同步是**可选能力**，
   同步对象是歌单、收藏、最近播放、播放统计等元数据，不是媒体文件本身。
-- 一起听服务端在 `np-submodule/NeriPlayer-LTW`，基于 Cloudflare Workers
+- 一起听服务端在 `np-submodule/MemiPlayer-LTW`，基于 Cloudflare Workers
   与 Durable Objects。
 - 本修改版相对上游的主要改动（品牌、Mochi UI 视觉体系、播放页交互、性能模式三档）
   见 [README 的「关于本项目」](./README.md#关于本项目--about-this-fork)。
@@ -41,10 +41,10 @@
 | [Kotlin 辅助工具](docs/kotlin-helpers.md) | 请求代次、单位、播放器读取和协程结果等辅助工具的用法与边界。 |
 | [音乐服务器 API](docs/music-server-api.md) | **预览版本，缺乏充分测试。** 实际使用的 HTTP 接口、认证、来源身份与缓存约定；核心文件职责见平台模块 README。 |
 | [质量门禁](tools_pub/quality/README.md) | CRAP、模块归属、依赖边界检查的范围、命令和验证限制。 |
-| [Native 源码授权](modules/native/src/main/cpp/README.md) | NeriPlayer 自有 Native 源码的替代授权范围、第三方排除项和外部贡献所需的显式双授权声明。 |
+| [Native 源码授权](modules/native/src/main/cpp/README.md) | MemiPlayer 自有 Native 源码的替代授权范围、第三方排除项和外部贡献所需的显式双授权声明。 |
 | [Native USB host 门禁](modules/native/src/main/cpp/tests/usb/config/host-gate-contract.md) | 公开 Native USB host 门禁、CI 覆盖与真实设备验证边界。 |
 | [USB 测试语料](modules/native/src/main/cpp/tests/usb/corpus/README.md)与[夹具](modules/native/src/main/cpp/tests/usb/fixtures/README.md) | 公开测试语料/夹具只能使用合成或可审计资料，真实设备证据留在私有目录。 |
-| [一起听服务端](https://github.com/TheSmallHanCat/NeriPlayer-LTW#readme) | 面向服务端部署者，说明 Worker API、事件模型、部署和本地检查。 |
+| [一起听服务端](https://github.com/TheSmallHanCat/MemiPlayer-LTW#readme) | 面向服务端部署者，说明 Worker API、事件模型、部署和本地检查。 |
 
 行为变更如果影响用户理解，请同步更新 README；
 如果影响扩展方式、测试方式或模块边界，请同步更新 CONTRIBUTING。
@@ -65,7 +65,7 @@
 | CMake | `3.22.1`，由 Android 构建脚本固定指定 |
 | Node.js | 22，用于一起听 Worker 检查 |
 | 版本名格式 | `<git短哈希>.<MMddHHmm>` |
-| Release APK（构建产物） | `NeriPlayer-<versionName>[-abi].apk` |
+| Release APK（构建产物） | `MemiPlayer-<versionName>[-abi].apk` |
 | Release APK（对外发布） | 重命名为 `MEMI-<versionName>-<versionCode>.apk` |
 
 补充说明：
@@ -172,7 +172,7 @@
 
 4. 产物位于 `app/build/outputs/apk/release/`，文件名格式为：
    ```text
-   NeriPlayer-<git短哈希>.<MMddHHmm>[-abi].apk
+   MemiPlayer-<git短哈希>.<MMddHHmm>[-abi].apk
    ```
 
 安全提醒：
@@ -208,7 +208,7 @@
 
 #### Android 客户端关键路径
 
-- `app/src/main/java/com/mmc/merimusicplayer/NeriPlayerApplication.kt`
+- `app/src/main/java/com/mmc/merimusicplayer/MemiPlayerApplication.kt`
   - 应用初始化入口，负责语言、异常处理、`AppContainer`、
     Lyricon、全局下载管理和共享图片加载器。
 
@@ -226,13 +226,13 @@
     `BiliWebLoginActivity.kt`、`BiliQrLoginActivity.kt` 与 `YouTubeWebLoginActivity.kt`
     是内部平台登录页。
 
-- `app/src/main/java/com/mmc/merimusicplayer/ui/NeriApp.kt`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/MemiApp.kt`
   - 顶层 Compose 应用骨架，负责 `NavHost`、动态底栏、
     `MiniPlayer`、`Now Playing` 覆盖层、Debug 路由、主题、缓存清理和播放服务同步。
   - 主标签页面由 `MainTabLayerHost.kt` 保留出场/入场双场景，
     按标签顺序执行可打断横向转场，并为各场景保留 saveable state 和玻璃 owner。
-  - `ui/theme/NeriTheme.kt` 通过同一内容宿主切换 Material / Clean，
-    `NeriDesign.kt` 提供样式几何，`CleanTheme.kt` 提供 Clean 配色和排版。
+  - `ui/theme/MemiTheme.kt` 通过同一内容宿主切换 Material / Clean，
+    `MemiDesign.kt` 提供样式几何，`CleanTheme.kt` 提供 Clean 配色和排版。
     主题切换不得重建导航；全局下载流量确认由 `AppGlobalDialogHosts.kt` 展示，
     `globalDialogVisible` 同时通知播放页和更多面板避让。
   - `ui/feedback/` 承载应用级 Snackbar/Toast 反馈策略；新增全局反馈前先确认
@@ -247,7 +247,7 @@
     的 `@Deprecated` 包装中，新代码统一使用 `SyncedLyricsView`。
 
 - `app/src/main/java/com/mmc/merimusicplayer/ui/component/playback/`
-  - `NeriMiniPlayer.kt` 负责底部迷你播放器、播放暂停和横向滑动切歌；
+  - `MemiMiniPlayer.kt` 负责底部迷你播放器、播放暂停和横向滑动切歌；
     睡眠定时器面板也在该目录；音效与倍速设置页位于 `ui/screen/tab/settings/audio/`。
   - `ui/component/` 根目录中的同名文件主要是旧包兼容入口，新增实现应放入
     `lyrics/`、`playback/`、`download/`、`navigation/` 等职责子包。
@@ -689,7 +689,7 @@
 5. 修改目录迁移、删除语义、续传检查点或 sidecar 写入时，
    必须补充/更新对应单元测试。
 6. 移动网络高风险下载确认通过 `GlobalDownloadManager.trafficRiskDownloadRequests`
-   交给 `NeriApp` 的全局对话框宿主；改动时同时检查播放页、更多面板的遮挡与输入，
+   交给 `MemiApp` 的全局对话框宿主；改动时同时检查播放页、更多面板的遮挡与输入，
    并保留 `MainActivityTrafficRiskDownloadTest` 的实际入口覆盖。
 
 #### 9. 修改歌词显示、分享或音译
@@ -747,7 +747,7 @@
 #### 13. 修改一起听
 
 1. 客户端会话、HTTP/WebSocket 传输、编解码与有界读取统一位于 `modules/listentogether`，分别由既有 `data/ltw`、`api/ltw` 和 `listentogether/protocol` 包维护；协议模型在 `modules/model`。app 的 `core/di/ltw` 只绑定平台能力，播放器适配在 `modules/playback/runtime` 的 `core/player/ltw`。
-2. 服务端逻辑在 `np-submodule/NeriPlayer-LTW`。
+2. 服务端逻辑在 `np-submodule/MemiPlayer-LTW`。
 3. 协议字段变更必须同时兼容客户端和 Worker，并更新测试。
 4. `shareAudioLinks=false` 时，HTTP/WS 房间快照都不能暴露
    `track.streamUrl` 与 `queue[*].streamUrl`；关闭该开关时要立即清空
@@ -777,7 +777,7 @@
 
 #### 14. 修改主导航与玻璃转场
 
-1. 主标签生产路径由 `NeriApp.kt` 与 `MainTabLayerHost.kt` 共同承载；
+1. 主标签生产路径由 `MemiApp.kt` 与 `MainTabLayerHost.kt` 共同承载；
    标签顺序与方向统一通过 `resolveMainTabTransitionDirection` 决定。
 2. 转场期间必须同时保留出场和入场 scene，并通过
    `SaveableStateHolder` 保留各标签状态；快速反向或连续点击不能先清空旧 scene。
@@ -787,10 +787,10 @@
    开启后才使用背景与详情页同步接力的连贯反馈。
 5. 修改动效时要覆盖正向、反向、中断、重复请求、状态恢复和启动首帧；
    几何测试不得把尚未布局的 `Rect(0, 0, 0, 0)` scene 当成真实重叠。
-6. 至少同步检查 `NeriAppMainTabTransitionPolicyTest`、
-   `AdvancedGlassNavigationTransitionTest`、`NeriAppNavigationTransitionTest`
+6. 至少同步检查 `MemiAppMainTabTransitionPolicyTest`、
+   `AdvancedGlassNavigationTransitionTest`、`MemiAppNavigationTransitionTest`
    和 `HostNavigationTransitionGeometryTest`。
-7. 主题适配复用 `ui/theme/NeriDesign.kt` 的几何与 `MaterialTheme` 的配色、字体，
+7. 主题适配复用 `ui/theme/MemiDesign.kt` 的几何与 `MaterialTheme` 的配色、字体，
    弹窗使用 `ui/component/overlay/` 的现有入口。修改主题选择时同时维护
    `SettingsThemeControls.kt`、主题快照与预览提示记录。
 8. Material 与 Clean 的深浅色、手机与平板应分别验证；涉及返回与拖拽时，
@@ -840,13 +840,13 @@
 常用命令：
 
 ```bash
-adb logcat | findstr NeriPlayer
+adb logcat | findstr MemiPlayer
 ```
 
 Linux / macOS 可改用：
 
 ```bash
-adb logcat | grep NeriPlayer
+adb logcat | grep MemiPlayer
 ```
 
 ---
@@ -907,8 +907,8 @@ adb logcat | grep NeriPlayer
    USB 的 sanitizer profile 不会自动运行 DSP 测试。
 7. 如修改一起听 Worker：
    ```bash
-   npm ci --prefix np-submodule/NeriPlayer-LTW
-   npm run check --prefix np-submodule/NeriPlayer-LTW
+   npm ci --prefix np-submodule/MemiPlayer-LTW
+   npm run check --prefix np-submodule/MemiPlayer-LTW
    ```
    这里的 `npm run check` 会依次执行 Node.js 版本检查、`node --check`、协议测试和
    `wrangler deploy --dry-run`；协议或房间状态改动还需要实际验证 create/join/ws 流程。
@@ -947,7 +947,7 @@ USB `exclusive/` 下的自有 `.cpp` / `.h` 也在检查范围内。新增组件
 拆分时应把状态、异步任务和释放逻辑交给负责该职责的组件，通过小接口接入外部能力。
 `PlayerManager` 的播放器和全局服务访问集中在对应的 `PlayerManager*Port` 适配器；
 一起听的成员操作、房间状态、连接恢复和控制结果由 `:listentogether` 的 `session/` 组件分别维护，平台与播放器实现通过宿主接口注入。唤醒锁随会话释放，异步任务由所属组件取消，不能回读全局容器。
-`NowPlayingScreen`、`SettingsScreen` 和 `NeriApp` 组合页面与功能组件，具体编辑会话、目录选择、
+`NowPlayingScreen`、`SettingsScreen` 和 `MemiApp` 组合页面与功能组件，具体编辑会话、目录选择、
 设置领域绑定和导航副作用在对应组件中处理。不要把原入口作为 receiver 搬进扩展文件，
 也不要让新组件回读原入口的内部状态。
 `:local` 中的本地存储按 `source`、`scan`、`accounting`、`cleanup` 和 `policy` 分类，数据契约集中在 `:model` 的 `storage` 包。
@@ -1007,7 +1007,7 @@ Commit 信息建议遵循 Conventional Commits，
 - 分发本修改版的二进制时，须同时提供对应源码（本仓库同址公开即可），
   保留版权与许可证声明，并显著标明这是修改版本。
 - `modules/native/src/main/cpp/README.md` 中的替代授权只覆盖明确列出的
-  NeriPlayer 自有 Native 源码，不覆盖第三方代码或其他仓库内容。
+  MemiPlayer 自有 Native 源码，不覆盖第三方代码或其他仓库内容。
 - Native PR 本身不代表授予替代授权；若贡献者同意双授权，必须在 PR、
   commit 或版权持有人接受的其他可审计记录中加入该 README 提供的声明。
 - 未提供显式双授权的外部 Native 贡献仍可按 GPL-3.0 接受，

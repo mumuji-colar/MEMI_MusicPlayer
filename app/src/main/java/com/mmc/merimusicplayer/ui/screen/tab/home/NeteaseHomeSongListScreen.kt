@@ -47,7 +47,7 @@ import com.mmc.merimusicplayer.data.local.media.displayCoverUrl
 import com.mmc.merimusicplayer.data.local.playlist.LocalPlaylistRepository
 import com.mmc.merimusicplayer.data.local.playlist.system.FavoritesPlaylist
 import com.mmc.merimusicplayer.data.model.SongItem
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.haptic.HapticIconButton
 import com.mmc.merimusicplayer.ui.screen.playlist.FavoriteSongLookup
 import com.mmc.merimusicplayer.ui.screen.playlist.PlaylistModernPlaybackActions
@@ -181,11 +181,11 @@ internal fun NeteaseHomeSongListScreen(
                             runCatching {
                                 repository.createPlaylistWithSongs("$title · MEMI", target)
                             }.onSuccess {
-                                snackbar.showNeriSnackbar(
+                                snackbar.showMemiSnackbar(
                                     context.getString(CoreCommonR.string.favorite_success)
                                 )
                             }.onFailure {
-                                snackbar.showNeriSnackbar(
+                                snackbar.showMemiSnackbar(
                                     context.getString(CoreCommonR.string.server_action_failed)
                                 )
                             }

@@ -391,7 +391,7 @@ object AppFeedback {
     }
 }
 
-suspend fun SnackbarHostState.showNeriSnackbar(
+suspend fun SnackbarHostState.showMemiSnackbar(
     message: String,
     actionLabel: String? = null,
     withDismissAction: Boolean = false,
@@ -413,7 +413,7 @@ suspend fun SnackbarHostState.showNeriSnackbar(
     )
 }
 
-internal fun SnackbarHostState.dismissCurrentNeriSnackbar() {
+internal fun SnackbarHostState.dismissCurrentMemiSnackbar() {
     currentSnackbarData?.dismiss()
 }
 
@@ -445,7 +445,7 @@ internal fun isDuplicateFeedbackMessage(
         nowMs - last.shownAtMs < FeedbackDedupWindowMs
 }
 
-internal fun resolveNeriSnackbarMessageMaxLines(
+internal fun resolveMemiSnackbarMessageMaxLines(
     actionLabel: String?,
     withDismissAction: Boolean
 ): Int {
@@ -464,7 +464,7 @@ fun AppFeedbackHostEffect(snackbarHostState: SnackbarHostState) {
     }
     LaunchedEffect(snackbarHostState) {
         AppFeedback.collectMessages { message ->
-            val result = snackbarHostState.showNeriSnackbar(
+            val result = snackbarHostState.showMemiSnackbar(
                 message = message.text,
                 actionLabel = message.actionLabel,
                 withDismissAction = message.withDismissAction,
@@ -527,7 +527,7 @@ fun BoxScope.MemiOverlaySnackbarHost(
 @Composable
 private fun MemiSnackbar(snackbarData: SnackbarData) {
     val actionLabel = snackbarData.visuals.actionLabel
-    val messageMaxLines = resolveNeriSnackbarMessageMaxLines(
+    val messageMaxLines = resolveMemiSnackbarMessageMaxLines(
         actionLabel = actionLabel,
         withDismissAction = snackbarData.visuals.withDismissAction
     )

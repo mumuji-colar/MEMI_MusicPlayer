@@ -113,7 +113,7 @@ ICU 取不到时（JVM 单元测试、极老系统）`CjkWordSegmentation.bounda
 **1. 跑单元测试**（约 1 分钟，会连带跑对照组）：
 
 ```bash
-cd "C:/Users/dongy/WorkBuddy/2026-11-02-20-41-10/NeriPlayer/NeriPlayer-NeriPlayer-51f0100c.10312030"
+cd "C:/Users/dongy/WorkBuddy/2026-11-02-20-41-10/MemiPlayer/MemiPlayer-MemiPlayer-51f0100c.10312030"
 export JAVA_HOME="C:/Program Files/Java/jdk-21.0.12"
 "C:/Users/dongy/.gradle/tools/gradle-9.6.1/bin/gradle" \
   :accompanist-lyrics-ui:testDebugUnitTest --offline -PallowUnsignedRelease=true
@@ -129,7 +129,7 @@ export JAVA_HOME="C:/Users/dongy/.jdks/jdk-17.0.20.1+1"
   :app:assembleRelease --offline -PallowUnsignedRelease=true
 ```
 
-产物在 `app/build/outputs/apk/release/NeriPlayer-<版本号>.apk`；签名用 build-tools 的 `zipalign` + `apksigner`，命令与我每次打包时一致。
+产物在 `app/build/outputs/apk/release/MemiPlayer-<版本号>.apk`；签名用 build-tools 的 `zipalign` + `apksigner`，命令与我每次打包时一致。
 
 **3. 只想看观感**：不必走完整打包，`adb install -r` 手头那个包改不了的——常量是编译期值，必须重编。图快可以只装 debug：`:app:installDebug`。
 

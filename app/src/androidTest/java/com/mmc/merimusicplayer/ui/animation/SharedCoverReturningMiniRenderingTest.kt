@@ -49,7 +49,7 @@ import com.mmc.merimusicplayer.ui.component.playback.MemiMiniPlayer
 import com.mmc.merimusicplayer.ui.playback.visual.NowPlayingContainerMorph
 import com.mmc.merimusicplayer.ui.playback.visual.NowPlayingMorphState
 import com.mmc.merimusicplayer.ui.playback.visual.rememberNowPlayingMorphState
-import com.mmc.merimusicplayer.ui.theme.LocalNeriDesign
+import com.mmc.merimusicplayer.ui.theme.LocalMemiDesign
 import com.mmc.merimusicplayer.ui.theme.MaterialDesignTokens
 import com.mmc.merimusicplayer.util.media.RetainedPlaybackCoverBitmapCache
 import org.junit.After
@@ -94,7 +94,7 @@ class SharedCoverReturningMiniRenderingTest {
             FittedTestViewport(320.dp, 480.dp) {
                 CompositionLocalProvider(
                     LocalSharedCoverFlight provides flight,
-                    LocalNeriDesign provides MaterialDesignTokens
+                    LocalMemiDesign provides MaterialDesignTokens
                 ) {
                     MaterialTheme(colorScheme = lightColorScheme(
                         secondaryContainer = Color.Black,

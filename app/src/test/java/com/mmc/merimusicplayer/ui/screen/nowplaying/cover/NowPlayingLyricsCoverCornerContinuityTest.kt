@@ -31,7 +31,7 @@ import com.mmc.merimusicplayer.ui.animation.LocalSharedCoverFlight
 import com.mmc.merimusicplayer.ui.animation.SharedCoverFlightState
 import com.mmc.merimusicplayer.ui.screen.host.rememberHostPredictiveBackTransition
 import com.mmc.merimusicplayer.ui.theme.CleanDesignTokens
-import com.mmc.merimusicplayer.ui.theme.LocalNeriDesign
+import com.mmc.merimusicplayer.ui.theme.LocalMemiDesign
 import com.mmc.merimusicplayer.ui.theme.MaterialDesignTokens
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -62,7 +62,7 @@ class NowPlayingLyricsCoverCornerContinuityTest {
         composeRule.setContent {
             CompositionLocalProvider(
                 LocalDensity provides Density(1f),
-                LocalNeriDesign provides if (clean) CleanDesignTokens else MaterialDesignTokens,
+                LocalMemiDesign provides if (clean) CleanDesignTokens else MaterialDesignTokens,
                 LocalSharedCoverFlight provides parent
             ) {
                 transition = rememberHostPredictiveBackTransition(

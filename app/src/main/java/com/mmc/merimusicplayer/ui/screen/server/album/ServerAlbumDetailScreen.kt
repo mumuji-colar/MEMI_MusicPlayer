@@ -48,7 +48,7 @@ import com.mmc.merimusicplayer.data.model.SongItem
 import com.mmc.merimusicplayer.platform.subsonic.repository.ServerAlbum
 import com.mmc.merimusicplayer.ui.component.download.BatchDownloadManagerSheet
 import com.mmc.merimusicplayer.ui.component.playlist.PlaylistSelectionActions
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.haptic.HapticIconButton
 import com.mmc.merimusicplayer.ui.screen.nowplaying.hasCachedLocalDownload
 import com.mmc.merimusicplayer.ui.screen.playlist.FavoriteSongLookup
@@ -157,7 +157,7 @@ fun ServerAlbumDetailScreen(
             onResult = { result ->
                 busyFavorites = busyFavorites - key
                 scope.launch {
-                    snackbar.showNeriSnackbar(resources.getString(result.fold(
+                    snackbar.showMemiSnackbar(resources.getString(result.fold(
                         onSuccess = { if (it) CoreCommonR.string.favorite_added else CoreCommonR.string.favorite_removed },
                         onFailure = { CoreCommonR.string.server_action_failed }
                     )))

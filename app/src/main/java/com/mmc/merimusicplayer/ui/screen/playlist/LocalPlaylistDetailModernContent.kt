@@ -123,7 +123,7 @@ import com.mmc.merimusicplayer.ui.component.local.LocalSongDetailsDialog
 import com.mmc.merimusicplayer.ui.component.local.LocalSongSyncConfirmDialog
 import com.mmc.merimusicplayer.data.local.playlist.system.FavoritesPlaylist
 import com.mmc.merimusicplayer.ui.screen.playback.shouldConfirmFavoriteSync
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.data.model.SongItem
 import com.mmc.merimusicplayer.data.model.SongIdentity
 import com.mmc.merimusicplayer.ui.haptic.HapticIconButton
@@ -222,7 +222,7 @@ internal fun LocalPlaylistDetailModernContent(
                 if (action != SnackbarResult.ActionPerformed) return@feedback
                 scrollJob.cancel()
                 if (insertInProgress || blockSync || currentContentScope.playlistId != playlistId) {
-                    snackbarHostState.showNeriSnackbar(
+                    snackbarHostState.showMemiSnackbar(
                         composeResources.getString(AppR.string.playlist_insert_undo_stale)
                     )
                     return@feedback
@@ -244,7 +244,7 @@ internal fun LocalPlaylistDetailModernContent(
                     undo.getOrNull() != true -> AppR.string.playlist_insert_undo_stale
                     else -> AppR.string.playlist_insert_undone
                 }
-                snackbarHostState.showNeriSnackbar(composeResources.getString(undoMessage))
+                snackbarHostState.showMemiSnackbar(composeResources.getString(undoMessage))
             }
         }
 
@@ -666,7 +666,7 @@ internal fun LocalPlaylistDetailModernContent(
                                                                 )
                                                             }.getOrElse { false }
                                                         if (!shared) {
-                                                            snackbarHostState.showNeriSnackbar(
+                                                            snackbarHostState.showMemiSnackbar(
                                                                 composeResources.getString(
                                                                     CoreCommonR.string.local_song_share_failed
                                                                 )
@@ -763,7 +763,7 @@ internal fun LocalPlaylistDetailModernContent(
                                                     copyText(
                                                         songInfo
                                                     )
-                                                    snackbarHostState.showNeriSnackbar(
+                                                    snackbarHostState.showMemiSnackbar(
                                                         composeResources.getString(
                                                             CoreCommonR.string.toast_copied
                                                         )
@@ -909,7 +909,7 @@ internal fun LocalPlaylistDetailModernContent(
                                                         )
                                                     }
                                                 }
-                                                snackbarHostState.showNeriSnackbar(message)
+                                                snackbarHostState.showMemiSnackbar(message)
                                             }
                                         }
                                         return@HapticTextButton
@@ -1229,7 +1229,7 @@ internal fun LocalPlaylistDetailModernContent(
                             ) {
                                 showInsertDialog = false
                                 scope.launch {
-                                    snackbarHostState.showNeriSnackbar(
+                                    snackbarHostState.showMemiSnackbar(
                                         composeResources.getString(AppR.string.playlist_insert_stale)
                                     )
                                 }
@@ -1250,7 +1250,7 @@ internal fun LocalPlaylistDetailModernContent(
                                         }
                                         if (message != null) {
                                             scope.launch {
-                                                snackbarHostState.showNeriSnackbar(
+                                                snackbarHostState.showMemiSnackbar(
                                                     composeResources.getString(message)
                                                 )
                                             }

@@ -26,7 +26,7 @@ class ReleaseArtifactsTest(unittest.TestCase):
             "NERI_BUILD_TIMESTAMP": BUILD_TIMESTAMP,
             "NERI_BUILD_VERSION_TIMESTAMP": "10212020",
             "NERI_SIGNING_MODE": "unsigned",
-            "GITHUB_REPOSITORY": "kanospace/NeriPlayer-dev-test",
+            "GITHUB_REPOSITORY": "kanospace/MemiPlayer-dev-test",
             "GITHUB_RUN_ID": "1234",
             "GITHUB_RUN_ATTEMPT": "2",
         }
@@ -44,7 +44,7 @@ class ReleaseArtifactsTest(unittest.TestCase):
         )
         self.apk_dir = self.root / "apks"
         self.apk_dir.mkdir()
-        self.apk = self.apk_dir / "NeriPlayer-abcdef12.10212020-arm64-v8a.apk"
+        self.apk = self.apk_dir / "MemiPlayer-abcdef12.10212020-arm64-v8a.apk"
         self.write_apk(BUILD_UUID)
 
     def write_apk(self, build_uuid, abis=("arm64-v8a",)):
@@ -107,7 +107,7 @@ class ReleaseArtifactsTest(unittest.TestCase):
         self.assertEqual(metadata["build_timestamp"], int(BUILD_TIMESTAMP))
         self.assertEqual(metadata["build_version"], "abcdef12.10212020")
         self.assertEqual(metadata["build_version_timestamp"], "10212020")
-        self.assertEqual(metadata["workflow_run"], "https://github.com/kanospace/NeriPlayer-dev-test/actions/runs/1234/attempts/2")
+        self.assertEqual(metadata["workflow_run"], "https://github.com/kanospace/MemiPlayer-dev-test/actions/runs/1234/attempts/2")
         self.assertEqual(metadata["signing_mode"], "unsigned")
         self.assertEqual(metadata["artifacts"][0]["name"], self.apk.name)
         entries = (destination / "SHA256SUMS.txt").read_text().splitlines()
@@ -155,7 +155,7 @@ class ReleaseArtifactsTest(unittest.TestCase):
         self.assertIn("x86_64", result.stderr)
 
     def test_stage_identifies_single_abi_without_a_filename_suffix(self):
-        self.apk = self.apk.rename(self.apk_dir / "NeriPlayer-abcdef12.10212020.apk")
+        self.apk = self.apk.rename(self.apk_dir / "MemiPlayer-abcdef12.10212020.apk")
         result = self.stage()
         self.assertEqual(result.returncode, 0, result.stderr)
         metadata = json.loads((self.root / "release-assets/build-metadata.json").read_text())
@@ -176,7 +176,7 @@ class ReleaseArtifactsTest(unittest.TestCase):
         self.assertIn("ABI", result.stderr)
 
     def test_stage_marks_only_multiple_native_abis_as_universal(self):
-        self.apk = self.apk.rename(self.apk_dir / "NeriPlayer-abcdef12.10212020.apk")
+        self.apk = self.apk.rename(self.apk_dir / "MemiPlayer-abcdef12.10212020.apk")
         self.write_apk(BUILD_UUID, ("arm64-v8a", "x86_64"))
         result = self.stage()
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -195,7 +195,7 @@ class ReleaseArtifactsTest(unittest.TestCase):
 
     def test_stage_accepts_exactly_four_single_abi_splits(self):
         for abi in ("armeabi-v7a", "x86", "x86_64"):
-            self.apk = self.apk_dir / f"NeriPlayer-abcdef12.10212020-{abi}.apk"
+            self.apk = self.apk_dir / f"MemiPlayer-abcdef12.10212020-{abi}.apk"
             self.write_apk(BUILD_UUID, (abi,))
         result = self.stage("--expected-abis", "arm64-v8a,armeabi-v7a,x86,x86_64")
         self.assertEqual(result.returncode, 0, result.stderr)

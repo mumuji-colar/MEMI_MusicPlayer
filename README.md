@@ -135,7 +135,7 @@ MEMI輕音基于 [NeriPlayer](https://github.com/cwuom/NeriPlayer)，是一个�
 - **YouTube 播放兼容**：保留有效身份 Cookie 并支持轮换；缓存的 `player.js` 或播放候选失效时进入 EJS/HLS 回退，避免同一候选反复重试。
 - **音效**：自研 DSP 提供内置音效、10 段均衡器、AutoEQ 导入、响度均衡与 32-bit 高解析输出，关闭即完全旁路。
 - **USB 独占**：支持 UAC1.0 与兼容 UAC2.0 Type I PCM 的 DAC，可比特完美输出；插入响应可单独关闭。
-- **后台播放**：切到其他应用或从最近任务划掉 NeriPlayer 后，正在播放的音乐可通过媒体前台服务继续播放。可选「悬浮窗保活」以不可见 1 像素窗口降低后台播放被系统冻结断开的风险。
+- **后台播放**：切到其他应用或从最近任务划掉 MemiPlayer 后，正在播放的音乐可通过媒体前台服务继续播放。可选「悬浮窗保活」以不可见 1 像素窗口降低后台播放被系统冻结断开的风险。
 - **播放行为**：淡入淡出、切歌交叉淡入淡出、蓝牙断连暂停、混音播放与音频焦点策略，并恢复上次播放进度与播放模式。
 - **Bilibili 跳过**：SponsorBlock 自动跳过与自定义区间，默认关闭，一起听期间不生效。
 
@@ -278,20 +278,20 @@ MEMI輕音基于 [NeriPlayer](https://github.com/cwuom/NeriPlayer)，是一个�
 
 MEMI輕音内置「一起听」功能，你可以部署自己的服务端，也可以使用他人部署的服务。
 
-- 当前仓库内的 `np-submodule/NeriPlayer-LTW`
-- 公开部署模板：[TheSmallHanCat/NeriPlayer-LTW](https://github.com/TheSmallHanCat/NeriPlayer-LTW)
+- 当前仓库内的 `np-submodule/MemiPlayer-LTW`
+- 公开部署模板：[TheSmallHanCat/MemiPlayer-LTW](https://github.com/TheSmallHanCat/MemiPlayer-LTW)
 
 服务端基于 **Cloudflare Workers** 与 **Durable Objects**，通过 WebSocket 提供实时同步。
 
 ### 一键部署到 Cloudflare Workers
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/TheSmallHanCat/NeriPlayer-LTW)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/TheSmallHanCat/MemiPlayer-LTW)
 
 应用内可在设置页配置服务端地址、测试可用性并重置本机一起听身份。
 房间号固定 6 位可读字符，昵称长度 1-24（当前允许中文、英文字母和数字）；
 首次加入必须使用邀请链接中的密钥，本地歌曲不能创建一起听房间。
 更完整的协议、事件与部署细节见
-[np-submodule/NeriPlayer-LTW/README.md](./np-submodule/NeriPlayer-LTW/README.md)。
+[np-submodule/MemiPlayer-LTW/README.md](./np-submodule/MemiPlayer-LTW/README.md)。
 
 ---
 
@@ -336,8 +336,8 @@ MEMI輕音支持把本地元数据同步到 **用户自己的** GitHub 仓库或
   崩溃日志会单独落盘。
 - 前往 [Issues](https://github.com/mumuji-colar/MEMI_MusicPlayer/issues)，提供系统版本、机型、
   应用版本、复现步骤与关键日志。
-- Windows 过滤日志：`adb logcat | findstr NeriPlayer`（日志 tag 沿用原项目命名，未随品牌改名）
-- Linux / macOS 过滤日志：`adb logcat | grep NeriPlayer`
+- Windows 过滤日志：`adb logcat | findstr MemiPlayer`（日志 tag 沿用原项目命名，未随品牌改名）
+- Linux / macOS 过滤日志：`adb logcat | grep MemiPlayer`
 
 ---
 
@@ -398,7 +398,7 @@ MEMI輕音支持把本地元数据同步到 **用户自己的** GitHub 仓库或
 - 本项目继承原项目的 **GPL-3.0** 许可发布：可自由使用、修改和分发；
   分发修改版时须继续遵守 GPL-3.0（保留版权声明、显著标明修改、并提供对应源码）。
   [Native 源码授权说明](./modules/native/src/main/cpp/README.md) 仅为其中列出的
-  NeriPlayer 自有 Native 源码提供附带署名条件的替代授权，第三方源码与未列入范围的仓库内容不适用；
+  MemiPlayer 自有 Native 源码提供附带署名条件的替代授权，第三方源码与未列入范围的仓库内容不适用；
   外部 Native 贡献不会因提交 PR 自动进入该范围，只有明确记录双授权同意时才适用。
   小米超级岛歌词的 Shizuku/XMSF 网络隔离适配移植了 GPL-3.0 的 Capsulyric 源码，
   来源说明见 [THIRD_PARTY_LICENSES.md](./THIRD_PARTY_LICENSES.md)。

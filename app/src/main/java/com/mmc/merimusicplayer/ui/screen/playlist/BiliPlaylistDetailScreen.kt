@@ -108,7 +108,7 @@ import com.mmc.merimusicplayer.ui.component.playlist.showPlaylistBatchExportAdde
 import com.mmc.merimusicplayer.ui.component.playlist.showPlaylistBatchExportCreatedResult
 import com.mmc.merimusicplayer.ui.component.sheet.bottomSheetScrollGuard
 import com.mmc.merimusicplayer.ui.feedback.MemiOverlaySnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.viewmodel.tab.BiliPlaylist
 import com.mmc.merimusicplayer.ui.viewmodel.tab.BiliPlaylistKind
 import com.mmc.merimusicplayer.ui.viewmodel.tab.toFavoriteBrowseId
@@ -245,7 +245,7 @@ fun BiliPlaylistDetailScreen(
             onResult = { result ->
                 if (result.isSuccess) {
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(message)
+                        snackbarHostState.showMemiSnackbar(message)
                     }
                 }
             }
@@ -1216,7 +1216,7 @@ private fun copyVideoInfoAction(
 ): () -> Unit = {
     scope.launch {
         val messageRes = clipboard.copyPlainTextSafely("text", songInfo).copyMessageRes()
-        snackbarHostState.showNeriSnackbar(resources.getString(messageRes))
+        snackbarHostState.showMemiSnackbar(resources.getString(messageRes))
     }
 }
 

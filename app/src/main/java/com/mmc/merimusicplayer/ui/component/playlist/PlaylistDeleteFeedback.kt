@@ -12,7 +12,7 @@ import com.mmc.merimusicplayer.data.local.playlist.LocalPlaylistRepository
 import com.mmc.merimusicplayer.data.model.playlist.LocalPlaylistSongDeleteResult
 import com.mmc.merimusicplayer.data.local.playlist.runLocalPlaylistMutationSafely
 import com.mmc.merimusicplayer.ui.feedback.AppFeedback
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.R as AppR
 
 internal fun CoroutineScope.showPlaylistDeleteResult(
@@ -86,7 +86,7 @@ internal fun CoroutineScope.showPlaylistDeletedSnackbar(
         displayName
     )
     launch {
-        val result = snackbarHostState.showNeriSnackbar(
+        val result = snackbarHostState.showMemiSnackbar(
             message = message,
             actionLabel = context.getString(CoreCommonR.string.playlist_batch_export_undo),
             withDismissAction = true,
@@ -107,7 +107,7 @@ internal fun CoroutineScope.showPlaylistDeletedSnackbar(
         } else {
             context.getString(CoreCommonR.string.local_playlist_delete_undo_failed)
         }
-        snackbarHostState.showNeriSnackbar(undoMessage)
+        snackbarHostState.showMemiSnackbar(undoMessage)
     }
 }
 
@@ -156,7 +156,7 @@ internal fun CoroutineScope.showPlaylistDeleteFailure(
     snackbarHostState: SnackbarHostState
 ) {
     launch {
-        snackbarHostState.showNeriSnackbar(context.getString(CoreCommonR.string.local_playlist_delete_failed))
+        snackbarHostState.showMemiSnackbar(context.getString(CoreCommonR.string.local_playlist_delete_failed))
     }
 }
 
@@ -177,7 +177,7 @@ internal fun CoroutineScope.showPlaylistSongDeletedSnackbar(
         deletedCount
     )
     launch {
-        val result = snackbarHostState.showNeriSnackbar(
+        val result = snackbarHostState.showMemiSnackbar(
             message = message,
             actionLabel = context.getString(CoreCommonR.string.playlist_batch_export_undo),
             withDismissAction = true,
@@ -197,7 +197,7 @@ internal fun CoroutineScope.showPlaylistSongDeletedSnackbar(
         } else {
             context.getString(CoreCommonR.string.local_playlist_delete_songs_undo_failed)
         }
-        snackbarHostState.showNeriSnackbar(undoMessage)
+        snackbarHostState.showMemiSnackbar(undoMessage)
     }
 }
 
@@ -206,7 +206,7 @@ internal fun CoroutineScope.showPlaylistSongDeleteFailure(
     snackbarHostState: SnackbarHostState
 ) {
     launch {
-        snackbarHostState.showNeriSnackbar(
+        snackbarHostState.showMemiSnackbar(
             context.getString(CoreCommonR.string.local_playlist_delete_songs_failed)
         )
     }

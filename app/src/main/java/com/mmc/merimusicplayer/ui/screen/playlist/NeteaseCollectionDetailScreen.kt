@@ -163,7 +163,7 @@ import com.mmc.merimusicplayer.ui.util.rememberSongDisplayCoverUrl
 import com.mmc.merimusicplayer.ui.haptic.HapticFloatingActionButton
 import com.mmc.merimusicplayer.ui.haptic.HapticIconButton
 import com.mmc.merimusicplayer.ui.feedback.MemiOverlaySnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.common.logging.NPLogger
 import com.mmc.merimusicplayer.util.format.formatDuration
 import com.mmc.merimusicplayer.util.format.formatPlayCount
@@ -414,7 +414,7 @@ fun DetailScreen(
             onResult = { result ->
                 if (result.isSuccess) {
                     scope.launch {
-                        snackbarHostState.showNeriSnackbar(message)
+                        snackbarHostState.showMemiSnackbar(message)
                     }
                 }
             }
@@ -1362,7 +1362,7 @@ internal fun copySongInfoAction(
 ): () -> Unit = {
     scope.launch {
         clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("text", songInfo)))
-        snackbarHostState.showNeriSnackbar(resources.getString(CoreCommonR.string.toast_copied))
+        snackbarHostState.showMemiSnackbar(resources.getString(CoreCommonR.string.toast_copied))
     }
 }
 

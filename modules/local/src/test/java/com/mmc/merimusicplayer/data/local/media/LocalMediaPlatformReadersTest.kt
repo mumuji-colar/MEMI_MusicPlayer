@@ -93,18 +93,18 @@ class LocalMediaPlatformReadersTest {
     fun `neri stable keys are read from dedicated tags before comments`() {
         assertEquals(
             "key-1",
-            tags("neri_stable_key" to " key-1 ", "COMMENT" to """{"stableKey":"comment-key"}""").readNeriSourceStableKey()
+            tags("neri_stable_key" to " key-1 ", "COMMENT" to """{"stableKey":"comment-key"}""").readMemiSourceStableKey()
         )
-        assertEquals("key-2", tags("NERI STABLE KEY" to "key-2").readNeriSourceStableKey())
+        assertEquals("key-2", tags("NERI STABLE KEY" to "key-2").readMemiSourceStableKey())
     }
 
     @Test
     fun `neri stable keys fall back to json comments`() {
-        assertEquals("key-3", tags("comment" to """{"stableKey":" key-3 "}""").readNeriSourceStableKey())
-        assertNull(tags("COMMENT" to """{"stableKey":"   "}""").readNeriSourceStableKey())
-        assertNull(tags("COMMENT" to "not json").readNeriSourceStableKey())
-        assertNull(tags("TITLE" to "Song").readNeriSourceStableKey())
-        assertNull((null as Map<String, Array<String>>?).readNeriSourceStableKey())
+        assertEquals("key-3", tags("comment" to """{"stableKey":" key-3 "}""").readMemiSourceStableKey())
+        assertNull(tags("COMMENT" to """{"stableKey":"   "}""").readMemiSourceStableKey())
+        assertNull(tags("COMMENT" to "not json").readMemiSourceStableKey())
+        assertNull(tags("TITLE" to "Song").readMemiSourceStableKey())
+        assertNull((null as Map<String, Array<String>>?).readMemiSourceStableKey())
     }
 
     @Test

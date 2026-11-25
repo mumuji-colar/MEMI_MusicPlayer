@@ -24,7 +24,7 @@ class WindowSystemBarPolicyTest {
     @Config(sdk = [29, 35])
     fun configurationChangesKeepSystemBarContrastScrimsDisabled() {
         val activity = Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
-        activity.enableNeriEdgeToEdge()
+        activity.enableMemiEdgeToEdge()
         val window = activity.window
         assertFalse("启动时导航栏必须无对比度遮罩", window.isNavigationBarContrastEnforced)
 
@@ -77,7 +77,7 @@ class WindowSystemBarPolicyTest {
         val cutoutMode = window.attributes.layoutInDisplayCutoutMode
         val systemUiVisibility = window.decorView.systemUiVisibility
 
-        window.applyNeriSystemBarTransparency()
+        window.applyMemiSystemBarTransparency()
 
         assertTransparentSystemBars(window)
         assertSame(background, window.decorView.background)
@@ -95,7 +95,7 @@ class WindowSystemBarPolicyTest {
         activity.window.setBackgroundDrawable(background)
         activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        activity.enableNeriEdgeToEdge()
+        activity.enableMemiEdgeToEdge()
 
         val window = activity.window
         val controller = WindowCompat.getInsetsController(window, window.decorView)

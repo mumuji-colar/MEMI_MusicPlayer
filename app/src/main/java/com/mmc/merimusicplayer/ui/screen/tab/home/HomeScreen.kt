@@ -156,7 +156,7 @@ import com.mmc.merimusicplayer.ui.util.rememberSongDisplayCoverUrl
 import com.mmc.merimusicplayer.ui.util.currentWindowWidthDp
 import com.mmc.merimusicplayer.util.platform.PHONE_SMALLEST_SCREEN_WIDTH_DP
 import com.mmc.merimusicplayer.ui.feedback.MemiOverlaySnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.data.model.youtube.music.YouTubeMusicHomeShelf
 import com.mmc.merimusicplayer.data.model.youtube.music.YouTubeMusicHomeItem
 import com.mmc.merimusicplayer.platform.youtube.api.parser.YouTubeMusicParser
@@ -388,16 +388,16 @@ fun HomeScreen(
             }
             if (isFavorite) {
                 repository.removeFromFavorites(song)
-                snackbarHostState.showNeriSnackbar(favoriteRemovedText)
+                snackbarHostState.showMemiSnackbar(favoriteRemovedText)
             } else {
                 repository.addToFavorites(song)
-                snackbarHostState.showNeriSnackbar(favoriteAddedText)
+                snackbarHostState.showMemiSnackbar(favoriteAddedText)
             }
         }
     }
     val showHomeSnackbar: (String) -> Unit = { message ->
         scope.launch {
-            snackbarHostState.showNeriSnackbar(message)
+            snackbarHostState.showMemiSnackbar(message)
         }
     }
 
@@ -636,7 +636,7 @@ fun HomeScreen(
                                                     onClick = { onYouTubeMusicPlaylistClick(playlist) },
                                                     onShowSnackbar = { message ->
                                                         scope.launch {
-                                                            snackbarHostState.showNeriSnackbar(message)
+                                                            snackbarHostState.showMemiSnackbar(message)
                                                         }
                                                     },
                                                     offlineMode = offlineMode
@@ -728,7 +728,7 @@ fun HomeScreen(
                                                             },
                                                             onShowSnackbar = { message ->
                                                                 scope.launch {
-                                                                    snackbarHostState.showNeriSnackbar(message)
+                                                                    snackbarHostState.showMemiSnackbar(message)
                                                                 }
                                                             },
                                                             offlineMode = offlineMode
@@ -831,7 +831,7 @@ fun HomeScreen(
                                             onClick = onItemClick,
                                             onShowSnackbar = { message ->
                                                 scope.launch {
-                                                    snackbarHostState.showNeriSnackbar(message)
+                                                    snackbarHostState.showMemiSnackbar(message)
                                                 }
                                             },
                                             offlineMode = offlineMode
@@ -900,7 +900,7 @@ fun HomeScreen(
                                         onItemClick = onItemClick,
                                         onShowSnackbar = { message ->
                                             scope.launch {
-                                                snackbarHostState.showNeriSnackbar(message)
+                                                snackbarHostState.showMemiSnackbar(message)
                                             }
                                         },
                                         offlineMode = offlineMode

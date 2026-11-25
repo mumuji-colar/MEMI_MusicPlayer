@@ -13,7 +13,7 @@ For installation, capability boundaries and privacy see the README; for extensio
 - NDK `27.0.12077973`
 - CMake `3.22.1`, pinned by the Android build script
 - Version name format: `<git_short_hash>.<MMddHHmm>`
-- Release APK filename: `NeriPlayer-<versionName>[-abi].apk`
+- Release APK filename: `MemiPlayer-<versionName>[-abi].apk`
 - Release APKs include `arm64-v8a` only by default. Use `-PbuildAllReleaseAbis=true`
   for multi-ABI output.
 - `.github/workflows/android_native_ci.yml` runs Release + `-Werror`,
@@ -41,7 +41,7 @@ The project owns 14 Android libraries, registered once in [gradle/owned-modules.
 | [`:sync`](../modules/sync/README.md) | GitHub/WebDAV transport, encrypted credential state, sessions, compatible codecs, merges, concurrency protection, and Worker policies. |
 | [`:listentogether`](../modules/listentogether/README.md) | protocol, HTTP/WebSocket transport, identity rules, sessions, reconnects, controls, and playback synchronization. |
 
-`:app` owns Android entry points, Compose screens, and cross-domain assembly. `:ksp-annotations` / `:ksp-processor` generate settings metadata; `:accompanist-lyrics-core` / `:accompanist-lyrics-ui` are upstream lyric modules. `:hidden-api` supplies compile-only API stubs for playback runtime and is not packaged in the app. `build-logic` supplies build tooling. `np-submodule/NeriPlayer-LTW` is the Cloudflare Workers server; the vendored `np-submodule/miuix` source/docs tree is outside the app graph. These are not part of the 14 owned Android libraries.
+`:app` owns Android entry points, Compose screens, and cross-domain assembly. `:ksp-annotations` / `:ksp-processor` generate settings metadata; `:accompanist-lyrics-core` / `:accompanist-lyrics-ui` are upstream lyric modules. `:hidden-api` supplies compile-only API stubs for playback runtime and is not packaged in the app. `build-logic` supplies build tooling. `np-submodule/MemiPlayer-LTW` is the Cloudflare Workers server; the vendored `np-submodule/miuix` source/docs tree is outside the app graph. These are not part of the 14 owned Android libraries.
 
 Dependencies follow responsibilities rather than directory categories. `:model` has no project implementation dependencies, and `:common` has no business-domain dependencies. Database, storage calculations, lyric parsing, and playback/download rules must not depend on repository or Android runtime implementations. Repositories inside `:platform` consume their corresponding protocols; APIs cannot read account repositories, Room, or player state, and each platform retains its package dependency boundary. `:local` consumes the database and domain services. Clients receive account, credential-refresh, and storage capabilities through narrow injected interfaces. No library may depend on app, and the graph must remain acyclic.
 
@@ -320,7 +320,7 @@ Independent and aggregate gates retain the same scopes and threshold: a scoped C
   local playlist is created or enriched, the app can continue hydrating titles,
   artists, albums, and covers in the background while preserving edited local metadata.
 - Download "metadata post-processing" can be disabled separately. When disabled,
-  NeriPlayer still keeps management metadata, but stops writing tags, lyrics,
+  MemiPlayer still keeps management metadata, but stops writing tags, lyrics,
   and covers back into the audio file itself.
 - `BackupManager` supports playlist JSON export/import and diff analysis.
 - Configuration exports exclude login state by default. You can include music-service authorization

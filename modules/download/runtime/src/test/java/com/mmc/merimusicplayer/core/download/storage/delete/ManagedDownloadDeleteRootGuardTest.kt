@@ -56,7 +56,7 @@ class ManagedDownloadDeleteRootGuardTest {
     @Test
     fun `document references need enumeration evidence regardless of the configured tree`() {
         val treeRoot = "content://com.android.externalstorage.documents/tree/primary%3AMusic"
-        val document = "$treeRoot/document/primary%3AMusic%2FNeriPlayer%2Fsong.flac"
+        val document = "$treeRoot/document/primary%3AMusic%2FMemiPlayer%2Fsong.flac"
         val reported = mutableListOf<String>()
         val report: (String) -> Unit = { reference -> reported += reference }
 

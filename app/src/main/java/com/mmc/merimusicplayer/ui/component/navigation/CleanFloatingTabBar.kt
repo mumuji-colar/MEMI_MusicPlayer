@@ -87,7 +87,7 @@ internal fun CleanFloatingTabBar(
     val dark = colors.surface.luminance() < 0.5f
     val overBackground = LocalHasCustomBackground.current
     val selectedIndex = items.indexOfFirst { (dest, _) ->
-        isNeriNavigationDestinationSelected(currentDestination, dest)
+        isMemiNavigationDestinationSelected(currentDestination, dest)
     }
     val tabDrag = remember { CleanTabDragState() }
     val host = remember { LensHost() }

@@ -48,7 +48,7 @@ import com.mmc.merimusicplayer.ui.component.playlist.PlaylistExportSheet
 import com.mmc.merimusicplayer.ui.component.playlist.showPlaylistBatchExportAddedResult
 import com.mmc.merimusicplayer.ui.component.playlist.showPlaylistBatchExportCreatedResult
 import com.mmc.merimusicplayer.ui.feedback.MemiOverlaySnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.haptic.HapticIconButton
 import com.mmc.merimusicplayer.ui.navigation.LocalMiniPlayerHeight
 import com.mmc.merimusicplayer.ui.screen.nowplaying.hasCachedLocalDownload
@@ -166,7 +166,7 @@ fun MusicServerScreen(
             onResult = { result ->
                 busyFavorites = busyFavorites - key
                 scope.launch {
-                    snackbar.showNeriSnackbar(resources.getString(result.fold(
+                    snackbar.showMemiSnackbar(resources.getString(result.fold(
                         onSuccess = { added -> if (added) CoreCommonR.string.favorite_added else CoreCommonR.string.favorite_removed },
                         onFailure = { CoreCommonR.string.server_action_failed }
                     )))

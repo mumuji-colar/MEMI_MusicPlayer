@@ -56,7 +56,7 @@ class MemiSnackbarHostTest {
                         applyImePadding = false
                     )
                     LaunchedEffect(Unit) {
-                        hostState.showNeriSnackbar(
+                        hostState.showMemiSnackbar(
                             message = TestLongMessage,
                             actionLabel = "撤销",
                             withDismissAction = true,
@@ -108,7 +108,7 @@ class MemiSnackbarHostTest {
                         applyImePadding = false
                     )
                     LaunchedEffect(Unit) {
-                        hostState.showNeriSnackbar(
+                        hostState.showMemiSnackbar(
                             message = "可关闭反馈",
                             withDismissAction = true,
                             duration = SnackbarDuration.Indefinite
@@ -145,7 +145,7 @@ class MemiSnackbarHostTest {
                         applyImePadding = false
                     )
                     LaunchedEffect(Unit) {
-                        hostState.showNeriSnackbar(
+                        hostState.showMemiSnackbar(
                             message = "已导出 125 首歌曲到 本地文件",
                             actionLabel = "撤销",
                             withDismissAction = true,
@@ -160,7 +160,7 @@ class MemiSnackbarHostTest {
             composeRule.onAllNodesWithTag(MemiSnackbarTestTag)
                 .fetchSemanticsNodes().isNotEmpty()
         }
-        composeRule.runOnIdle { hostState.dismissCurrentNeriSnackbar() }
+        composeRule.runOnIdle { hostState.dismissCurrentMemiSnackbar() }
         composeRule.waitUntil(timeoutMillis = 3_000) {
             composeRule.onAllNodesWithTag(MemiSnackbarTestTag)
                 .fetchSemanticsNodes().isEmpty()
@@ -191,7 +191,7 @@ class MemiSnackbarHostTest {
                         applyImePadding = false
                     )
                     LaunchedEffect(Unit) {
-                        hostState.showNeriSnackbar(
+                        hostState.showMemiSnackbar(
                             message = "本地音频标签回写失败",
                             withDismissAction = true,
                             duration = SnackbarDuration.Indefinite

@@ -46,7 +46,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.mmc.merimusicplayer.activity.applyNeriSystemBarTransparency
+import com.mmc.merimusicplayer.activity.applyMemiSystemBarTransparency
 import com.mmc.merimusicplayer.testutil.UiFailureDiagnostics
 import com.mmc.merimusicplayer.testutil.assumeComposeHostAvailable
 import com.mmc.merimusicplayer.testutil.performNativeClick
@@ -326,7 +326,7 @@ class OverlayWindowNavigationBarPolicyTest {
 
     private fun applyHostPolicy(hidden: Boolean) {
         val window = composeRule.activity.window
-        window.applyNeriSystemBarTransparency()
+        window.applyMemiSystemBarTransparency()
         WindowInsetsControllerCompat(window, window.decorView).apply {
             show(WindowInsetsCompat.Type.statusBars())
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT

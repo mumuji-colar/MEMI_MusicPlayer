@@ -1837,7 +1837,7 @@ private fun cleanTagValue(raw: String?): String? {
     return raw?.replace(BOM_CHAR.toString(), "")?.trim(NUL_CHAR, ' ')?.takeIf { it.isNotBlank() }
 }
 
-internal fun Map<String, Array<String>>?.readNeriSourceStableKey(): String? {
+internal fun Map<String, Array<String>>?.readMemiSourceStableKey(): String? {
     readFirstValue("NERI_STABLE_KEY", "NERI STABLE KEY")
         ?.let { return it }
 

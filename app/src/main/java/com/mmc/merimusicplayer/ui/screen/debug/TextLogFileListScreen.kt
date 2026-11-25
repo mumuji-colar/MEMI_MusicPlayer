@@ -66,7 +66,7 @@ import kotlinx.coroutines.withContext
 import com.mmc.merimusicplayer.common.R as CoreCommonR
 import com.mmc.merimusicplayer.ui.component.overlay.DensityScaledAlertDialog as AlertDialog
 import com.mmc.merimusicplayer.ui.feedback.MemiSnackbarHost
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.navigation.LocalMiniPlayerHeight
 import com.mmc.merimusicplayer.ui.screen.tab.settings.page.MiuixSettingsSectionCard
 import com.mmc.merimusicplayer.ui.theme.ContinuousRoundedCornerShape
@@ -107,7 +107,7 @@ internal fun TextLogFileListScreen(
                     val directory = resolveDirectory()
                     val clearedCount = withContext(Dispatchers.IO) { deleteTextLogFiles(directory) }
                     logFilesState.value = emptyList()
-                    snackbarHostState.showNeriSnackbar(
+                    snackbarHostState.showMemiSnackbar(
                         context.resources.getQuantityString(clearedCountRes, clearedCount, clearedCount)
                     )
                 }

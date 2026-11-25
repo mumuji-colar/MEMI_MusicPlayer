@@ -17,13 +17,13 @@ class MemiSnackbarDedupTest {
 
     @Test
     fun `blank messages are not shown`() = runTest {
-        assertEquals(SnackbarResult.Dismissed, host.showNeriSnackbar("   "))
+        assertEquals(SnackbarResult.Dismissed, host.showMemiSnackbar("   "))
         assertNull(host.currentSnackbarData)
     }
 
     @Test
     fun `messages are trimmed and use short duration without an action`() = runTest {
-        val shown = backgroundScope.async { host.showNeriSnackbar("  Saved  ") }
+        val shown = backgroundScope.async { host.showMemiSnackbar("  Saved  ") }
         runCurrent()
 
         val visuals = host.currentSnackbarData!!.visuals
@@ -37,7 +37,7 @@ class MemiSnackbarDedupTest {
 
     @Test
     fun `an action keeps the snackbar until the user responds`() = runTest {
-        val shown = backgroundScope.async { host.showNeriSnackbar("Removed", actionLabel = "Undo") }
+        val shown = backgroundScope.async { host.showMemiSnackbar("Removed", actionLabel = "Undo") }
         runCurrent()
 
         assertEquals(SnackbarDuration.Indefinite, host.currentSnackbarData!!.visuals.duration)
@@ -48,32 +48,32 @@ class MemiSnackbarDedupTest {
 
     @Test
     fun `the currently visible message is not queued again`() = runTest {
-        backgroundScope.async { host.showNeriSnackbar("Saved") }
+        backgroundScope.async { host.showMemiSnackbar("Saved") }
         runCurrent()
 
-        assertEquals(SnackbarResult.Dismissed, host.showNeriSnackbar(" Saved "))
+        assertEquals(SnackbarResult.Dismissed, host.showMemiSnackbar(" Saved "))
         assertEquals("Saved", host.currentSnackbarData?.visuals?.message)
     }
 
     @Test
     fun `a repeated message within the dedup window is skipped`() = runTest {
-        val first = backgroundScope.async { host.showNeriSnackbar("Saved") }
+        val first = backgroundScope.async { host.showMemiSnackbar("Saved") }
         runCurrent()
         host.currentSnackbarData!!.dismiss()
         first.await()
 
-        assertEquals(SnackbarResult.Dismissed, host.showNeriSnackbar("Saved"))
+        assertEquals(SnackbarResult.Dismissed, host.showMemiSnackbar("Saved"))
         assertNull(host.currentSnackbarData)
     }
 
     @Test
     fun `a different message is shown after the previous one`() = runTest {
-        val first = backgroundScope.async { host.showNeriSnackbar("Saved") }
+        val first = backgroundScope.async { host.showMemiSnackbar("Saved") }
         runCurrent()
         host.currentSnackbarData!!.dismiss()
         first.await()
 
-        backgroundScope.async { host.showNeriSnackbar("Deleted") }
+        backgroundScope.async { host.showMemiSnackbar("Deleted") }
         runCurrent()
 
         assertEquals("Deleted", host.currentSnackbarData?.visuals?.message)

@@ -13,7 +13,7 @@
 - NDK `27.0.12077973`
 - CMake `3.22.1`，由 Android 构建脚本固定指定
 - 版本名格式：`<git短哈希>.<MMddHHmm>`
-- Release APK 文件名：`NeriPlayer-<versionName>[-abi].apk`
+- Release APK 文件名：`MemiPlayer-<versionName>[-abi].apk`
 - 默认 Release APK 只打包 `arm64-v8a`；多 ABI 输出需加
   `-PbuildAllReleaseAbis=true`
 - `.github/workflows/android_native_ci.yml` 会在 Native 相关变更时运行
@@ -41,7 +41,7 @@
 | [`:sync`](../modules/sync/README.md) | GitHub/WebDAV 传输、加密凭据状态、会话、兼容编解码、合并、并发保护与 Worker 策略。 |
 | [`:listentogether`](../modules/listentogether/README.md) | 一起听协议、HTTP/WebSocket 传输、身份规则、会话、连接恢复、控制与播放同步。 |
 
-`:app` 维护 Android 入口、Compose 页面和跨领域依赖组装。设置项生成由 `:ksp-annotations` / `:ksp-processor` 维护，上游歌词子模块为 `:accompanist-lyrics-core` / `:accompanist-lyrics-ui`；`:hidden-api` 只为播放运行模块提供编译期接口桩，不随应用打包；`build-logic` 提供构建逻辑。`np-submodule/NeriPlayer-LTW` 是一起听 Cloudflare Workers 服务端，`np-submodule/miuix` 是未参与主应用构建的上游源码与文档树。这些不计入 14 个自有 Android 库。
+`:app` 维护 Android 入口、Compose 页面和跨领域依赖组装。设置项生成由 `:ksp-annotations` / `:ksp-processor` 维护，上游歌词子模块为 `:accompanist-lyrics-core` / `:accompanist-lyrics-ui`；`:hidden-api` 只为播放运行模块提供编译期接口桩，不随应用打包；`build-logic` 提供构建逻辑。`np-submodule/MemiPlayer-LTW` 是一起听 Cloudflare Workers 服务端，`np-submodule/miuix` 是未参与主应用构建的上游源码与文档树。这些不计入 14 个自有 Android 库。
 
 依赖按实际职责维护，不由目录分类推导层级。`:model` 不依赖项目实现，`:common` 不依赖业务领域；数据库、存储计算、歌词解析与播放/下载规则不得反向依赖仓库或 Android 运行实现。`:platform` 内的业务仓库消费对应协议，API 不反向读取账号仓库、Room 或播放器状态，各平台仍保持包级依赖边界。`:local` 消费数据库与领域服务，客户端的账号、凭据刷新和存储能力通过窄接口注入。所有库禁止依赖 app 或形成循环。
 

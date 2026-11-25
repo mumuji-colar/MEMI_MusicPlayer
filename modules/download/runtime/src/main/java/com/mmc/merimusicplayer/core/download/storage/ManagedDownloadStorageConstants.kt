@@ -6,7 +6,7 @@ import com.mmc.merimusicplayer.common.units.SECOND_MS
 
 // 应用私有目录名。这是历史磁盘路径，不能跟着改名：
 // 已有下载记录都是相对这个根存的，一改就等于用户下载的歌全部失效。
-internal const val ROOT_DIR_NAME = "NeriPlayer"
+internal const val ROOT_DIR_NAME = "MemiPlayer"
 // 公共 Download 下的默认目录名；直写公共目录需要 MANAGE_EXTERNAL_STORAGE
 internal const val PUBLIC_DOWNLOAD_DIR_NAME = "MEMIplayer"
 internal const val LYRIC_SUBDIRECTORY = "Lyrics"

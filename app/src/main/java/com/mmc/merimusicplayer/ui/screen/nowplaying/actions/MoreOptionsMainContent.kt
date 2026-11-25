@@ -84,7 +84,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.mmc.merimusicplayer.common.R as CoreCommonR
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.core.di.AppContainer
 import com.mmc.merimusicplayer.data.model.download.DownloadStatus
 import com.mmc.merimusicplayer.data.model.download.DownloadTask
@@ -241,7 +241,7 @@ internal fun BoxScope.NeteaseCollectionFeedbackHost(
 ) {
     val resources = LocalResources.current
     LaunchedEffect(feedback, host, resources) {
-        feedback.display { host.showNeriSnackbar(it.resolve(resources)) }
+        feedback.display { host.showMemiSnackbar(it.resolve(resources)) }
     }
     if (!menuOpen) MemiOverlaySnackbarHost(host)
 }
@@ -531,7 +531,7 @@ private fun NeteaseAlbumAction(
         if (album != null) {
             onEnterAlbum(album)
         } else {
-            snackbarHostState.showNeriSnackbar(composeResources.getString(CoreCommonR.string.music_get_detail_failed))
+            snackbarHostState.showMemiSnackbar(composeResources.getString(CoreCommonR.string.music_get_detail_failed))
         }
     }
 
@@ -571,7 +571,7 @@ private fun ShareSongAction(
                     if (shared) {
                         onDismissSheet {}
                     } else {
-                        snackbarHostState.showNeriSnackbar(
+                        snackbarHostState.showMemiSnackbar(
                             composeResources.getString(CoreCommonR.string.local_song_share_failed)
                         )
                     }

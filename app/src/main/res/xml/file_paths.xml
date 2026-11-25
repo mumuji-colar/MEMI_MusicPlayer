@@ -2,10 +2,10 @@
 <paths>
     <files-path
         name="managed_local_media_internal"
-        path="NeriPlayer/" />
+        path="MemiPlayer/" />
     <external-files-path
         name="managed_local_media_external"
-        path="Music/NeriPlayer/" />
+        path="Music/MemiPlayer/" />
     <cache-path
         name="shared_local_media"
         path="shared_media_exports/" />

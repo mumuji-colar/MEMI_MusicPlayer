@@ -18,7 +18,7 @@ import com.mmc.merimusicplayer.data.settings.SettingsRepository
 import com.mmc.merimusicplayer.data.model.storage.StorageCacheClearOptions
 import com.mmc.merimusicplayer.data.model.storage.PlayerCacheClearEstimate
 import com.mmc.merimusicplayer.ui.feedback.AppFeedback
-import com.mmc.merimusicplayer.ui.feedback.showNeriSnackbar
+import com.mmc.merimusicplayer.ui.feedback.showMemiSnackbar
 import com.mmc.merimusicplayer.ui.settings.owner.AppLyricOffsetSettingsOwner
 import com.mmc.merimusicplayer.ui.settings.owner.AppSettingsCacheClearOwner
 
@@ -388,6 +388,6 @@ internal class AppStorageSettingsActions(
 
     val onClearCacheClick: suspend (StorageCacheClearOptions) -> Unit = { options ->
         val message = cacheClearOwner.clear(options)
-        scope.launch { snackbarHostState.showNeriSnackbar(message) }
+        scope.launch { snackbarHostState.showMemiSnackbar(message) }
     }
 }
