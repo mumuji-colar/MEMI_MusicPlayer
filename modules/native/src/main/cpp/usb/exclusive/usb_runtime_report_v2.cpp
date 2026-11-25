@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <sstream>
 
-namespace neri::usb {
+namespace memi::usb {
 namespace {
 
 void assignError(std::string* error, const char* value) {
@@ -287,4 +287,4 @@ bool buildUsbRuntimeReportV2Fields(
     return true;
 }
 
-} // namespace neri::usb
+} // namespace memi::usb

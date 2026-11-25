@@ -6,7 +6,7 @@
 namespace {
 
 void preservesNominalFortyFourPointOneKilohertzDistribution() {
-    neri::usb::IsoPacketScheduler scheduler;
+    memi::usb::IsoPacketScheduler scheduler;
     scheduler.configure(44100, 1000, 4);
     uint64_t frames = 0;
     for (int interval = 0; interval < 1000; ++interval) {
@@ -19,7 +19,7 @@ void preservesNominalFortyFourPointOneKilohertzDistribution() {
 }
 
 void resetRestoresTheInitialPacketPhase() {
-    neri::usb::IsoPacketScheduler scheduler;
+    memi::usb::IsoPacketScheduler scheduler;
     scheduler.configure(44100, 1000, 4);
     const auto first = scheduler.next();
     const auto second = scheduler.next();
@@ -31,7 +31,7 @@ void resetRestoresTheInitialPacketPhase() {
 }
 
 void preservesHighSpeedNominalPackets() {
-    neri::usb::IsoPacketScheduler scheduler;
+    memi::usb::IsoPacketScheduler scheduler;
     scheduler.configure(48000, 8000, 8);
     for (int interval = 0; interval < 8000; ++interval) {
         const auto plan = scheduler.next();

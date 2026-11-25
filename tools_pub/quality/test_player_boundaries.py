@@ -32,10 +32,10 @@ class PlayerBoundariesTest(unittest.TestCase):
 
     @staticmethod
     def source(root, family, name="Sample"):
-        directory = root / "moe/ouom/neriplayer" / family
+        directory = root / "com/mmc/merimusicplayer" / family
         directory.mkdir(parents=True, exist_ok=True)
         (directory / f"{name}.kt").write_text(
-            "package moe.ouom.neriplayer." + family.replace("/", ".") + f"\nclass {name}\n"
+            "package com.mmc.merimusicplayer." + family.replace("/", ".") + f"\nclass {name}\n"
         )
 
     def add_module(self, name):
@@ -78,10 +78,10 @@ class PlayerBoundariesTest(unittest.TestCase):
         module.mkdir(parents=True)
         (module / "build.gradle.kts").write_text('plugins { id("build-logic.android.feature-library") }\n')
         self.source(module / "src/main/java", "core/player/engine")
-        source = module / "src/main/java/moe/ouom/neriplayer/core/player/engine/Sample.kt"
-        source.write_text(source.read_text() + '\nimport moe.ouom.neriplayer.core.player.PlayerManager\n')
+        source = module / "src/main/java/com/mmc/merimusicplayer/core/player/engine/Sample.kt"
+        source.write_text(source.read_text() + '\nimport com.mmc.merimusicplayer.core.player.PlayerManager\n')
         self.assertEqual([], verify(self.root))
-        source.write_text(source.read_text() + 'import moe.ouom.neriplayer.core.di.AppContainer\n')
+        source.write_text(source.read_text() + 'import com.mmc.merimusicplayer.core.di.AppContainer\n')
         self.assertTrue(any("application dependency import" in error for error in verify(self.root)))
 
     def test_core_player_cannot_depend_on_feature_implementation(self):
@@ -122,7 +122,7 @@ class PlayerBoundariesTest(unittest.TestCase):
                 "runtime", "audio/processing", "audio/reactive",
             )
             sources = [source for family in families
-                       for source in (source_root / "moe/ouom/neriplayer/core/player" / family).rglob("*.kt")]
+                       for source in (source_root / "com/mmc/merimusicplayer/core/player" / family).rglob("*.kt")]
             self.assertTrue(sources, module)
             scoped = {path for pattern in scope["source_patterns"] for path in source_root.glob(pattern)}
             for source in sources:
@@ -148,7 +148,7 @@ class PlayerBoundariesTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         scope = json.loads((root / "config/quality/crap-scope.json").read_text())
         source_root = root / "app/src/main/java"
-        adapters = list((source_root / "moe/ouom/neriplayer/core/di/player").glob("*.kt"))
+        adapters = list((source_root / "com/mmc/merimusicplayer/core/di/player").glob("*.kt"))
         self.assertTrue(adapters)
         scoped = {path for pattern in scope["source_patterns"] for path in source_root.glob(pattern)}
         self.assertTrue(set(adapters).issubset(scoped))
@@ -157,7 +157,7 @@ class PlayerBoundariesTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[2]
         for source_set in ("main", "test", "androidTest"):
             for language in ("java", "kotlin"):
-                source_root = root / "app/src" / source_set / language / "moe/ouom/neriplayer/core/player"
+                source_root = root / "app/src" / source_set / language / "com/mmc/merimusicplayer/core/player"
                 sources = [path for path in source_root.rglob("*") if path.suffix in {".kt", ".java"}]
                 self.assertEqual([], sources, f"{source_set}: player implementations and tests belong in their modules")
 
@@ -180,16 +180,16 @@ class PlayerBoundariesTest(unittest.TestCase):
     def test_lyricon_coordinator_cannot_bypass_ownership_by_renaming_its_file(self):
         playback = self.add_module(":playback:runtime")
         self.source(playback / "src/main/java", "lyrics/output", "LyriconUpdateCoordinator")
-        directory = playback / "src/main/java/moe/ouom/neriplayer/lyrics/output"
+        directory = playback / "src/main/java/com/mmc/merimusicplayer/lyrics/output"
         (directory / "LyriconUpdateCoordinator.kt").rename(directory / "OutputCoordinator.kt")
         self.assertTrue(any("package belongs to :lyrics" in error for error in verify(self.root)))
 
     def test_lyrics_output_integration_cannot_use_player_dependencies(self):
         lyrics = self.add_module(":lyrics")
         self.source(lyrics / "src/main/java", "lyrics/output")
-        source = lyrics / "src/main/java/moe/ouom/neriplayer/lyrics/output/Sample.kt"
+        source = lyrics / "src/main/java/com/mmc/merimusicplayer/lyrics/output/Sample.kt"
         self.assertEqual([], verify(self.root))
-        source.write_text(source.read_text() + "\nimport moe.ouom.neriplayer.core.player.host.PlayerDependencies\n")
+        source.write_text(source.read_text() + "\nimport com.mmc.merimusicplayer.core.player.host.PlayerDependencies\n")
         self.assertTrue(any("player implementation import" in error for error in verify(self.root)))
 
     def test_lyricon_output_implementations_require_lyrics_runtime(self):
@@ -205,11 +205,11 @@ class PlayerBoundariesTest(unittest.TestCase):
         domains = [domain for domain in load_domains(root / "config/quality/domain-dependencies.json")
                    if domain["name"].startswith("player-policy-")]
         families = ("audio", "command", "offload", "pending", "progress", "service", "skip", "storage", "wake")
-        classes = {f"moe.ouom.neriplayer.core.player.policy.{family}.nested.FuturePolicy" for family in families}
+        classes = {f"com.mmc.merimusicplayer.core.player.policy.{family}.nested.FuturePolicy" for family in families}
         selected = select_domains(classes, domains)
         for implementation in ("runtime.refresh.RequestGate", "audio.processing.BalanceProcessor", "queue.state.QueueStore"):
             with self.subTest(implementation=implementation):
-                dependency = "moe.ouom.neriplayer.core.player." + implementation
+                dependency = "com.mmc.merimusicplayer.core.player." + implementation
                 output = "\n".join(f"   {owner} -> {dependency} module" for owner in sorted(classes))
                 _, errors = check_class_dependencies(output, selected)
                 self.assertEqual(9, len(errors), errors)
@@ -219,20 +219,20 @@ class PlayerBoundariesTest(unittest.TestCase):
         domains = [domain for domain in load_domains(root / "config/quality/domain-dependencies.json")
                    if domain["name"].startswith("player-policy-")]
         dependencies = {
-            "audio": "moe.ouom.neriplayer.data.model.playback.PlaybackAudioInfo",
+            "audio": "com.mmc.merimusicplayer.data.model.playback.PlaybackAudioInfo",
             "command": "androidx.media3.common.Player",
-            "offload": "moe.ouom.neriplayer.data.model.playback.PlaybackAudioSource",
+            "offload": "com.mmc.merimusicplayer.data.model.playback.PlaybackAudioSource",
             "pending": "androidx.media3.common.Player",
             "progress": "androidx.media3.common.Player",
             "service": "kotlin.coroutines.Continuation",
-            "skip": "moe.ouom.neriplayer.data.model.bilibili.skip.BiliSponsorBlockSegment",
+            "skip": "com.mmc.merimusicplayer.data.model.bilibili.skip.BiliSponsorBlockSegment",
             "storage": "java.lang.String",
             "wake": "androidx.media3.common.C",
         }
-        classes = {f"moe.ouom.neriplayer.core.player.policy.{family}.ExistingPolicy" for family in dependencies}
+        classes = {f"com.mmc.merimusicplayer.core.player.policy.{family}.ExistingPolicy" for family in dependencies}
         selected = select_domains(classes, domains)
         output = "\n".join(
-            f"   moe.ouom.neriplayer.core.player.policy.{family}.ExistingPolicy -> {dependency} module"
+            f"   com.mmc.merimusicplayer.core.player.policy.{family}.ExistingPolicy -> {dependency} module"
             for family, dependency in dependencies.items()
         )
         _, errors = check_class_dependencies(output, selected)

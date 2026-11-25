@@ -4,9 +4,9 @@
 
 `:model` defines shared models for songs, playlists, playback and downloads, audio effects, song encyclopedias, platform responses, lyrics, settings, storage statistics, sync, and Listen Together. It has no project implementation dependencies.
 
-主要源码在 `src/main/java/moe/ouom/neriplayer/data/model`，按业务分包；少量共享类型位于 `data/sync/model` 和 `ui/viewmodel`。
+主要源码在 `src/main/java/com/mmc/merimusicplayer/data/model`，按业务分包；少量共享类型位于 `data/sync/model` 和 `ui/viewmodel`。
 
-Most sources are in `src/main/java/moe/ouom/neriplayer/data/model`, grouped by business area. A few shared types live in `data/sync/model` and `ui/viewmodel`.
+Most sources are in `src/main/java/com/mmc/merimusicplayer/data/model`, grouped by business area. A few shared types live in `data/sync/model` and `ui/viewmodel`.
 
 ## 兼容性 / Compatibility
 

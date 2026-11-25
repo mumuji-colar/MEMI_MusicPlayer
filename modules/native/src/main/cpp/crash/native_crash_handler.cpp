@@ -21,7 +21,7 @@
 
 namespace {
 
-constexpr char kLogTag[] = "NeriNativeCrash";
+constexpr char kLogTag[] = "MemiNativeCrash";
 constexpr char kPendingStartupCrashFlag[] = "pending_startup_crash.flag";
 constexpr size_t kAltStackSize = 64 * 1024;
 constexpr size_t kMaxPathLength = 1024;
@@ -982,7 +982,7 @@ static jboolean NativeCrashHandlerNativeInstall(
     __android_log_print(
         g_signal_handlers_installed ? ANDROID_LOG_INFO : ANDROID_LOG_WARN,
         kLogTag,
-        "native crash interceptor install result=%d, altStack=%d, output=lib_neri.so, dir=%s",
+        "native crash interceptor install result=%d, altStack=%d, output=lib_memi.so, dir=%s",
         g_signal_handlers_installed ? 1 : 0,
         g_alternate_stack_ready ? 1 : 0,
         g_crash_directory
@@ -1004,7 +1004,7 @@ static void NativeCrashHandlerTriggerTestCrash(jint crash_type) {
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_util_crash_NativeCrashHandler_nativeInstall(
+Java_com_mmc_merimusicplayer_util_crash_NativeCrashHandler_nativeInstall(
     JNIEnv* env,
     jclass,
     jstring crash_directory,
@@ -1032,7 +1032,7 @@ Java_moe_ouom_neriplayer_util_crash_NativeCrashHandler_nativeInstall(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_moe_ouom_neriplayer_util_crash_NativeCrashHandler_nativeTriggerTestCrash(
+Java_com_mmc_merimusicplayer_util_crash_NativeCrashHandler_nativeTriggerTestCrash(
     JNIEnv*,
     jclass,
     jint crash_type

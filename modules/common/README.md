@@ -4,9 +4,9 @@
 
 `:common` provides logging, collection and JSON helpers, search matching, time and unit conversions, request generations, cancellation handling, and atomic file writes, plus shared strings, icons, and locale support.
 
-源码在 `src/main/java/moe/ouom/neriplayer/common`，资源在 `src/main/res`。模块不依赖其它项目实现；共享业务模型由 `:model` 维护。`src/testFixtures` 供播放和下载运行库复用。
+源码在 `src/main/java/com/mmc/merimusicplayer/common`，资源在 `src/main/res`。模块不依赖其它项目实现；共享业务模型由 `:model` 维护。`src/testFixtures` 供播放和下载运行库复用。
 
-Sources are in `src/main/java/moe/ouom/neriplayer/common`, with resources in `src/main/res`. The module has no project implementation dependencies; shared business models belong to `:model`. Playback and download runtime libraries reuse `src/testFixtures`.
+Sources are in `src/main/java/com/mmc/merimusicplayer/common`, with resources in `src/main/res`. The module has no project implementation dependencies; shared business models belong to `:model`. Playback and download runtime libraries reuse `src/testFixtures`.
 
 app 独占的界面文案放在 `app/src/main/res`；仍被库模块消费的文案组保留在 `:common`，避免库反向依赖 app。默认 `values` 与 `values-zh` 以中文为基准，`values-en` 提供英文；`LocalizedResourceConsistencyTest` 在现有 app 单元测试中检查资源键、默认文案和格式参数一致性。
 

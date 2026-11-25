@@ -42,18 +42,18 @@
 #include "usb/uac2/usb_uac2_feedback_profile.h"
 #include "usb/uac2/usb_uac2_format.h"
 
-#define LOG_TAG "NeriUsbExclusive"
+#define LOG_TAG "MemiUsbExclusive"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 
-static neri::usb::IsoTransferWindowPlan isoTransferWindowPlan(int intervalsPerSecond) {
+static memi::usb::IsoTransferWindowPlan isoTransferWindowPlan(int intervalsPerSecond) {
     const int baselineDurationMs = intervalsPerSecond > 1000
         ? kHighSpeedTargetInFlightMs
         : kFullSpeedTargetInFlightMs;
-    return neri::usb::planIsoTransferWindow(
+    return memi::usb::planIsoTransferWindow(
         intervalsPerSecond,
         baselineDurationMs,
         kMaximumPcmRingDurationMs
@@ -67,7 +67,7 @@ static int targetIsoTransferCount(
     if (handle == nullptr) {
         return kExplicitFeedbackAudioTransferCount;
     }
-    return neri::usb::isoTransferTargetCount(
+    return memi::usb::isoTransferTargetCount(
         handle->device.explicitFeedbackEnabled,
         handle->transfer.intervalsPerSecond,
         handle->transfer.packetsPerTransfer,
@@ -87,11 +87,11 @@ bool configureTransferPlan(UsbExclusiveHandle* handle) {
         device.usbSpeed,
         device.endpointInterval
     );
-    const neri::usb::IsoTransferWindowPlan transferWindow =
+    const memi::usb::IsoTransferWindowPlan transferWindow =
         device.explicitFeedbackEnabled
-            ? neri::usb::planIsoTransferWindow(
+            ? memi::usb::planIsoTransferWindow(
                 transfer.intervalsPerSecond,
-                neri::usb::explicitFeedbackPacketsPerTransfer(transfer.intervalsPerSecond),
+                memi::usb::explicitFeedbackPacketsPerTransfer(transfer.intervalsPerSecond),
                 kExplicitFeedbackAudioTransferCount,
                 kMaximumPcmRingDurationMs
             )
@@ -217,7 +217,7 @@ bool feedbackTransferSetActive(const UsbExclusiveHandle* handle) {
         return false;
     }
     return handle->transfer.feedbackInTransferSet.snapshot().state !=
-        neri::usb::feedback::FeedbackInTransferSetState::Empty;
+        memi::usb::feedback::FeedbackInTransferSetState::Empty;
 }
 
 bool configureExplicitFeedbackRuntime(
@@ -231,19 +231,19 @@ bool configureExplicitFeedbackRuntime(
         return true;
     }
     if (handle->device.feedbackTimingProfile.status !=
-        neri::usb::uac2::Uac2FeedbackProfileStatus::Valid) {
+        memi::usb::uac2::Uac2FeedbackProfileStatus::Valid) {
         if (error != nullptr) {
             *error = "feedback_profile_invalid";
         }
         return false;
     }
-    neri::usb::feedback::FeedbackRateQ32 nominalRateQ32 = 0;
-    const auto nominalStatus = neri::usb::feedback::makeFeedbackRateQ32(
+    memi::usb::feedback::FeedbackRateQ32 nominalRateQ32 = 0;
+    const auto nominalStatus = memi::usb::feedback::makeFeedbackRateQ32(
         static_cast<uint32_t>(handle->device.sampleRate),
         static_cast<uint32_t>(handle->transfer.intervalsPerSecond),
         &nominalRateQ32
     );
-    if (nominalStatus != neri::usb::feedback::FeedbackMathStatus::Ok ||
+    if (nominalStatus != memi::usb::feedback::FeedbackMathStatus::Ok ||
         handle->device.feedbackTimingProfile.feedbackExpectedPeriodNanoseconds == 0 ||
         handle->device.feedbackTimingProfile.feedbackExpectedPeriodNanoseconds >
             static_cast<uint64_t>(std::numeric_limits<int64_t>::max())) {
@@ -255,7 +255,7 @@ bool configureExplicitFeedbackRuntime(
 
     const auto currentTransfers = handle->transfer.feedbackInTransferSet.snapshot();
     if (currentTransfers.state !=
-            neri::usb::feedback::FeedbackInTransferSetState::Empty ||
+            memi::usb::feedback::FeedbackInTransferSetState::Empty ||
         currentTransfers.inFlight != 0 ||
         currentTransfers.callbacksInProgress != 0) {
         if (error != nullptr) {
@@ -265,7 +265,7 @@ bool configureExplicitFeedbackRuntime(
     }
 
     handle->transfer.feedbackNominalRateQ32 = nominalRateQ32;
-    const neri::usb::feedback::ExplicitFeedbackRuntimeConfig config {
+    const memi::usb::feedback::ExplicitFeedbackRuntimeConfig config {
         static_cast<uint64_t>(handle->recovery.nativeStreamGeneration),
         handle->device.feedbackTimingProfile.decodeProfile,
         nominalRateQ32,
@@ -286,7 +286,7 @@ bool configureExplicitFeedbackRuntime(
         }
         return false;
     }
-    const neri::usb::feedback::FeedbackInTransferConfig transferConfig {
+    const memi::usb::feedback::FeedbackInTransferConfig transferConfig {
         handle->device.devh,
         handle->device.feedbackEndpoint,
         static_cast<uint32_t>(std::max(1, handle->device.feedbackEndpointMaxPacketBytes)),
@@ -340,7 +340,7 @@ bool freeExplicitFeedbackTransfers(UsbExclusiveHandle* handle) {
         return true;
     }
     const auto snapshot = handle->transfer.feedbackInTransferSet.snapshot();
-    if (snapshot.state == neri::usb::feedback::FeedbackInTransferSetState::Empty) {
+    if (snapshot.state == memi::usb::feedback::FeedbackInTransferSetState::Empty) {
         return true;
     }
     std::string error;
@@ -372,7 +372,7 @@ void fillToneBuffer(UsbExclusiveHandle* handle, uint8_t* buffer, size_t bytes) {
 
         for (int ch = 0; ch < handle->device.channelCount; ++ch) {
             const int offset = frame * handle->device.frameBytes + ch * handle->device.subslotBytes;
-            neri::usb::writeIntegerPcmSample(
+            memi::usb::writeIntegerPcmSample(
                 buffer + offset,
                 handle->device.subslotBytes,
                 handle->device.bitsPerSample,
@@ -651,9 +651,9 @@ void updateAtomicMaximum(std::atomic<int>& value, int candidate) {
 }
 
 const char* explicitFeedbackFailureError(
-    neri::usb::feedback::ExplicitFeedbackRuntimeFailure failure
+    memi::usb::feedback::ExplicitFeedbackRuntimeFailure failure
 ) {
-    using Failure = neri::usb::feedback::ExplicitFeedbackRuntimeFailure;
+    using Failure = memi::usb::feedback::ExplicitFeedbackRuntimeFailure;
     switch (failure) {
         case Failure::InvalidConfiguration:
             return "feedback_runtime_invalid_configuration";
@@ -681,12 +681,12 @@ void failForExplicitFeedbackRuntime(UsbExclusiveHandle* handle) {
     }
     const auto snapshot = handle->transfer.feedbackRuntime.snapshot();
     if (snapshot.failure ==
-        neri::usb::feedback::ExplicitFeedbackRuntimeFailure::DeviceDetached) {
+        memi::usb::feedback::ExplicitFeedbackRuntimeFailure::DeviceDetached) {
         requestNoDeviceStop(handle);
     }
     const bool initialLockFailure =
         snapshot.failure ==
-            neri::usb::feedback::ExplicitFeedbackRuntimeFailure::FeedbackClock &&
+            memi::usb::feedback::ExplicitFeedbackRuntimeFailure::FeedbackClock &&
         snapshot.validPackets == 0 && !snapshot.realPcmReleased;
     setError(
         handle,
@@ -716,9 +716,9 @@ int applyIsoPacketLengths(
         const auto snapshot = handle->transfer.feedbackRuntime.snapshot();
         const auto clockState = snapshot.gate.clock.state;
         const bool feedbackUsable =
-            clockState == neri::usb::feedback::FeedbackClockState::Locked ||
-            clockState == neri::usb::feedback::FeedbackClockState::Holdover ||
-            clockState == neri::usb::feedback::FeedbackClockState::Relocking;
+            clockState == memi::usb::feedback::FeedbackClockState::Locked ||
+            clockState == memi::usb::feedback::FeedbackClockState::Holdover ||
+            clockState == memi::usb::feedback::FeedbackClockState::Relocking;
         const bool sourceAvailable = handle->transfer.streamSource.load() == StreamSource::Tone ||
             (handle->player.playbackEnabled.load() &&
                 handle->recovery.deviceOnline.load() &&
@@ -735,15 +735,15 @@ int applyIsoPacketLengths(
         if (explicitFeedback) {
             const auto plan = handle->transfer.feedbackRuntime.nextPacket(allowRealPayload);
             if (plan.status ==
-                    neri::usb::feedback::StreamGatePacketStatus::TerminalFailure ||
-                plan.packet.status != neri::usb::feedback::FeedbackMathStatus::Ok) {
+                    memi::usb::feedback::StreamGatePacketStatus::TerminalFailure ||
+                plan.packet.status != memi::usb::feedback::FeedbackMathStatus::Ok) {
                 failForExplicitFeedbackRuntime(handle);
                 return -1;
             }
             if (plan.status !=
-                    neri::usb::feedback::StreamGatePacketStatus::ZeroBootstrap &&
+                    memi::usb::feedback::StreamGatePacketStatus::ZeroBootstrap &&
                 plan.status !=
-                    neri::usb::feedback::StreamGatePacketStatus::PlayerPacket) {
+                    memi::usb::feedback::StreamGatePacketStatus::PlayerPacket) {
                 setError(handle, "feedback_packet_scheduler_not_ready");
                 markTransportFailed(handle);
                 return -1;
@@ -754,7 +754,7 @@ int applyIsoPacketLengths(
             packetBytes = static_cast<int>(plan.packet.bytes);
             packetFrames = static_cast<int>(plan.packet.frames);
         } else {
-            const neri::usb::IsoPacketPlan plan = handle->transfer.packetScheduler.next();
+            const memi::usb::IsoPacketPlan plan = handle->transfer.packetScheduler.next();
             packetBytes = plan.bytes;
             packetFrames = plan.frames;
         }
@@ -819,8 +819,8 @@ int activateBufferedIsoReserveTransfers(UsbExclusiveHandle* handle) {
     if (targetTransferCount <= handle->transfer.baseTransferCount) {
         return 0;
     }
-    const neri::usb::PcmPipelineSnapshot initialPcm = handle->player.pcmPipeline.snapshot();
-    int activationBudget = neri::usb::isoReserveActivationBudgetAfterWarmup(
+    const memi::usb::PcmPipelineSnapshot initialPcm = handle->player.pcmPipeline.snapshot();
+    int activationBudget = memi::usb::isoReserveActivationBudgetAfterWarmup(
         handle->transfer.completedTransfers.load(),
         initialPcm.levelBytes,
         handle->transfer.transferBytes,
@@ -851,7 +851,7 @@ int activateBufferedIsoReserveTransfers(UsbExclusiveHandle* handle) {
             break;
         }
 
-        const neri::usb::PcmPipelineSnapshot pcm = handle->player.pcmPipeline.snapshot();
+        const memi::usb::PcmPipelineSnapshot pcm = handle->player.pcmPipeline.snapshot();
         if (pcm.levelBytes < static_cast<size_t>(handle->transfer.transferBytes)) {
             break;
         }
@@ -945,7 +945,7 @@ void LIBUSB_CALL transferCallback(libusb_transfer* transfer) noexcept {
                     packetReportedNoDevice = true;
                 }
                 if (packet.status == LIBUSB_TRANSFER_COMPLETED) {
-                    const unsigned int completedBytes = neri::usb::completedIsoPacketBytes(
+                    const unsigned int completedBytes = memi::usb::completedIsoPacketBytes(
                         true,
                         packet.length,
                         packet.actual_length
@@ -990,7 +990,7 @@ void LIBUSB_CALL transferCallback(libusb_transfer* transfer) noexcept {
         if (packetsCompleted) {
             const int currentScore = handle->transfer.isoPacketErrorScore.load();
             handle->transfer.isoPacketErrorScore.store(
-                neri::usb::updateIsoPacketErrorScore(currentScore, 0)
+                memi::usb::updateIsoPacketErrorScore(currentScore, 0)
             );
             handle->transfer.lastTransferCompletionAtMs.store(steadyClockMillis());
             const int completedBefore = handle->transfer.completedTransfers.fetch_add(1);
@@ -1006,12 +1006,12 @@ void LIBUSB_CALL transferCallback(libusb_transfer* transfer) noexcept {
             const int errorTransfers = handle->transfer.isoPacketErrorTransfers.fetch_add(1) + 1;
             const int totalPacketErrors = handle->transfer.isoPacketErrors.fetch_add(failedPacketCount) +
                 failedPacketCount;
-            const int errorScore = neri::usb::updateIsoPacketErrorScore(
+            const int errorScore = memi::usb::updateIsoPacketErrorScore(
                 handle->transfer.isoPacketErrorScore.load(),
                 failedPacketCount
             );
             handle->transfer.isoPacketErrorScore.store(errorScore);
-            const bool fatalPacketBurst = neri::usb::shouldFailForIsoPacketErrors(errorScore);
+            const bool fatalPacketBurst = memi::usb::shouldFailForIsoPacketErrors(errorScore);
             if (errorTransfers <= 3 || (errorTransfers & (errorTransfers - 1)) == 0 ||
                 fatalPacketBurst) {
                 LOGW(
@@ -1022,7 +1022,7 @@ void LIBUSB_CALL transferCallback(libusb_transfer* transfer) noexcept {
                     firstFailedPacketIndex,
                     firstFailedPacketStatus,
                     errorScore,
-                    neri::usb::kIsoPacketErrorFailureScore,
+                    memi::usb::kIsoPacketErrorFailureScore,
                     errorTransfers,
                     totalPacketErrors,
                     handle->transfer.completedTransfers.load(),
@@ -1063,7 +1063,7 @@ void LIBUSB_CALL transferCallback(libusb_transfer* transfer) noexcept {
         if (shouldStopTransferSubmission(handle)) {
             return;
         }
-        if (neri::usb::shouldRetireIsoReserveTransfer(
+        if (memi::usb::shouldRetireIsoReserveTransfer(
                 userData->slot,
                 handle->transfer.baseTransferCount,
                 handle->transfer.inFlightTransfers.load(),
@@ -1288,10 +1288,10 @@ void eventLoopThread(UsbExclusiveHandle* handle) noexcept {
                 handle->recovery.stopRequested.store(true);
                 LOGE(
                     "USB explicit feedback runtime failed: state=%s failure=%s",
-                    neri::usb::feedback::explicitFeedbackRuntimeStateName(
+                    memi::usb::feedback::explicitFeedbackRuntimeStateName(
                         handle->transfer.feedbackRuntime.snapshot().state
                     ),
-                    neri::usb::feedback::explicitFeedbackRuntimeFailureName(
+                    memi::usb::feedback::explicitFeedbackRuntimeFailureName(
                         handle->transfer.feedbackRuntime.snapshot().failure
                     )
                 );
@@ -1553,7 +1553,7 @@ bool stopStreamingInternal(UsbExclusiveHandle* handle) {
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeConfigurePlayerTransferWindow(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeConfigurePlayerTransferWindow(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -1598,4 +1598,4 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
     return JNI_TRUE;
 }
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive

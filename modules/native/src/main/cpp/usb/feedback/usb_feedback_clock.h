@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 struct FeedbackClockConfig {
     int64_t expectedReportPeriodNs = 0;
@@ -92,4 +92,4 @@ private:
     uint64_t nonMonotonicEvents_ = 0;
 };
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

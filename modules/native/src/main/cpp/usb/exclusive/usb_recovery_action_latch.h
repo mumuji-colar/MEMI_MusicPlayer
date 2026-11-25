@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <mutex>
 
-namespace neri::usb {
+namespace memi::usb {
 
 enum class UsbRecoveryActionAckStatus {
     Acked,
@@ -51,4 +51,4 @@ private:
 
 const char* usbRecoveryActionAckStatusName(UsbRecoveryActionAckStatus status);
 
-} // namespace neri::usb
+} // namespace memi::usb

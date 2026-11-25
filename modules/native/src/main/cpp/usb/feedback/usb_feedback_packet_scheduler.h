@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 struct FeedbackPacketSchedulerSnapshot {
     bool configured = false;
@@ -56,4 +56,4 @@ private:
     uint64_t capacityRejects_ = 0;
 };
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

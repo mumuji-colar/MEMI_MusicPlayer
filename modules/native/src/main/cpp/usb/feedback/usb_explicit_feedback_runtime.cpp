@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <limits>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 namespace {
 
 constexpr uint32_t kMaximumConsecutiveTransferErrors = 8;
@@ -453,4 +453,4 @@ const char* explicitFeedbackRuntimeFailureName(
     return "unknown";
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

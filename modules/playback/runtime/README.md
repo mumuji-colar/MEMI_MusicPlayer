@@ -6,9 +6,9 @@
 
 ## 结构 / Layout
 
-主要入口是 [PlayerManager](src/main/java/moe/ouom/neriplayer/core/player/PlayerManager.kt) 和 [AudioPlayerService](src/main/java/moe/ouom/neriplayer/core/player/service/AudioPlayerService.kt)。播放规则来自 `:playback:logic`，平台、本地数据、歌词和一起听使用 `:platform`、`:local`、`:database`、`:lyrics` 与 `:listentogether`；下载通过 `PlayerDownloadAccess` 接入。
+主要入口是 [PlayerManager](src/main/java/com/mmc/merimusicplayer/core/player/PlayerManager.kt) 和 [AudioPlayerService](src/main/java/com/mmc/merimusicplayer/core/player/service/AudioPlayerService.kt)。播放规则来自 `:playback:logic`，平台、本地数据、歌词和一起听使用 `:platform`、`:local`、`:database`、`:lyrics` 与 `:listentogether`；下载通过 `PlayerDownloadAccess` 接入。
 
-The main entry points are [PlayerManager](src/main/java/moe/ouom/neriplayer/core/player/PlayerManager.kt) and [AudioPlayerService](src/main/java/moe/ouom/neriplayer/core/player/service/AudioPlayerService.kt). Rules come from `:playback:logic`; platform sources, local data, lyrics, and Listen Together use `:platform`, `:local`, `:database`, `:lyrics`, and `:listentogether`. Downloads use `PlayerDownloadAccess`.
+The main entry points are [PlayerManager](src/main/java/com/mmc/merimusicplayer/core/player/PlayerManager.kt) and [AudioPlayerService](src/main/java/com/mmc/merimusicplayer/core/player/service/AudioPlayerService.kt). Rules come from `:playback:logic`; platform sources, local data, lyrics, and Listen Together use `:platform`, `:local`, `:database`, `:lyrics`, and `:listentogether`. Downloads use `PlayerDownloadAccess`.
 
 app 在 `core/di/player` 安装 `PlayerDependencies`；`isInitialized()` 通过环境的 `isReady` 检查仓库是否就绪。
 
@@ -62,13 +62,13 @@ Media notifications coalesce rapid updates and confirm the latest publication, r
 
 ## 兼容 / Compatibility
 
-[UsbExclusiveNativeBridge](src/main/java/moe/ouom/neriplayer/core/player/usb/transport/UsbExclusiveNativeBridge.kt) 的完整类名、native 方法名及 FFmpeg 回调须与 JNI 和 [consumer R8 规则](consumer-rules.pro) 一致；[Manifest](src/main/AndroidManifest.xml) 中的服务类名也须保持兼容。FFmpeg AAR 仅用作编译和测试接口，由 app 打包；[`:native`](../../native/README.md) 维护 C/C++ 实现并通过 AAR 向 app 提供 `lib_neri.so`，Kotlin 桥仍在本模块。
+[UsbExclusiveNativeBridge](src/main/java/com/mmc/merimusicplayer/core/player/usb/transport/UsbExclusiveNativeBridge.kt) 的完整类名、native 方法名及 FFmpeg 回调须与 JNI 和 [consumer R8 规则](consumer-rules.pro) 一致；[Manifest](src/main/AndroidManifest.xml) 中的服务类名也须保持兼容。FFmpeg AAR 仅用作编译和测试接口，由 app 打包；[`:native`](../../native/README.md) 维护 C/C++ 实现并通过 AAR 向 app 提供 `lib_neri.so`，Kotlin 桥仍在本模块。
 
-The fully qualified name and native methods of [UsbExclusiveNativeBridge](src/main/java/moe/ouom/neriplayer/core/player/usb/transport/UsbExclusiveNativeBridge.kt), plus FFmpeg callbacks, must match JNI and [consumer R8 rules](consumer-rules.pro). Service names in the [Manifest](src/main/AndroidManifest.xml) must remain compatible. The FFmpeg AAR supplies compile/test interfaces and is packaged by app. [`:native`](../../native/README.md) owns the C/C++ implementation and supplies `lib_neri.so` to app through its AAR; the Kotlin bridge stays in this module.
+The fully qualified name and native methods of [UsbExclusiveNativeBridge](src/main/java/com/mmc/merimusicplayer/core/player/usb/transport/UsbExclusiveNativeBridge.kt), plus FFmpeg callbacks, must match JNI and [consumer R8 rules](consumer-rules.pro). Service names in the [Manifest](src/main/AndroidManifest.xml) must remain compatible. The FFmpeg AAR supplies compile/test interfaces and is packaged by app. [`:native`](../../native/README.md) owns the C/C++ implementation and supplies `lib_neri.so` to app through its AAR; the Kotlin bridge stays in this module.
 
-[AudioEffectsNativeBridge](src/main/java/moe/ouom/neriplayer/core/player/audio/effects/AudioEffectsNativeBridge.kt) 同样使用静态 JNI 绑定，其类名、native 签名和 R8 保留规则必须与 `:native` 保持一致。该模块的 JVM 测试使用 JDK 21 运行 Android 16 Robolectric sandbox，生产字节码仍以 Java 17 为目标。
+[AudioEffectsNativeBridge](src/main/java/com/mmc/merimusicplayer/core/player/audio/effects/AudioEffectsNativeBridge.kt) 同样使用静态 JNI 绑定，其类名、native 签名和 R8 保留规则必须与 `:native` 保持一致。该模块的 JVM 测试使用 JDK 21 运行 Android 16 Robolectric sandbox，生产字节码仍以 Java 17 为目标。
 
-[AudioEffectsNativeBridge](src/main/java/moe/ouom/neriplayer/core/player/audio/effects/AudioEffectsNativeBridge.kt) also uses static JNI binding, so its class name, native signatures, and R8 rules must stay aligned with `:native`. JVM tests in this module use JDK 21 for the Android 16 Robolectric sandbox; production bytecode still targets Java 17.
+[AudioEffectsNativeBridge](src/main/java/com/mmc/merimusicplayer/core/player/audio/effects/AudioEffectsNativeBridge.kt) also uses static JNI binding, so its class name, native signatures, and R8 rules must stay aligned with `:native`. JVM tests in this module use JDK 21 for the Android 16 Robolectric sandbox; production bytecode still targets Java 17.
 
 ## 测试 / Tests
 

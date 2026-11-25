@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(neri_dsp_host_tests LANGUAGES CXX)
+project(memi_dsp_host_tests LANGUAGES CXX)
 
 include(CTest)
 
@@ -17,7 +17,7 @@ set(
 set_property(CACHE DSP_TEST_SANITIZER PROPERTY STRINGS none asan-ubsan)
 
 get_filename_component(NERI_CPP_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." REALPATH)
-include("${NERI_CPP_ROOT}/cmake/NeriNativeCompileOptions.cmake")
+include("${NERI_CPP_ROOT}/cmake/MemiNativeCompileOptions.cmake")
 add_subdirectory("${NERI_CPP_ROOT}/dsp" dsp)
 
 set(NERI_DSP_TEST_COMPILE_OPTIONS -UNDEBUG)
@@ -26,15 +26,15 @@ if(DSP_TEST_SANITIZER STREQUAL "asan-ubsan")
     set(NERI_DSP_SANITIZER_FLAGS -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all)
     list(APPEND NERI_DSP_TEST_COMPILE_OPTIONS ${NERI_DSP_SANITIZER_FLAGS})
     list(APPEND NERI_DSP_TEST_LINK_OPTIONS ${NERI_DSP_SANITIZER_FLAGS})
-    target_compile_options(neri_dsp_core PRIVATE ${NERI_DSP_SANITIZER_FLAGS})
+    target_compile_options(memi_dsp_core PRIVATE ${NERI_DSP_SANITIZER_FLAGS})
 elseif(NOT DSP_TEST_SANITIZER STREQUAL "none")
     message(FATAL_ERROR "Unknown DSP_TEST_SANITIZER=${DSP_TEST_SANITIZER}")
 endif()
 
-add_executable(neri_dsp_engine_test neri_dsp_engine_test.cpp)
-neri_configure_owned_native_target(neri_dsp_engine_test)
-target_compile_options(neri_dsp_engine_test PRIVATE ${NERI_DSP_TEST_COMPILE_OPTIONS})
-target_link_options(neri_dsp_engine_test PRIVATE ${NERI_DSP_TEST_LINK_OPTIONS})
-target_link_libraries(neri_dsp_engine_test PRIVATE neri_dsp_core)
-add_test(NAME neri_dsp_engine_test COMMAND neri_dsp_engine_test)
-set_tests_properties(neri_dsp_engine_test PROPERTIES TIMEOUT 120)
+add_executable(memi_dsp_engine_test memi_dsp_engine_test.cpp)
+memi_configure_owned_native_target(memi_dsp_engine_test)
+target_compile_options(memi_dsp_engine_test PRIVATE ${NERI_DSP_TEST_COMPILE_OPTIONS})
+target_link_options(memi_dsp_engine_test PRIVATE ${NERI_DSP_TEST_LINK_OPTIONS})
+target_link_libraries(memi_dsp_engine_test PRIVATE memi_dsp_core)
+add_test(NAME memi_dsp_engine_test COMMAND memi_dsp_engine_test)
+set_tests_properties(memi_dsp_engine_test PROPERTIES TIMEOUT 120)

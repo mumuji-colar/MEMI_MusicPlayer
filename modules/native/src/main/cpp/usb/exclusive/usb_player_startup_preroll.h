@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace neri::usb {
+namespace memi::usb {
 
 class PlayerStartupPreroll final {
 public:
@@ -55,4 +55,4 @@ private:
     std::atomic<int64_t> framesRemaining_ { 0 };
 };
 
-} // namespace neri::usb
+} // namespace memi::usb

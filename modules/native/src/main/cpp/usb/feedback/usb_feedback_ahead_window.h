@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <limits>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 struct FeedbackAheadWindowInput {
     uint64_t submittedIntervals = 0;
@@ -57,4 +57,4 @@ inline FeedbackAheadWindowResult checkFeedbackAheadWindow(
     return result;
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

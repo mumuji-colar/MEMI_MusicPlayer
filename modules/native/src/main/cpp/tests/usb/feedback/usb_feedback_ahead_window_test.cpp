@@ -6,11 +6,11 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackAheadWindowInput;
-using neri::usb::feedback::FeedbackAheadWindowStatus;
+using memi::usb::feedback::FeedbackAheadWindowInput;
+using memi::usb::feedback::FeedbackAheadWindowStatus;
 
 void acceptsTransferAtExactWindowBoundary() {
-    const auto result = neri::usb::feedback::checkFeedbackAheadWindow(
+    const auto result = memi::usb::feedback::checkFeedbackAheadWindow(
         FeedbackAheadWindowInput { 24, 16, 8, 16 }
     );
     assert(result.status == FeedbackAheadWindowStatus::Ok);
@@ -20,12 +20,12 @@ void acceptsTransferAtExactWindowBoundary() {
 }
 
 void rejectsCounterOrderAndWindowOverrun() {
-    auto result = neri::usb::feedback::checkFeedbackAheadWindow(
+    auto result = memi::usb::feedback::checkFeedbackAheadWindow(
         FeedbackAheadWindowInput { 10, 11, 1, 16 }
     );
     assert(result.status == FeedbackAheadWindowStatus::CounterOrder);
 
-    result = neri::usb::feedback::checkFeedbackAheadWindow(
+    result = memi::usb::feedback::checkFeedbackAheadWindow(
         FeedbackAheadWindowInput { 24, 16, 9, 16 }
     );
     assert(result.status == FeedbackAheadWindowStatus::CapacityExceeded);
@@ -33,7 +33,7 @@ void rejectsCounterOrderAndWindowOverrun() {
 }
 
 void rejectsOverflowWithoutWrappingCounters() {
-    const auto result = neri::usb::feedback::checkFeedbackAheadWindow(
+    const auto result = memi::usb::feedback::checkFeedbackAheadWindow(
         FeedbackAheadWindowInput {
             std::numeric_limits<uint64_t>::max() - 1U,
             0,
@@ -47,7 +47,7 @@ void rejectsOverflowWithoutWrappingCounters() {
 }
 
 void rejectsZeroSizedConfiguration() {
-    const auto result = neri::usb::feedback::checkFeedbackAheadWindow(
+    const auto result = memi::usb::feedback::checkFeedbackAheadWindow(
         FeedbackAheadWindowInput { 0, 0, 0, 16 }
     );
     assert(result.status == FeedbackAheadWindowStatus::InvalidArgument);

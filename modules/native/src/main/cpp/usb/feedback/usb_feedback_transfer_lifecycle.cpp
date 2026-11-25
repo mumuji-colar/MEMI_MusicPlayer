@@ -3,7 +3,7 @@
 #include <array>
 #include <limits>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 namespace {
 
 constexpr std::array<StartTransactionStep, 7> kStartOrder {
@@ -362,4 +362,4 @@ const char* startTransactionStepName(StartTransactionStep step) {
     return "unknown";
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

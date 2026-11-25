@@ -6,9 +6,9 @@
 
 ## 结构 / Layout
 
-源码位于 `src/main/java/moe/ouom/neriplayer/platform`。
+源码位于 `src/main/java/com/mmc/merimusicplayer/platform`。
 
-Sources are in `src/main/java/moe/ouom/neriplayer/platform`.
+Sources are in `src/main/java/com/mmc/merimusicplayer/platform`.
 
 - `bilibili`、`netease`、`youtube`：各平台的请求、账号、缓存和播放来源 / platform requests, accounts, caches, and playback sources
 - `subsonic`：Navidrome / OpenSubsonic 的协议、独立加密账号、曲库映射、浏览/歌词缓存及请求时资源认证 / server protocol, encrypted accounts, library mapping, browse/lyrics caches, and request-time media authentication
@@ -49,10 +49,10 @@ The integration reuses the existing song, playback URL, lyric, and playback host
 
 | 核心文件 / Core files | 职责 / Responsibility |
 | --- | --- |
-| [SubsonicClient](src/main/java/moe/ouom/neriplayer/platform/subsonic/api/SubsonicClient.kt) | REST 参数、认证和 JSON 响应 / REST parameters, authentication, and JSON responses |
-| [SubsonicResourceInterceptor](src/main/java/moe/ouom/neriplayer/platform/subsonic/api/SubsonicResourceInterceptor.kt) | 内部资源引用转换为当次认证的音频/图片请求 / Resolve internal references into authenticated media requests |
-| [SubsonicAccounts](src/main/java/moe/ouom/neriplayer/platform/subsonic/auth/SubsonicAccounts.kt) | 加密配置、账号状态和修订检查 / Encrypted profiles, account state, and revision checks |
-| [SubsonicRepository](src/main/java/moe/ouom/neriplayer/platform/subsonic/repository/SubsonicRepository.kt) | 连接检查、曲库查询及歌曲/歌词映射 / Connection checks, library queries, and song/lyric mapping |
-| [SubsonicBrowseCache](src/main/java/moe/ouom/neriplayer/platform/subsonic/repository/SubsonicBrowseCache.kt)、[SubsonicBrowseRoomStore](src/main/java/moe/ouom/neriplayer/platform/subsonic/repository/SubsonicBrowseRoomStore.kt)、[SubsonicCatalog](src/main/java/moe/ouom/neriplayer/platform/subsonic/repository/SubsonicCatalog.kt) | 专辑、单曲与歌手完整目录、请求复用和 Room 快照 / Complete album, song, and artist directories, shared requests, and Room snapshots |
-| [SubsonicLyricsCache](src/main/java/moe/ouom/neriplayer/platform/subsonic/repository/SubsonicLyricsCache.kt)、[SubsonicAudioMetadata](src/main/java/moe/ouom/neriplayer/platform/subsonic/repository/SubsonicAudioMetadata.kt) | 成功歌词缓存和服务器音频信息 / Successful lyric cache and server-declared audio metadata |
-| [ServerSongRef](../model/src/main/java/moe/ouom/neriplayer/data/model/server/ServerSongRef.kt)（`:model`） | 配置 UUID + 原始字符串 ID 的可逆来源引用 / Reversible source reference using profile UUID and raw string ID |
+| [SubsonicClient](src/main/java/com/mmc/merimusicplayer/platform/subsonic/api/SubsonicClient.kt) | REST 参数、认证和 JSON 响应 / REST parameters, authentication, and JSON responses |
+| [SubsonicResourceInterceptor](src/main/java/com/mmc/merimusicplayer/platform/subsonic/api/SubsonicResourceInterceptor.kt) | 内部资源引用转换为当次认证的音频/图片请求 / Resolve internal references into authenticated media requests |
+| [SubsonicAccounts](src/main/java/com/mmc/merimusicplayer/platform/subsonic/auth/SubsonicAccounts.kt) | 加密配置、账号状态和修订检查 / Encrypted profiles, account state, and revision checks |
+| [SubsonicRepository](src/main/java/com/mmc/merimusicplayer/platform/subsonic/repository/SubsonicRepository.kt) | 连接检查、曲库查询及歌曲/歌词映射 / Connection checks, library queries, and song/lyric mapping |
+| [SubsonicBrowseCache](src/main/java/com/mmc/merimusicplayer/platform/subsonic/repository/SubsonicBrowseCache.kt)、[SubsonicBrowseRoomStore](src/main/java/com/mmc/merimusicplayer/platform/subsonic/repository/SubsonicBrowseRoomStore.kt)、[SubsonicCatalog](src/main/java/com/mmc/merimusicplayer/platform/subsonic/repository/SubsonicCatalog.kt) | 专辑、单曲与歌手完整目录、请求复用和 Room 快照 / Complete album, song, and artist directories, shared requests, and Room snapshots |
+| [SubsonicLyricsCache](src/main/java/com/mmc/merimusicplayer/platform/subsonic/repository/SubsonicLyricsCache.kt)、[SubsonicAudioMetadata](src/main/java/com/mmc/merimusicplayer/platform/subsonic/repository/SubsonicAudioMetadata.kt) | 成功歌词缓存和服务器音频信息 / Successful lyric cache and server-declared audio metadata |
+| [ServerSongRef](../model/src/main/java/com/mmc/merimusicplayer/data/model/server/ServerSongRef.kt)（`:model`） | 配置 UUID + 原始字符串 ID 的可逆来源引用 / Reversible source reference using profile UUID and raw string ID |

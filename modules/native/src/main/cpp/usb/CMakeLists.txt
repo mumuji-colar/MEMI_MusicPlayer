@@ -1,5 +1,5 @@
 add_library(
-    neri_usb_core
+    memi_usb_core
     STATIC
     control/usb_feature_unit.cpp
     control/usb_sample_rate_readback.cpp
@@ -28,9 +28,9 @@ add_library(
     uac2/usb_uac2_feedback_profile.cpp
     uac2/usb_uac2_format.cpp
 )
-neri_configure_owned_native_target(neri_usb_core)
-target_include_directories(neri_usb_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
-target_link_libraries(neri_usb_core PUBLIC neri_libusb_headers)
+memi_configure_owned_native_target(memi_usb_core)
+target_include_directories(memi_usb_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
+target_link_libraries(memi_usb_core PUBLIC memi_libusb_headers)
 
 if(ANDROID)
     add_subdirectory(exclusive)

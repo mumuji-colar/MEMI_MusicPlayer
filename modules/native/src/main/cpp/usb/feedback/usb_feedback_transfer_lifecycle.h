@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 enum class TransferKind {
     AudioOut,
@@ -132,4 +132,4 @@ const char* completionDispositionName(CompletionDisposition disposition);
 const char* generationLifecycleStateName(GenerationLifecycleState state);
 const char* startTransactionStepName(StartTransactionStep step);
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

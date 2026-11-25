@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <utility>
 
-namespace neri::usb::uac1 {
+namespace memi::usb::uac1 {
 namespace {
 
 constexpr uint8_t kClassSpecificInterface = 0x24;
@@ -323,4 +323,4 @@ bool requiresFeedbackScheduler(uint8_t endpointAttributes) {
         (endpointAttributes & kIsoUsageTypeMask) == kIsoImplicitUsageType;
 }
 
-} // namespace neri::usb::uac1
+} // namespace memi::usb::uac1

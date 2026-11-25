@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-namespace neri::usb {
+namespace memi::usb {
 
 struct PcmOutputFormat {
     int sampleRate = 0;
@@ -172,4 +172,4 @@ private:
     std::atomic<int> transportStartRampFramesRemaining_ { 0 };
 };
 
-} // namespace neri::usb
+} // namespace memi::usb

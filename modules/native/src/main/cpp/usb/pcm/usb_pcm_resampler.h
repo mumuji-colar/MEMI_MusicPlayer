@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-namespace neri::usb {
+namespace memi::usb {
 
 // Kaiser 窗 sinc 多相重采样。相位用整数累加器步进，长时间播放不漂移；
 // 输入帧跨写入保留滤波所需的历史，任意切块得到同一条连续输出
@@ -48,4 +48,4 @@ private:
     int64_t fraction_ = 0;
 };
 
-} // namespace neri::usb
+} // namespace memi::usb

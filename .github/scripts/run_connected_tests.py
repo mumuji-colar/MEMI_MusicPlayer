@@ -20,11 +20,11 @@ MODULE_TASKS = {
     ":playback:runtime:connectedDebugAndroidTest": "modules/playback/runtime",
 }
 GRADLE_FLAGS = [
-    "-Pandroid.testInstrumentationRunnerArguments.notAnnotation=moe.ouom.neriplayer.testing.ManualInstrumentedTest",
+    "-Pandroid.testInstrumentationRunnerArguments.notAnnotation=com.mmc.merimusicplayer.testing.ManualInstrumentedTest",
     "--no-daemon", "-Pkotlin.compiler.execution.strategy=in-process", "--warning-mode", "all", "--stacktrace",
 ]
 ROOT_FOCUS_TYPE = "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException"
-OVERLAY_CLASS = "moe.ouom.neriplayer.ui.component.overlay.OverlayWindowNavigationBarPolicyTest"
+OVERLAY_CLASS = "com.mmc.merimusicplayer.ui.component.overlay.OverlayWindowNavigationBarPolicyTest"
 COMPOSE_TIMEOUT_TYPE = "androidx.compose.ui.test.ComposeTimeoutException"
 NATIVE_FOCUS_MESSAGES = {
     "java.lang.AssertionError: 原生触摸目标窗口未就绪: attached=true, shown=true, focused=false",
@@ -170,7 +170,7 @@ def run_connected_tests(root: Path, env: dict[str, str]) -> int:
         archive_reports(root, modules)
         print("Recovering emulator foreground once; replaying the complete unchanged test lane", flush=True)
         for arguments in [
-            ["adb", "-s", serial, "shell", "am", "force-stop", "moe.ouom.neriplayer.debug"],
+            ["adb", "-s", serial, "shell", "am", "force-stop", "com.mmc.merimusicplayer.debug"],
             ["adb", "-s", serial, "shell", "am", "start", "-W", "-a", "android.settings.SETTINGS"],
         ]:
             recovery_result = command(arguments)

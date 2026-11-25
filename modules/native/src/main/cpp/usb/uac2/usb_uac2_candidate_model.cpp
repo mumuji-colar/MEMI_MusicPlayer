@@ -6,7 +6,7 @@
 #include <sstream>
 #include <utility>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 namespace {
 
 constexpr uint8_t kUsageData = 0x00;
@@ -654,4 +654,4 @@ const char* claimInterfaceKindName(ClaimInterfaceKind kind) {
     return "unknown";
 }
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

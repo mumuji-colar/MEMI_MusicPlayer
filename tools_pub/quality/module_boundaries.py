@@ -106,81 +106,81 @@ CONFIGURED_DEPENDENCIES = {
 }
 # 旧 Parcelable 类型迁移前需要核对历史版本的状态读取方式
 LEGACY_MODEL_TYPES = {
-    f"moe.ouom.neriplayer.ui.viewmodel.tab.{name}"
+    f"com.mmc.merimusicplayer.ui.viewmodel.tab.{name}"
     for name in ("PlaylistSummary", "AlbumSummary", "BiliPlaylist", "BiliPlaylistKind", "YouTubeMusicPlaylist")
 }
-LEGACY_MODEL_TYPES.add("moe.ouom.neriplayer.ui.viewmodel.playlist.BiliVideoItem")
-LEGACY_MODEL_TYPES.add("moe.ouom.neriplayer.data.sync.model.SyncCausalToken")
+LEGACY_MODEL_TYPES.add("com.mmc.merimusicplayer.ui.viewmodel.playlist.BiliVideoItem")
+LEGACY_MODEL_TYPES.add("com.mmc.merimusicplayer.data.sync.model.SyncCausalToken")
 PACKAGE_OWNERS = {
-    "moe.ouom.neriplayer.lanltw": ":ltwlan",
-    **{f"moe.ouom.neriplayer.platform.{platform}.api": ":platform"
+    "com.mmc.merimusicplayer.lanltw": ":ltwlan",
+    **{f"com.mmc.merimusicplayer.platform.{platform}.api": ":platform"
        for platform in ("bilibili", "netease", "youtube")},
-    "moe.ouom.neriplayer.platform.lyrics.api": ":platform",
-    "moe.ouom.neriplayer.platform.search.api": ":platform",
-    "moe.ouom.neriplayer.api.sync": ":sync",
-    "moe.ouom.neriplayer.api.ltw": ":listentogether",
-    "moe.ouom.neriplayer.common.logging": ":common",
-    "moe.ouom.neriplayer.common": ":common",
-    "moe.ouom.neriplayer.platform.comments": ":platform",
-    "moe.ouom.neriplayer.lyrics.parser": ":lyrics",
-    "moe.ouom.neriplayer.lyrics.lyricon": ":lyrics",
-    "moe.ouom.neriplayer.lyrics.output": ":lyrics",
-    "moe.ouom.neriplayer.platform.lyrics": ":platform",
-    "moe.ouom.neriplayer.data.sync": ":sync",
-    **{f"moe.ouom.neriplayer.data.sync.{family}": ":local"
+    "com.mmc.merimusicplayer.platform.lyrics.api": ":platform",
+    "com.mmc.merimusicplayer.platform.search.api": ":platform",
+    "com.mmc.merimusicplayer.api.sync": ":sync",
+    "com.mmc.merimusicplayer.api.ltw": ":listentogether",
+    "com.mmc.merimusicplayer.common.logging": ":common",
+    "com.mmc.merimusicplayer.common": ":common",
+    "com.mmc.merimusicplayer.platform.comments": ":platform",
+    "com.mmc.merimusicplayer.lyrics.parser": ":lyrics",
+    "com.mmc.merimusicplayer.lyrics.lyricon": ":lyrics",
+    "com.mmc.merimusicplayer.lyrics.output": ":lyrics",
+    "com.mmc.merimusicplayer.platform.lyrics": ":platform",
+    "com.mmc.merimusicplayer.data.sync": ":sync",
+    **{f"com.mmc.merimusicplayer.data.sync.{family}": ":local"
        for family in ("cover", "github", "host", "mapping", "webdav", "work")},
-    "moe.ouom.neriplayer.core.player": ":playback:runtime",
-    "moe.ouom.neriplayer.core.download": ":download:runtime",
-    "moe.ouom.neriplayer.core.player.download": ":download:runtime",
-    "moe.ouom.neriplayer.core.download.policy.settings": ":download:logic",
-    "moe.ouom.neriplayer.core.download.storage": (":common", ":download:logic", ":download:runtime"),
-    **{f"moe.ouom.neriplayer.{family.replace('/', '.')}": ":sync"
+    "com.mmc.merimusicplayer.core.player": ":playback:runtime",
+    "com.mmc.merimusicplayer.core.download": ":download:runtime",
+    "com.mmc.merimusicplayer.core.player.download": ":download:runtime",
+    "com.mmc.merimusicplayer.core.download.policy.settings": ":download:logic",
+    "com.mmc.merimusicplayer.core.download.storage": (":common", ":download:logic", ":download:runtime"),
+    **{f"com.mmc.merimusicplayer.{family.replace('/', '.')}": ":sync"
        for family in SYNC_DOMAIN_FAMILIES},
-    "moe.ouom.neriplayer.core.player.runtime": ":playback:logic",
-    **{f"moe.ouom.neriplayer.{family.replace('/', '.')}": ":playback:logic"
+    "com.mmc.merimusicplayer.core.player.runtime": ":playback:logic",
+    **{f"com.mmc.merimusicplayer.{family.replace('/', '.')}": ":playback:logic"
        for family in PLAYER_POLICY_FAMILIES},
-    **{f"moe.ouom.neriplayer.{family.replace('/', '.')}": ":playback:logic"
+    **{f"com.mmc.merimusicplayer.{family.replace('/', '.')}": ":playback:logic"
        for family in PLAYER_AUDIO_FAMILIES},
-    "moe.ouom.neriplayer.data.ltw": ":listentogether",
-    "moe.ouom.neriplayer.listentogether": ":listentogether",
-    "moe.ouom.neriplayer.data.model": MODEL_MODULE,
-    **{f"moe.ouom.neriplayer.data.{family}": ":local"
+    "com.mmc.merimusicplayer.data.ltw": ":listentogether",
+    "com.mmc.merimusicplayer.listentogether": ":listentogether",
+    "com.mmc.merimusicplayer.data.model": MODEL_MODULE,
+    **{f"com.mmc.merimusicplayer.data.{family}": ":local"
        for family in ("settings", "history", "identity", "backup", "config", "traffic", "search",
                       "auth", "network", "playlist", "stats", "storage", "listentogether",
                       "local.media", "local.audioimport", "local.playlist", "local.storage")},
-    "moe.ouom.neriplayer.platform.netease.auth": ":platform",
-    "moe.ouom.neriplayer.platform.bilibili.auth": ":platform",
-    "moe.ouom.neriplayer.platform.youtube": ":platform",
-    "moe.ouom.neriplayer.platform.netease": ":platform",
-    "moe.ouom.neriplayer.platform.youtube.playlist": ":platform",
-    "moe.ouom.neriplayer.platform.bilibili": ":platform",
-    "moe.ouom.neriplayer.network": ":network",
-    "moe.ouom.neriplayer.lyrics": ":lyrics",
-    "moe.ouom.neriplayer.data.local.platform": ":local",
-    "moe.ouom.neriplayer.core.player.queue": ":playback:logic",
-    "moe.ouom.neriplayer.data.local.database": ":database",
-    "moe.ouom.neriplayer.data.local.database.store": ":local",
-    **{f"moe.ouom.neriplayer.{family.replace('/', '.')}": ":download:logic"
+    "com.mmc.merimusicplayer.platform.netease.auth": ":platform",
+    "com.mmc.merimusicplayer.platform.bilibili.auth": ":platform",
+    "com.mmc.merimusicplayer.platform.youtube": ":platform",
+    "com.mmc.merimusicplayer.platform.netease": ":platform",
+    "com.mmc.merimusicplayer.platform.youtube.playlist": ":platform",
+    "com.mmc.merimusicplayer.platform.bilibili": ":platform",
+    "com.mmc.merimusicplayer.network": ":network",
+    "com.mmc.merimusicplayer.lyrics": ":lyrics",
+    "com.mmc.merimusicplayer.data.local.platform": ":local",
+    "com.mmc.merimusicplayer.core.player.queue": ":playback:logic",
+    "com.mmc.merimusicplayer.data.local.database": ":database",
+    "com.mmc.merimusicplayer.data.local.database.store": ":local",
+    **{f"com.mmc.merimusicplayer.{family.replace('/', '.')}": ":download:logic"
        for family in DOWNLOAD_RULE_FAMILIES},
 }
 SOURCE_OWNERS = {
-    "moe.ouom.neriplayer.data.local.database.store.PlatformPlaylistCacheRoomStore": ":database",
-    "moe.ouom.neriplayer.data.sync.CoverUrlMapper": ":local",
+    "com.mmc.merimusicplayer.data.local.database.store.PlatformPlaylistCacheRoomStore": ":database",
+    "com.mmc.merimusicplayer.data.sync.CoverUrlMapper": ":local",
 }
 FORBIDDEN_IMPORT = re.compile(
-    r'^import moe\.ouom\.neriplayer\.(?:'
+    r'^import moe\.ouom\.memiplayer\.(?:'
     r'core\.di\.|core\.player\.PlayerManager\b|ui\.|activity\.|'
     r'(?:R|BuildConfig|NeriPlayerApplication)\b)', re.MULTILINE
 )
 PROJECT_SOURCE_REFERENCE = re.compile(
-    r'\b(?:moe\.ouom\.neriplayer|io\.github\.proify\.lyricon|com\.hchen\.superlyricapi)'
+    r'\b(?:moe\.ouom\.memiplayer|io\.github\.proify\.lyricon|com\.hchen\.superlyricapi)'
     r'(?:\.[A-Za-z_]\w*)+(?:\.\*)?'
 )
 ROOM_SOURCE_REFERENCE = re.compile(r'\bandroidx\.room\.(?:[A-Za-z_]\w*\.)*(?:[A-Za-z_]\w*|\*)')
 SOURCE_COMMENTS_AND_LITERALS = re.compile(
     r'"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|//[^\n]*|/\*[\s\S]*?\*/'
 )
-PROJECT_PACKAGE = "moe.ouom.neriplayer."
+PROJECT_PACKAGE = "com.mmc.merimusicplayer."
 METADATA_PARSER_REFERENCES = {
     PROJECT_PACKAGE + "lyrics.parser.normalizeLegacyLrcTimestamps",
     PROJECT_PACKAGE + "lyrics.parser.hasEditableLyricWordTiming",
@@ -494,23 +494,23 @@ def verify(root):
                     if name not in (owner if isinstance(owner, tuple) else (owner,)) and owner != MODEL_MODULE and not legacy_contract:
                         errors.append(f"{label}: package belongs to {owner}")
                 elif package[1].startswith((
-                    "moe.ouom.neriplayer.api.", "moe.ouom.neriplayer.core.api."
+                    "com.mmc.merimusicplayer.api.", "com.mmc.merimusicplayer.core.api."
                 )):
                     errors.append(f"{label}: API implementation belongs in its registered platform or transport module")
                 verify_package_dependencies(name, package[1], text, label, package_owners, errors)
             if name == MODEL_MODULE:
                 for imported in IMPORT.findall(text):
-                    if not imported.startswith("moe.ouom.neriplayer."):
+                    if not imported.startswith("com.mmc.merimusicplayer."):
                         continue
-                    if not imported.startswith("moe.ouom.neriplayer.data.model.") and imported not in LEGACY_MODEL_TYPES:
+                    if not imported.startswith("com.mmc.merimusicplayer.data.model.") and imported not in LEGACY_MODEL_TYPES:
                         errors.append(f"{label}: model contract imports implementation {imported}")
             for imported in IMPORT.findall(text):
                 if name == ":lyrics" and imported.startswith((
-                    "moe.ouom.neriplayer.core.player.host.", "moe.ouom.neriplayer.core.player.service."
+                    "com.mmc.merimusicplayer.core.player.host.", "com.mmc.merimusicplayer.core.player.service."
                 )):
                     errors.append(f"{label}: player implementation import {imported}")
-                if name == ":playback:runtime" and (imported == "moe.ouom.neriplayer.core.player.PlayerManager"
-                                                   or imported.startswith("moe.ouom.neriplayer.core.player.PlayerManager.")):
+                if name == ":playback:runtime" and (imported == "com.mmc.merimusicplayer.core.player.PlayerManager"
+                                                   or imported.startswith("com.mmc.merimusicplayer.core.player.PlayerManager.")):
                     continue
                 if FORBIDDEN_IMPORT.match(f"import {imported}") and imported not in LEGACY_MODEL_TYPES:
                     errors.append(f"{label}: application dependency import {imported}")
@@ -542,12 +542,12 @@ def verify(root):
         owned_sources = {
             source
             for family in LIBRARY_OWNED_FAMILIES
-            for source in source_files(app_sources / "moe/ouom/neriplayer" / family)
+            for source in source_files(app_sources / "com/mmc/merimusicplayer" / family)
         }
         for source in sorted(owned_sources):
             errors.append(f"{source.relative_to(root)}: production code belongs in a library module")
         for family in APP_FAMILIES:
-            verify_directory_capacity(root, app_sources / "moe/ouom/neriplayer" / family, errors)
+            verify_directory_capacity(root, app_sources / "com/mmc/merimusicplayer" / family, errors)
     if (root / "app/src/main/cpp").exists():
         errors.append("app/src/main/cpp: native implementation belongs in :native")
     return errors

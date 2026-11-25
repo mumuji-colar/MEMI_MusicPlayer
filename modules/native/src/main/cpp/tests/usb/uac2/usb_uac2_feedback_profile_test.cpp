@@ -8,13 +8,13 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackDecodeInput;
-using neri::usb::feedback::FeedbackMathStatus;
-using neri::usb::feedback::FeedbackRawUnit;
-using neri::usb::uac2::EndpointCapacitySource;
-using neri::usb::uac2::EndpointSnapshot;
-using neri::usb::uac2::UsbBusSpeed;
-using neri::usb::uac2::Uac2FeedbackProfileStatus;
+using memi::usb::feedback::FeedbackDecodeInput;
+using memi::usb::feedback::FeedbackMathStatus;
+using memi::usb::feedback::FeedbackRawUnit;
+using memi::usb::uac2::EndpointCapacitySource;
+using memi::usb::uac2::EndpointSnapshot;
+using memi::usb::uac2::UsbBusSpeed;
+using memi::usb::uac2::Uac2FeedbackProfileStatus;
 
 EndpointSnapshot endpoint(
     uint8_t address,
@@ -41,7 +41,7 @@ EndpointSnapshot endpoint(
 void verifiesHighSpeedProfileAndCadence() {
     const EndpointSnapshot output = endpoint(0x06, 0x05, 512, 2);
     const EndpointSnapshot feedback = endpoint(0x86, 0x11, 4, 3);
-    const auto profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    const auto profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::High,
         output,
         feedback
@@ -60,7 +60,7 @@ void verifiesHighSpeedProfileAndCadence() {
     assert(!profile.evidence.profileId.empty());
 
     constexpr std::array<uint8_t, 4> payload { 0x00, 0x00, 0x06, 0x00 };
-    const auto decoded = neri::usb::feedback::decodeFeedbackSample(
+    const auto decoded = memi::usb::feedback::decodeFeedbackSample(
         profile.decodeProfile,
         FeedbackDecodeInput { payload.data(), payload.size(), 1'000'000, 1 }
     );
@@ -71,7 +71,7 @@ void verifiesHighSpeedProfileAndCadence() {
 void verifiesFullSpeedProfileAndOutputIntervalScaling() {
     EndpointSnapshot output = endpoint(0x02, 0x05, 192, 2);
     EndpointSnapshot feedback = endpoint(0x82, 0x11, 3, 1);
-    const auto profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    const auto profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::Full,
         output,
         feedback
@@ -84,7 +84,7 @@ void verifiesFullSpeedProfileAndOutputIntervalScaling() {
     assert(profile.outputServicePeriodNanoseconds == 2'000'000U);
 
     constexpr std::array<uint8_t, 3> payload { 0x00, 0x00, 0x0C };
-    const auto decoded = neri::usb::feedback::decodeFeedbackSample(
+    const auto decoded = memi::usb::feedback::decodeFeedbackSample(
         profile.decodeProfile,
         FeedbackDecodeInput { payload.data(), payload.size(), 2'000'000, 1 }
     );
@@ -95,7 +95,7 @@ void verifiesFullSpeedProfileAndOutputIntervalScaling() {
 void rejectsMalformedProfilesAndReservedBits() {
     const EndpointSnapshot output = endpoint(0x06, 0x05, 512, 2);
     EndpointSnapshot feedback = endpoint(0x86, 0x11, 3, 3);
-    auto profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    auto profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::High,
         output,
         feedback
@@ -103,7 +103,7 @@ void rejectsMalformedProfilesAndReservedBits() {
     assert(profile.status == Uac2FeedbackProfileStatus::PayloadCapacityInsufficient);
 
     feedback = endpoint(0x86, 0x11, 4, 0);
-    profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::High,
         output,
         feedback
@@ -111,20 +111,20 @@ void rejectsMalformedProfilesAndReservedBits() {
     assert(profile.status == Uac2FeedbackProfileStatus::InvalidEndpointDescriptor);
 
     feedback = endpoint(0x86, 0x11, 4, 3);
-    profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::Super,
         output,
         feedback
     );
     assert(profile.status == Uac2FeedbackProfileStatus::UnsupportedBusSpeed);
 
-    profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::High,
         output,
         feedback
     );
     constexpr std::array<uint8_t, 4> reservedBits { 0x00, 0x00, 0x06, 0xF0 };
-    const auto decoded = neri::usb::feedback::decodeFeedbackSample(
+    const auto decoded = memi::usb::feedback::decodeFeedbackSample(
         profile.decodeProfile,
         FeedbackDecodeInput { reservedBits.data(), reservedBits.size(), 1, 1 }
     );
@@ -133,7 +133,7 @@ void rejectsMalformedProfilesAndReservedBits() {
     EndpointSnapshot legacy = output;
     legacy.descriptorLength = 9;
     legacy.hasRefresh = true;
-    profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::High,
         legacy,
         feedback
@@ -142,7 +142,7 @@ void rejectsMalformedProfilesAndReservedBits() {
 
     EndpointSnapshot fullSpeedOversize = endpoint(0x02, 0x05, 1024, 1);
     const EndpointSnapshot fullSpeedFeedback = endpoint(0x82, 0x11, 3, 1);
-    profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::Full,
         fullSpeedOversize,
         fullSpeedFeedback
@@ -169,7 +169,7 @@ EndpointSnapshot uac1AudioEndpoint(
 void acceptsUac1AsyncEndpointsOnlyInLegacyMode() {
     const EndpointSnapshot output = uac1AudioEndpoint(0x01, 0x05, 196, 0, 0x81);
     const EndpointSnapshot unmarkedSync = uac1AudioEndpoint(0x81, 0x01, 3, 5, 0);
-    const auto profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    const auto profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::Full,
         output,
         unmarkedSync,
@@ -182,13 +182,13 @@ void acceptsUac1AsyncEndpointsOnlyInLegacyMode() {
     assert(profile.evidence.profileId.rfind("uac1-full", 0) == 0);
 
     constexpr std::array<uint8_t, 3> payload { 0x66, 0x06, 0x0B };
-    const auto decoded = neri::usb::feedback::decodeFeedbackSample(
+    const auto decoded = memi::usb::feedback::decodeFeedbackSample(
         profile.decodeProfile,
         FeedbackDecodeInput { payload.data(), payload.size(), 1'000'000, 1 }
     );
     assert(decoded.status == FeedbackMathStatus::Ok);
 
-    const auto markedSync = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    const auto markedSync = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::Full,
         output,
         uac1AudioEndpoint(0x81, 0x11, 3, 5, 0),
@@ -196,12 +196,12 @@ void acceptsUac1AsyncEndpointsOnlyInLegacyMode() {
     );
     assert(markedSync.status == Uac2FeedbackProfileStatus::Valid);
 
-    assert(neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    assert(memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::Full,
         output,
         unmarkedSync
     ).status == Uac2FeedbackProfileStatus::InvalidEndpointDescriptor);
-    assert(neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    assert(memi::usb::uac2::buildUac2FeedbackTimingProfile(
         UsbBusSpeed::Full,
         uac1AudioEndpoint(0x01, 0x09, 196, 0, 0),
         unmarkedSync,
@@ -210,8 +210,8 @@ void acceptsUac1AsyncEndpointsOnlyInLegacyMode() {
 }
 
 void exposesStableNames() {
-    assert(std::string(neri::usb::uac2::usbBusSpeedName(UsbBusSpeed::High)) == "high");
-    assert(std::string(neri::usb::uac2::uac2FeedbackProfileStatusName(
+    assert(std::string(memi::usb::uac2::usbBusSpeedName(UsbBusSpeed::High)) == "high");
+    assert(std::string(memi::usb::uac2::uac2FeedbackProfileStatusName(
         Uac2FeedbackProfileStatus::Valid
     )) == "valid");
 }

@@ -8,7 +8,7 @@
 namespace {
 
 void verifiesPrerollRoundsUpToWholeTransfers() {
-    neri::usb::PlayerStartupPreroll preroll;
+    memi::usb::PlayerStartupPreroll preroll;
     preroll.arm(48000, 150);
     assert(preroll.framesRemaining() == 7200);
 
@@ -40,7 +40,7 @@ void verifiesPrerollRoundsUpToWholeTransfers() {
 }
 
 void verifiesRearmAndClearResetTheCountdown() {
-    neri::usb::PlayerStartupPreroll preroll;
+    memi::usb::PlayerStartupPreroll preroll;
     preroll.arm(96000, 150);
     assert(preroll.framesRemaining() == 14400);
 

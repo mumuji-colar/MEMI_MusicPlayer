@@ -6,7 +6,7 @@
 #include <limits>
 #include <utility>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 namespace {
 
 constexpr uint32_t kMaximumTransferCount = 64;
@@ -417,4 +417,4 @@ const char* feedbackInCompletionStatusName(FeedbackInCompletionStatus status) {
     return "unknown";
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

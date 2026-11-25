@@ -67,7 +67,7 @@
   THREAD_ANNOTATION_ATTRIBUTE__(release_shared_capability(__VA_ARGS__))
 
 #define RELEASE_GENERIC(...) \
-  THREAD_ANNOTATION_ATTRIBUTE__(release_generic_capability(__VA_ARGS__))
+  THREAD_ANNOTATION_ATTRIBUTE__(release_gememic_capability(__VA_ARGS__))
 
 #define TRY_ACQUIRE(...) \
   THREAD_ANNOTATION_ATTRIBUTE__(try_acquire_capability(__VA_ARGS__))

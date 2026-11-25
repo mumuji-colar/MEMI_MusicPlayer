@@ -3,7 +3,7 @@
 #include <cassert>
 
 int main() {
-    using namespace neri::usb;
+    using namespace memi::usb;
 
     const StreamingInterfaceActivationPlan uac1 =
         streamingInterfaceActivationPlan(1);

@@ -10,12 +10,12 @@
 #include "usb/exclusive/usb_runtime_report_v2.h"
 #include "usb/feedback/usb_feedback_rate_math.h"
 
-#define LOG_TAG "NeriUsbExclusive"
+#define LOG_TAG "MemiUsbExclusive"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 
 std::string runtimeCandidateId(const UsbExclusiveHandle* handle) {
     if (handle == nullptr) {
@@ -90,54 +90,54 @@ std::string runtimeErrorCode(
 }
 
 bool feedbackClockCanStream(
-    neri::usb::feedback::FeedbackClockState state
+    memi::usb::feedback::FeedbackClockState state
 ) {
-    return state == neri::usb::feedback::FeedbackClockState::Locked ||
-        state == neri::usb::feedback::FeedbackClockState::Holdover ||
-        state == neri::usb::feedback::FeedbackClockState::Relocking;
+    return state == memi::usb::feedback::FeedbackClockState::Locked ||
+        state == memi::usb::feedback::FeedbackClockState::Holdover ||
+        state == memi::usb::feedback::FeedbackClockState::Relocking;
 }
 
-neri::usb::UsbRuntimeFeedbackState runtimeFeedbackState(
+memi::usb::UsbRuntimeFeedbackState runtimeFeedbackState(
     bool explicitFeedbackEnabled,
-    const neri::usb::feedback::ExplicitFeedbackRuntimeSnapshot& snapshot
+    const memi::usb::feedback::ExplicitFeedbackRuntimeSnapshot& snapshot
 ) {
     if (!explicitFeedbackEnabled) {
-        return neri::usb::UsbRuntimeFeedbackState::Disabled;
+        return memi::usb::UsbRuntimeFeedbackState::Disabled;
     }
     if (snapshot.terminalFailure ||
         snapshot.state ==
-            neri::usb::feedback::ExplicitFeedbackRuntimeState::Failed ||
+            memi::usb::feedback::ExplicitFeedbackRuntimeState::Failed ||
         snapshot.gate.clock.state ==
-            neri::usb::feedback::FeedbackClockState::Failed) {
-        return neri::usb::UsbRuntimeFeedbackState::Failed;
+            memi::usb::feedback::FeedbackClockState::Failed) {
+        return memi::usb::UsbRuntimeFeedbackState::Failed;
     }
     if (snapshot.state ==
-            neri::usb::feedback::ExplicitFeedbackRuntimeState::Stopped &&
+            memi::usb::feedback::ExplicitFeedbackRuntimeState::Stopped &&
         snapshot.reusableAfterStop) {
-        return neri::usb::UsbRuntimeFeedbackState::Locked;
+        return memi::usb::UsbRuntimeFeedbackState::Locked;
     }
     switch (snapshot.gate.clock.state) {
-        case neri::usb::feedback::FeedbackClockState::Acquiring:
-            return neri::usb::UsbRuntimeFeedbackState::Acquiring;
-        case neri::usb::feedback::FeedbackClockState::Locked:
-            return neri::usb::UsbRuntimeFeedbackState::Locked;
-        case neri::usb::feedback::FeedbackClockState::Holdover:
-            return neri::usb::UsbRuntimeFeedbackState::Holdover;
-        case neri::usb::feedback::FeedbackClockState::Relocking:
-            return neri::usb::UsbRuntimeFeedbackState::Relocking;
-        case neri::usb::feedback::FeedbackClockState::Disabled:
+        case memi::usb::feedback::FeedbackClockState::Acquiring:
+            return memi::usb::UsbRuntimeFeedbackState::Acquiring;
+        case memi::usb::feedback::FeedbackClockState::Locked:
+            return memi::usb::UsbRuntimeFeedbackState::Locked;
+        case memi::usb::feedback::FeedbackClockState::Holdover:
+            return memi::usb::UsbRuntimeFeedbackState::Holdover;
+        case memi::usb::feedback::FeedbackClockState::Relocking:
+            return memi::usb::UsbRuntimeFeedbackState::Relocking;
+        case memi::usb::feedback::FeedbackClockState::Disabled:
             return snapshot.state ==
-                    neri::usb::feedback::ExplicitFeedbackRuntimeState::Ready ||
+                    memi::usb::feedback::ExplicitFeedbackRuntimeState::Ready ||
                 snapshot.state ==
-                    neri::usb::feedback::ExplicitFeedbackRuntimeState::Stopped ||
+                    memi::usb::feedback::ExplicitFeedbackRuntimeState::Stopped ||
                 snapshot.state ==
-                    neri::usb::feedback::ExplicitFeedbackRuntimeState::Disabled
-                ? neri::usb::UsbRuntimeFeedbackState::Priming
-                : neri::usb::UsbRuntimeFeedbackState::Acquiring;
-        case neri::usb::feedback::FeedbackClockState::Failed:
-            return neri::usb::UsbRuntimeFeedbackState::Failed;
+                    memi::usb::feedback::ExplicitFeedbackRuntimeState::Disabled
+                ? memi::usb::UsbRuntimeFeedbackState::Priming
+                : memi::usb::UsbRuntimeFeedbackState::Acquiring;
+        case memi::usb::feedback::FeedbackClockState::Failed:
+            return memi::usb::UsbRuntimeFeedbackState::Failed;
     }
-    return neri::usb::UsbRuntimeFeedbackState::Failed;
+    return memi::usb::UsbRuntimeFeedbackState::Failed;
 }
 
 int64_t reportCounter(uint64_t value) {
@@ -153,18 +153,18 @@ uint64_t saturatedCounterSum(uint64_t first, uint64_t second) {
 }
 
 int64_t signedFeedbackRatePpm(
-    neri::usb::feedback::FeedbackRateQ32 rateQ32,
-    neri::usb::feedback::FeedbackRateQ32 nominalRateQ32
+    memi::usb::feedback::FeedbackRateQ32 rateQ32,
+    memi::usb::feedback::FeedbackRateQ32 nominalRateQ32
 ) {
     if (rateQ32 == 0 || nominalRateQ32 == 0) {
         return 0;
     }
     uint32_t magnitude = 0;
-    if (neri::usb::feedback::computeRateDeltaPpm(
+    if (memi::usb::feedback::computeRateDeltaPpm(
             rateQ32,
             nominalRateQ32,
             &magnitude
-        ) != neri::usb::feedback::FeedbackMathStatus::Ok) {
+        ) != memi::usb::feedback::FeedbackMathStatus::Ok) {
         return 0;
     }
     const auto signedMagnitude = static_cast<int64_t>(magnitude);
@@ -173,13 +173,13 @@ int64_t signedFeedbackRatePpm(
 
 
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive
 
-using namespace neri::usb::exclusive;
+using namespace memi::usb::exclusive;
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeRuntimeReport(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeRuntimeReport(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -192,11 +192,11 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
         }
         std::lock_guard<std::mutex> apiGuard(holder->apiLock);
         const std::string lastError = getErrorCopy(holder.get());
-        const neri::usb::PcmPipelineSnapshot pcm = holder->player.pcmPipeline.snapshot();
+        const memi::usb::PcmPipelineSnapshot pcm = holder->player.pcmPipeline.snapshot();
         const bool explicitFeedback = holder->device.explicitFeedbackEnabled;
-        const neri::usb::feedback::FeedbackInTransferSetSnapshot feedbackTransfers =
+        const memi::usb::feedback::FeedbackInTransferSetSnapshot feedbackTransfers =
             holder->transfer.feedbackInTransferSet.snapshot();
-        const neri::usb::feedback::ExplicitFeedbackRuntimeSnapshot feedbackRuntime =
+        const memi::usb::feedback::ExplicitFeedbackRuntimeSnapshot feedbackRuntime =
             holder->transfer.feedbackRuntime.snapshot();
         const bool feedbackTerminalFailure = explicitFeedback &&
             feedbackRuntime.terminalFailure;
@@ -205,7 +205,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
         if (terminalFailure) {
             refreshTerminalRecoveryAction(holder.get(), feedbackTerminalFailure);
         }
-        const neri::usb::UsbRecoveryActionSnapshot recovery =
+        const memi::usb::UsbRecoveryActionSnapshot recovery =
             holder->recovery.recoveryActionLatch.snapshot();
         const bool playerPcmSource =
             holder->transfer.streamSource.load() == StreamSource::PlayerPcm;
@@ -223,7 +223,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
         const bool stoppedFeedbackReusable = explicitFeedback &&
             !feedbackRuntime.running &&
             feedbackRuntime.state ==
-                neri::usb::feedback::ExplicitFeedbackRuntimeState::Stopped &&
+                memi::usb::feedback::ExplicitFeedbackRuntimeState::Stopped &&
             feedbackRuntime.reusableAfterStop &&
             !feedbackRuntime.terminalFailure;
         const bool feedbackReady = !explicitFeedback ||
@@ -235,9 +235,9 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
             ((stoppedFeedbackReusable ||
                 (feedbackRuntime.running &&
                     (feedbackRuntime.gate.clock.state ==
-                        neri::usb::feedback::FeedbackClockState::Locked ||
+                        memi::usb::feedback::FeedbackClockState::Locked ||
                      feedbackRuntime.gate.clock.state ==
-                        neri::usb::feedback::FeedbackClockState::Holdover))) &&
+                        memi::usb::feedback::FeedbackClockState::Holdover))) &&
                 !terminalFailure);
         const bool realPcmReleased = explicitFeedback
             ? playerPcmSource &&
@@ -256,7 +256,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
             realPcmReleased &&
             canAcceptPcm &&
             !terminalFailure;
-        neri::usb::UsbRuntimeReportV2Snapshot v2Snapshot;
+        memi::usb::UsbRuntimeReportV2Snapshot v2Snapshot;
         const int64_t feedbackNowNs = steadyClockNanoseconds();
         const auto trustedFeedbackRateQ32 =
             feedbackRuntime.gate.clock.hasTrustedRate
@@ -276,12 +276,12 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
             : 0;
         const bool feedbackTimedOut =
             feedbackRuntime.gate.clock.failureReason ==
-                neri::usb::feedback::FeedbackClockFailureReason::AcquireTimeout ||
+                memi::usb::feedback::FeedbackClockFailureReason::AcquireTimeout ||
             feedbackRuntime.gate.clock.failureReason ==
-                neri::usb::feedback::FeedbackClockFailureReason::HoldoverTimeout;
+                memi::usb::feedback::FeedbackClockFailureReason::HoldoverTimeout;
         v2Snapshot.feedbackMode = explicitFeedback
-            ? neri::usb::UsbRuntimeFeedbackMode::Explicit
-            : neri::usb::UsbRuntimeFeedbackMode::Disabled;
+            ? memi::usb::UsbRuntimeFeedbackMode::Explicit
+            : memi::usb::UsbRuntimeFeedbackMode::Disabled;
         v2Snapshot.feedbackEndpointAddress = explicitFeedback
             ? static_cast<int>(holder->device.feedbackEndpoint)
             : 0;
@@ -305,7 +305,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
             ? trustedFeedbackRateQ32
             : 0;
         v2Snapshot.feedbackRateHz = explicitFeedback
-            ? neri::usb::feedback::feedbackRateHz(
+            ? memi::usb::feedback::feedbackRateHz(
                 trustedFeedbackRateQ32,
                 static_cast<uint32_t>(std::max(0, holder->transfer.intervalsPerSecond))
             )
@@ -345,9 +345,9 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
             feedbackRuntime.running &&
             !feedbackRuntime.terminalFailure &&
             (feedbackRuntime.gate.clock.state ==
-                neri::usb::feedback::FeedbackClockState::Holdover ||
+                memi::usb::feedback::FeedbackClockState::Holdover ||
              feedbackRuntime.gate.clock.state ==
-                neri::usb::feedback::FeedbackClockState::Relocking) &&
+                memi::usb::feedback::FeedbackClockState::Relocking) &&
             feedbackRuntime.gate.clock.holdoverStartedNs >= 0 &&
             feedbackNowNs >= feedbackRuntime.gate.clock.holdoverStartedNs;
         if (feedbackHoldoverActive) {
@@ -369,7 +369,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
             ? feedbackLastAgeMs
             : 0;
         v2Snapshot.feedbackClockFailure = explicitFeedback
-            ? neri::usb::feedback::feedbackClockFailureReasonName(
+            ? memi::usb::feedback::feedbackClockFailureReasonName(
                 feedbackRuntime.gate.clock.failureReason
             )
             : "none";
@@ -402,13 +402,13 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
         v2Snapshot.actionId = recovery.id;
         v2Snapshot.actionGeneration = recovery.generation;
         v2Snapshot.actionOwner = recovery.latched
-            ? neri::usb::UsbRuntimeRecoveryOwner::Kotlin
-            : neri::usb::UsbRuntimeRecoveryOwner::None;
+            ? memi::usb::UsbRuntimeRecoveryOwner::Kotlin
+            : memi::usb::UsbRuntimeRecoveryOwner::None;
         v2Snapshot.actionLatched = recovery.latched;
         v2Snapshot.errorCode = runtimeErrorCode(holder.get(), lastError);
         std::string v2Fields;
         std::string v2BuildError;
-        if (!neri::usb::buildUsbRuntimeReportV2Fields(
+        if (!memi::usb::buildUsbRuntimeReportV2Fields(
                 v2Snapshot,
                 &v2Fields,
                 &v2BuildError

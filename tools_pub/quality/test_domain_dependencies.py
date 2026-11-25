@@ -182,8 +182,8 @@ class DomainDependenciesTest(unittest.TestCase):
     def test_local_bili_host_is_outside_protected_platform_repositories(self):
         config = Path(__file__).resolve().parents[2] / "config/quality/domain-dependencies.json"
         domain = next(domain for domain in load_domains(config) if domain["name"] == "platform-bilibili-repository")
-        host = "moe.ouom.neriplayer.data.local.platform.bilibili.BiliVideoSkipRepositoryProvider"
-        repository = "moe.ouom.neriplayer.platform.bilibili.skip.BiliVideoSkipRepository"
+        host = "com.mmc.merimusicplayer.data.local.platform.bilibili.BiliVideoSkipRepositoryProvider"
+        repository = "com.mmc.merimusicplayer.platform.bilibili.skip.BiliVideoSkipRepository"
         neighbor = domain["package"] + "skip.BiliVideoSkipRepositoryNeighbor"
         selected = select_domains({host, host + "$create$1", repository, neighbor}, [domain])
         self.assertEqual({repository, neighbor}, set(selected))

@@ -8,13 +8,13 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackClockConfig;
-using neri::usb::feedback::FeedbackClockState;
-using neri::usb::feedback::FeedbackEstimateResult;
-using neri::usb::feedback::FeedbackEstimateStatus;
-using neri::usb::feedback::FeedbackMathStatus;
-using neri::usb::feedback::FeedbackStreamGate;
-using neri::usb::feedback::StreamGatePacketStatus;
+using memi::usb::feedback::FeedbackClockConfig;
+using memi::usb::feedback::FeedbackClockState;
+using memi::usb::feedback::FeedbackEstimateResult;
+using memi::usb::feedback::FeedbackEstimateStatus;
+using memi::usb::feedback::FeedbackMathStatus;
+using memi::usb::feedback::FeedbackStreamGate;
+using memi::usb::feedback::StreamGatePacketStatus;
 
 constexpr uint64_t kNominalRate = UINT64_C(48000) * (UINT64_C(1) << 32) /
     UINT64_C(1000);
@@ -126,11 +126,11 @@ void rejectsInvalidConfigurationAndTimeout() {
     const auto packet = gate.next(true);
     assert(packet.status == StreamGatePacketStatus::TerminalFailure);
     assert(gate.snapshot().clock.failureReason ==
-        neri::usb::feedback::FeedbackClockFailureReason::AcquireTimeout);
+        memi::usb::feedback::FeedbackClockFailureReason::AcquireTimeout);
 }
 
 void exposesStableName() {
-    assert(std::string(neri::usb::feedback::streamGatePacketStatusName(
+    assert(std::string(memi::usb::feedback::streamGatePacketStatusName(
         StreamGatePacketStatus::PlayerBlockedUntilLock
     )) == "player_blocked_until_lock");
 }

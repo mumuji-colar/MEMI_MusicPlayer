@@ -9,7 +9,7 @@
 #include "usb/exclusive/usb_exclusive_session_state.h"
 #include "usb/iso/usb_iso_transfer_window.h"
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 
 inline constexpr int kEventLoopWaitTimeoutMs = 100;
 inline constexpr int kDrainEventWaitTimeoutMs = 100;
@@ -66,7 +66,7 @@ void requestNoDeviceStop(UsbExclusiveHandle* handle);
 void markTransportFailed(UsbExclusiveHandle* handle);
 void latchTerminalRecoveryAction(
     UsbExclusiveHandle* handle,
-    neri::usb::UsbRuntimeRecoveryAction action
+    memi::usb::UsbRuntimeRecoveryAction action
 );
 void refreshTerminalRecoveryAction(UsbExclusiveHandle* handle, bool feedbackTerminalFailure);
 int64_t steadyClockNanoseconds();
@@ -134,4 +134,4 @@ void releaseFeatureUnits(UsbExclusiveHandle* handle, bool restoreDevice);
 bool setHardwareVolumeFraction(UsbExclusiveHandle* handle, float fraction);
 bool hasHardwareVolume(UsbExclusiveHandle* handle);
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive

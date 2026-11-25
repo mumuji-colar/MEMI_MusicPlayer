@@ -9,10 +9,10 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackMathStatus;
-using neri::usb::feedback::FeedbackPacketScheduler;
-using neri::usb::feedback::FeedbackRateQ32;
-using neri::usb::feedback::kQ32One;
+using memi::usb::feedback::FeedbackMathStatus;
+using memi::usb::feedback::FeedbackPacketScheduler;
+using memi::usb::feedback::FeedbackRateQ32;
+using memi::usb::feedback::kQ32One;
 
 uint64_t configuredSeed() {
     const char* value = std::getenv("NERI_USB_TEST_SEED");
@@ -40,7 +40,7 @@ void requireStress(
 
 FeedbackRateQ32 rateFor(uint32_t sampleRate, uint32_t intervalsPerSecond) {
     FeedbackRateQ32 rate = 0;
-    assert(neri::usb::feedback::makeFeedbackRateQ32(
+    assert(memi::usb::feedback::makeFeedbackRateQ32(
         sampleRate,
         intervalsPerSecond,
         &rate
@@ -153,7 +153,7 @@ void rejectsInvalidConfigurationAndCounterOverflowProjection() {
     assert(scheduler.configure(0, 8, 48) == FeedbackMathStatus::OutOfRange);
     assert(scheduler.configure(UINT64_C(48) * kQ32One, 8, 47) ==
         FeedbackMathStatus::CapacityExceeded);
-    const auto projection = neri::usb::feedback::projectScheduledFrames(
+    const auto projection = memi::usb::feedback::projectScheduledFrames(
         std::numeric_limits<uint64_t>::max(),
         0,
         std::numeric_limits<uint64_t>::max()

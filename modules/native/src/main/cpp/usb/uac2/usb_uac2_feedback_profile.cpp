@@ -3,7 +3,7 @@
 #include <limits>
 #include <sstream>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 namespace {
 
 constexpr uint8_t kMinimumInterval = 1;
@@ -304,4 +304,4 @@ const char* uac2FeedbackProfileStatusName(Uac2FeedbackProfileStatus status) {
     return "unknown";
 }
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

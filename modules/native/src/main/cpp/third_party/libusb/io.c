@@ -214,9 +214,9 @@ if (r == 0 && actual_length == sizeof(data)) {
  *
  * \section asyncabstraction Transfer abstraction
  *
- * For the asynchronous I/O, libusb implements the concept of a generic
+ * For the asynchronous I/O, libusb implements the concept of a gememic
  * transfer entity for all types of I/O (control, bulk, interrupt,
- * isochronous). The generic transfer object must be treated slightly
+ * isochronous). The gememic transfer object must be treated slightly
  * differently depending on which type of I/O you are performing with it.
  *
  * This is represented by the public libusb_transfer structure type.
@@ -236,7 +236,7 @@ if (r == 0 && actual_length == sizeof(data)) {
  * \subsection asyncalloc Allocation
  *
  * This step involves allocating memory for a USB transfer. This is the
- * generic transfer object mentioned above. At this stage, the transfer
+ * gememic transfer object mentioned above. At this stage, the transfer
  * is "blank" with no details about what type of I/O it will be used for.
  *
  * Allocation is done with the libusb_alloc_transfer() function. You must use
@@ -367,7 +367,7 @@ if (r == 0 && actual_length == sizeof(data)) {
  *
  * \section asyncctrl Considerations for control transfers
  *
- * The <tt>libusb_transfer</tt> structure is generic and hence does not
+ * The <tt>libusb_transfer</tt> structure is gememic and hence does not
  * include specific fields for the control-specific setup packet structure.
  *
  * In order to perform a control transfer, you must place the 8-byte setup

@@ -2,7 +2,7 @@
 
 #include <array>
 
-namespace neri::usb {
+namespace memi::usb {
 
 enum class StreamingInterfaceActivationStep {
     ActivateAlternate,
@@ -51,4 +51,4 @@ inline bool canTransitionStreamingInterface(
         interfaceNumber >= 0 && alternateSetting > 0;
 }
 
-} // namespace neri::usb
+} // namespace memi::usb

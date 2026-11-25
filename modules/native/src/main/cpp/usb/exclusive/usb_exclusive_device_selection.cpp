@@ -13,12 +13,12 @@
 #include "usb/iso/usb_iso_transfer_window.h"
 #include "usb/uac2/usb_uac2_clock_graph.h"
 
-#define LOG_TAG "NeriUsbExclusive"
+#define LOG_TAG "MemiUsbExclusive"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 
 constexpr int kUsbSubclassAudioStreaming = 0x02;
 constexpr int kUsbSubclassAudioControl = 0x01;
@@ -361,32 +361,32 @@ int endpointPacketCapacity(const libusb_endpoint_descriptor& endpoint) {
     return payloadBytes * transactions;
 }
 
-neri::usb::uac2::UsbBusSpeed uac2BusSpeedFromLibusb(int usbSpeed) {
+memi::usb::uac2::UsbBusSpeed uac2BusSpeedFromLibusb(int usbSpeed) {
     switch (usbSpeed) {
         case LIBUSB_SPEED_FULL:
-            return neri::usb::uac2::UsbBusSpeed::Full;
+            return memi::usb::uac2::UsbBusSpeed::Full;
         case LIBUSB_SPEED_HIGH:
-            return neri::usb::uac2::UsbBusSpeed::High;
+            return memi::usb::uac2::UsbBusSpeed::High;
         case LIBUSB_SPEED_LOW:
-            return neri::usb::uac2::UsbBusSpeed::Low;
+            return memi::usb::uac2::UsbBusSpeed::Low;
         case LIBUSB_SPEED_SUPER:
-            return neri::usb::uac2::UsbBusSpeed::Super;
+            return memi::usb::uac2::UsbBusSpeed::Super;
         case LIBUSB_SPEED_SUPER_PLUS:
         case LIBUSB_SPEED_SUPER_PLUS_X2:
-            return neri::usb::uac2::UsbBusSpeed::SuperPlus;
+            return memi::usb::uac2::UsbBusSpeed::SuperPlus;
         default:
-            return neri::usb::uac2::UsbBusSpeed::Unknown;
+            return memi::usb::uac2::UsbBusSpeed::Unknown;
     }
 }
 
-neri::usb::uac2::EndpointSnapshot makeUac2EndpointSnapshot(
+memi::usb::uac2::EndpointSnapshot makeUac2EndpointSnapshot(
     int configurationValue,
     const libusb_interface_descriptor& alt,
     const libusb_endpoint_descriptor& endpoint,
     int effectiveMaxPacketBytes,
     bool legacyAudioEndpoint = false
 ) {
-    neri::usb::uac2::EndpointSnapshot snapshot;
+    memi::usb::uac2::EndpointSnapshot snapshot;
     snapshot.configurationValue = configurationValue;
     snapshot.interfaceNumber = alt.bInterfaceNumber;
     snapshot.alternateSetting = alt.bAlternateSetting;
@@ -398,8 +398,8 @@ neri::usb::uac2::EndpointSnapshot makeUac2EndpointSnapshot(
     snapshot.effectiveMaxPacketBytes = effectiveMaxPacketBytes;
     snapshot.effectiveCapacityKnown = effectiveMaxPacketBytes > 0;
     snapshot.capacitySource = effectiveMaxPacketBytes > 0
-        ? neri::usb::uac2::EndpointCapacitySource::BackendComputed
-        : neri::usb::uac2::EndpointCapacitySource::Unknown;
+        ? memi::usb::uac2::EndpointCapacitySource::BackendComputed
+        : memi::usb::uac2::EndpointCapacitySource::Unknown;
     snapshot.bInterval = endpoint.bInterval;
     snapshot.bRefresh = 0;
     snapshot.hasRefresh = false;
@@ -444,7 +444,7 @@ bool resolveExplicitFeedbackProfile(
     uint8_t* feedbackEndpointAddress,
     int* feedbackPacketBytes,
     int* feedbackInterval,
-    neri::usb::uac2::Uac2FeedbackTimingProfile* timingProfile,
+    memi::usb::uac2::Uac2FeedbackTimingProfile* timingProfile,
     std::string* failureReason
 ) {
     if (device == nullptr || feedbackEndpointAddress == nullptr ||
@@ -486,7 +486,7 @@ bool resolveExplicitFeedbackProfile(
     if (resolvedFeedbackPacketBytes <= 0) {
         resolvedFeedbackPacketBytes = endpointPacketCapacity(*feedbackEndpoint);
     }
-    const auto profile = neri::usb::uac2::buildUac2FeedbackTimingProfile(
+    const auto profile = memi::usb::uac2::buildUac2FeedbackTimingProfile(
         uac2BusSpeedFromLibusb(usbSpeed),
         makeUac2EndpointSnapshot(
             configurationValue,
@@ -504,10 +504,10 @@ bool resolveExplicitFeedbackProfile(
         ),
         legacyAudioEndpoints
     );
-    if (profile.status != neri::usb::uac2::Uac2FeedbackProfileStatus::Valid) {
+    if (profile.status != memi::usb::uac2::Uac2FeedbackProfileStatus::Valid) {
         if (failureReason != nullptr) {
             *failureReason = reasonPrefix + "_feedback_profile_" + std::string(
-                neri::usb::uac2::uac2FeedbackProfileStatusName(profile.status)
+                memi::usb::uac2::uac2FeedbackProfileStatusName(profile.status)
             ) + ":" + profile.reason;
         }
         return false;
@@ -556,8 +556,8 @@ std::string describeFeedback(
 struct Uac2ClockPath {
     int audioControlInterface = -1;
     int clockSourceId = 0;
-    neri::usb::uac2::ControlCapability sampleRateControl =
-        neri::usb::uac2::ControlCapability::None;
+    memi::usb::uac2::ControlCapability sampleRateControl =
+        memi::usb::uac2::ControlCapability::None;
 };
 
 int readUac2ClockSelectorPin(
@@ -601,8 +601,8 @@ int resolveUac2FinalClockId(
     int audioControlInterface,
     int terminalLink,
     int terminalClockId,
-    const std::vector<neri::usb::uac2::ClockSource>& clockSources,
-    const std::vector<neri::usb::uac2::ClockRouting>& clockRoutings,
+    const std::vector<memi::usb::uac2::ClockSource>& clockSources,
+    const std::vector<memi::usb::uac2::ClockRouting>& clockRoutings,
     std::string* failureReason
 ) {
     std::vector<int> sourceIds;
@@ -613,7 +613,7 @@ int resolveUac2FinalClockId(
     if (direct || clockRoutings.empty()) {
         return terminalClockId;
     }
-    const auto route = neri::usb::uac2::resolveTerminalClockSource(
+    const auto route = memi::usb::uac2::resolveTerminalClockSource(
         audioControlInterface,
         terminalLink,
         terminalClockId,
@@ -623,10 +623,10 @@ int resolveUac2FinalClockId(
             return readUac2ClockSelectorPin(deviceHandle, audioControlInterface, selectorId, pinCount);
         }
     );
-    if (route.status != neri::usb::uac2::ClockGraphStatus::Valid) {
+    if (route.status != memi::usb::uac2::ClockGraphStatus::Valid) {
         if (failureReason != nullptr) {
             *failureReason = std::string("uac2_clock_route_") +
-                neri::usb::uac2::clockGraphStatusName(route.status) + ":" + route.reason;
+                memi::usb::uac2::clockGraphStatusName(route.status) + ":" + route.reason;
         }
         return 0;
     }
@@ -671,8 +671,8 @@ bool findUac2ClockPath(
             }
 
             int terminalClockSourceId = 0;
-            std::vector<neri::usb::uac2::ClockSource> clockSources;
-            std::vector<neri::usb::uac2::ClockRouting> clockRoutings;
+            std::vector<memi::usb::uac2::ClockSource> clockSources;
+            std::vector<memi::usb::uac2::ClockRouting> clockRoutings;
             int offset = 0;
             while (offset + 2 <= alt.extra_length) {
                 const int descriptorLength = alt.extra[offset];
@@ -682,9 +682,9 @@ bool findUac2ClockPath(
                 const uint8_t* descriptor = alt.extra + offset;
                 if (descriptorLength >= 3 &&
                     descriptor[1] == kUsbDescriptorTypeClassSpecificInterface) {
-                    neri::usb::uac2::TerminalClockSource terminal;
+                    memi::usb::uac2::TerminalClockSource terminal;
                     std::string parseError;
-                    if (neri::usb::uac2::parseTerminalClockSourceDescriptor(
+                    if (memi::usb::uac2::parseTerminalClockSourceDescriptor(
                             descriptor,
                             descriptorLength,
                             &terminal,
@@ -693,8 +693,8 @@ bool findUac2ClockPath(
                         terminalClockSourceId = terminal.clockSourceId;
                     }
 
-                    neri::usb::uac2::ClockSource clock;
-                    if (neri::usb::uac2::parseClockSourceDescriptor(
+                    memi::usb::uac2::ClockSource clock;
+                    if (memi::usb::uac2::parseClockSourceDescriptor(
                             descriptor,
                             descriptorLength,
                             &clock,
@@ -702,8 +702,8 @@ bool findUac2ClockPath(
                         )) {
                         clockSources.push_back(clock);
                     }
-                    neri::usb::uac2::ClockRouting routing;
-                    if (neri::usb::uac2::parseClockRoutingDescriptor(
+                    memi::usb::uac2::ClockRouting routing;
+                    if (memi::usb::uac2::parseClockRoutingDescriptor(
                             descriptor,
                             descriptorLength,
                             &routing,
@@ -730,7 +730,7 @@ bool findUac2ClockPath(
             const auto clock = std::find_if(
                 clockSources.begin(),
                 clockSources.end(),
-                [finalClockId](const neri::usb::uac2::ClockSource& candidate) {
+                [finalClockId](const memi::usb::uac2::ClockSource& candidate) {
                     return candidate.id == finalClockId;
                 }
             );
@@ -774,8 +774,8 @@ bool findUac2ClockPath(
 }
 
 int scoreStreamingCandidate(
-    const neri::usb::uac1::TypeIFormat& format,
-    const neri::usb::uac1::EndpointControls& controls,
+    const memi::usb::uac1::TypeIFormat& format,
+    const memi::usb::uac1::EndpointControls& controls,
     int sampleRate,
     uint8_t endpointAttributes,
     const std::string& feedback
@@ -783,7 +783,7 @@ int scoreStreamingCandidate(
     int score = 10000;
     if (format.isFixedAt(sampleRate)) {
         score += 400;
-    } else if (format.sampleRateKind == neri::usb::uac1::SampleRateKind::Discrete) {
+    } else if (format.sampleRateKind == memi::usb::uac1::SampleRateKind::Discrete) {
         score += 300;
     } else {
         score += 200;
@@ -803,14 +803,14 @@ int scoreStreamingCandidate(
 }
 
 int scoreUac2StreamingCandidate(
-    neri::usb::uac2::ControlCapability sampleRateControl,
+    memi::usb::uac2::ControlCapability sampleRateControl,
     uint8_t endpointAttributes,
     const std::string& feedback
 ) {
     int score = 11000;
-    if (sampleRateControl == neri::usb::uac2::ControlCapability::ReadWrite) {
+    if (sampleRateControl == memi::usb::uac2::ControlCapability::ReadWrite) {
         score += 300;
-    } else if (sampleRateControl == neri::usb::uac2::ControlCapability::ReadOnly) {
+    } else if (sampleRateControl == memi::usb::uac2::ControlCapability::ReadOnly) {
         score += 100;
     }
     const int syncType = usbIsoSyncType(endpointAttributes);
@@ -872,9 +872,9 @@ bool findStreamingAltUac1(
                 continue;
             }
 
-            neri::usb::uac1::TypeIFormat format;
+            memi::usb::uac1::TypeIFormat format;
             std::string parseError;
-            if (!neri::usb::uac1::parseTypeIFormat(
+            if (!memi::usb::uac1::parseTypeIFormat(
                     alt.extra,
                     alt.extra_length,
                     &format,
@@ -888,14 +888,14 @@ bool findStreamingAltUac1(
                 );
                 continue;
             }
-            const neri::usb::uac1::FormatTarget formatTarget {
+            const memi::usb::uac1::FormatTarget formatTarget {
                 sampleRate,
                 channelCount,
                 subslotBytes,
                 bitsPerSample
             };
             std::string matchError;
-            if (!neri::usb::uac1::matchesTarget(format, formatTarget, &matchError)) {
+            if (!memi::usb::uac1::matchesTarget(format, formatTarget, &matchError)) {
                 appendCandidateRejection(
                     &rejectionSummary,
                     alt.bInterfaceNumber,
@@ -917,8 +917,8 @@ bool findStreamingAltUac1(
                     continue;
                 }
                 hasIsoOutputEndpoint = true;
-                neri::usb::uac1::EndpointControls controls;
-                if (!neri::usb::uac1::parseEndpointControls(
+                memi::usb::uac1::EndpointControls controls;
+                if (!memi::usb::uac1::parseEndpointControls(
                         endpoint.extra,
                         endpoint.extra_length,
                         &controls,
@@ -960,17 +960,17 @@ bool findStreamingAltUac1(
                     continue;
                 }
                 const std::string feedback = describeFeedback(alt, endpoint);
-                const auto syncPolicy = neri::usb::resolveUsbStreamingSyncPolicy(
+                const auto syncPolicy = memi::usb::resolveUsbStreamingSyncPolicy(
                     1,
-                    neri::usb::uac1::requiresFeedbackScheduler(endpoint.bmAttributes),
-                    neri::usb::usbStreamingFeedbackModeForDescription(feedback)
+                    memi::usb::uac1::requiresFeedbackScheduler(endpoint.bmAttributes),
+                    memi::usb::usbStreamingFeedbackModeForDescription(feedback)
                 );
                 if (!syncPolicy.supported) {
                     appendCandidateRejection(
                         &rejectionSummary,
                         alt.bInterfaceNumber,
                         alt.bAlternateSetting,
-                        std::string(neri::usb::usbStreamingSyncPolicyReasonName(
+                        std::string(memi::usb::usbStreamingSyncPolicyReasonName(
                             syncPolicy.reason
                         )) + ":feedback=" + feedback
                     );
@@ -980,7 +980,7 @@ bool findStreamingAltUac1(
                 uint8_t feedbackEndpointAddress = 0;
                 int feedbackPacketBytes = 0;
                 int feedbackInterval = 0;
-                neri::usb::uac2::Uac2FeedbackTimingProfile feedbackTimingProfile;
+                memi::usb::uac2::Uac2FeedbackTimingProfile feedbackTimingProfile;
                 if (syncPolicy.requiresExplicitFeedbackProfile) {
                     std::string feedbackProfileFailure;
                     if (!resolveExplicitFeedbackProfile(
@@ -1041,11 +1041,11 @@ bool findStreamingAltUac1(
                 best.uacVersion = 1;
                 best.uac1.format = format;
                 best.uac1.endpointControls = controls;
-                best.syncType = neri::usb::uac1::syncTypeName(endpoint.bmAttributes);
+                best.syncType = memi::usb::uac1::syncTypeName(endpoint.bmAttributes);
                 best.feedback = feedback;
                 const char* rateKind = format.isFixedAt(sampleRate)
                     ? "fixed"
-                    : format.sampleRateKind == neri::usb::uac1::SampleRateKind::Discrete
+                    : format.sampleRateKind == memi::usb::uac1::SampleRateKind::Discrete
                         ? "discrete"
                         : "continuous";
                 best.reason = "exact_type_i_pcm;rate=" + std::string(rateKind) +
@@ -1144,9 +1144,9 @@ bool findStreamingAltUac2(
                 continue;
             }
 
-            neri::usb::uac2::TypeIFormat format;
+            memi::usb::uac2::TypeIFormat format;
             std::string parseError;
-            if (!neri::usb::uac2::parseTypeIFormat(
+            if (!memi::usb::uac2::parseTypeIFormat(
                     alt.extra,
                     alt.extra_length,
                     &format,
@@ -1160,13 +1160,13 @@ bool findStreamingAltUac2(
                 );
                 continue;
             }
-            const neri::usb::uac2::FormatTarget formatTarget {
+            const memi::usb::uac2::FormatTarget formatTarget {
                 channelCount,
                 subslotBytes,
                 bitsPerSample
             };
             std::string matchError;
-            if (!neri::usb::uac2::matchesTarget(format, formatTarget, &matchError)) {
+            if (!memi::usb::uac2::matchesTarget(format, formatTarget, &matchError)) {
                 appendCandidateRejection(
                     &rejectionSummary,
                     alt.bInterfaceNumber,
@@ -1194,7 +1194,7 @@ bool findStreamingAltUac2(
                 );
                 continue;
             }
-            if (clockPath.sampleRateControl == neri::usb::uac2::ControlCapability::None) {
+            if (clockPath.sampleRateControl == memi::usb::uac2::ControlCapability::None) {
                 int fixedSampleRate = 0;
                 std::string fixedRateStatus;
                 if (!readUac2CurrentSampleRate(
@@ -1236,8 +1236,8 @@ bool findStreamingAltUac2(
                     continue;
                 }
                 hasIsoOutputEndpoint = true;
-                neri::usb::uac2::EndpointControls controls;
-                if (!neri::usb::uac2::parseEndpointControls(
+                memi::usb::uac2::EndpointControls controls;
+                if (!memi::usb::uac2::parseEndpointControls(
                         endpoint.extra,
                         endpoint.extra_length,
                         &controls,
@@ -1283,18 +1283,18 @@ bool findStreamingAltUac2(
                 uint8_t feedbackEndpointAddress = 0;
                 int feedbackPacketBytes = 0;
                 int feedbackInterval = 0;
-                neri::usb::uac2::Uac2FeedbackTimingProfile feedbackTimingProfile;
-                const auto syncPolicy = neri::usb::resolveUsbStreamingSyncPolicy(
+                memi::usb::uac2::Uac2FeedbackTimingProfile feedbackTimingProfile;
+                const auto syncPolicy = memi::usb::resolveUsbStreamingSyncPolicy(
                     2,
-                    neri::usb::uac2::requiresFeedbackScheduler(endpoint.bmAttributes),
-                    neri::usb::usbStreamingFeedbackModeForDescription(feedback)
+                    memi::usb::uac2::requiresFeedbackScheduler(endpoint.bmAttributes),
+                    memi::usb::usbStreamingFeedbackModeForDescription(feedback)
                 );
                 if (!syncPolicy.supported) {
                     appendCandidateRejection(
                         &rejectionSummary,
                         alt.bInterfaceNumber,
                         alt.bAlternateSetting,
-                        std::string(neri::usb::usbStreamingSyncPolicyReasonName(
+                        std::string(memi::usb::usbStreamingSyncPolicyReasonName(
                             syncPolicy.reason
                         )) + ":feedback=" + feedback
                     );
@@ -1339,7 +1339,7 @@ bool findStreamingAltUac2(
                     endpoint.bEndpointAddress,
                     packetBytes,
                     clockPath.clockSourceId,
-                    neri::usb::uac2::controlCapabilityName(clockPath.sampleRateControl),
+                    memi::usb::uac2::controlCapabilityName(clockPath.sampleRateControl),
                     controls.hasGeneralDescriptor ? "general" : "missing",
                     score
                 );
@@ -1362,11 +1362,11 @@ bool findStreamingAltUac2(
                 best.uac2.format = format;
                 best.uac2.clockSourceId = clockPath.clockSourceId;
                 best.uac2.sampleRateControl = clockPath.sampleRateControl;
-                best.syncType = neri::usb::uac2::syncTypeName(endpoint.bmAttributes);
+                best.syncType = memi::usb::uac2::syncTypeName(endpoint.bmAttributes);
                 best.feedback = feedback;
                 best.reason = "exact_uac2_type_i_pcm;clock=" +
                     std::to_string(clockPath.clockSourceId) + ";rateControl=" +
-                    neri::usb::uac2::controlCapabilityName(clockPath.sampleRateControl) +
+                    memi::usb::uac2::controlCapabilityName(clockPath.sampleRateControl) +
                     ";score=" + std::to_string(score) +
                     (explicitFeedbackEnabled
                         ? ";feedbackProfile=" + feedbackTimingProfile.evidence.profileId
@@ -1548,7 +1548,7 @@ bool readUac2CurrentSampleRate(
         return false;
     }
     std::string decodeError;
-    if (!neri::usb::uac2::decodeCurrentSampleRate(
+    if (!memi::usb::uac2::decodeCurrentSampleRate(
             sampleRateBytes,
             sizeof(sampleRateBytes),
             currentSampleRate,
@@ -1566,4 +1566,4 @@ bool readUac2CurrentSampleRate(
 }
 
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive

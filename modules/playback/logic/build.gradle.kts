@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.playback.logic"
+    namespace = "com.mmc.merimusicplayer.playback.logic"
 }
 
 dependencies {

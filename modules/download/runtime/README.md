@@ -6,9 +6,9 @@
 
 ## 结构 / Layout
 
-主要入口是 [GlobalDownloadManager](src/main/java/moe/ouom/neriplayer/core/download/GlobalDownloadManager.kt) 和 [ManagedDownloadStorage](src/main/java/moe/ouom/neriplayer/core/download/ManagedDownloadStorage.kt)。下载规则来自 `:download:logic`，来源、网络、歌词和存储接入使用 `:platform`、`:network`、`:lyrics`、`:database` 与 `:local`。
+主要入口是 [GlobalDownloadManager](src/main/java/com/mmc/merimusicplayer/core/download/GlobalDownloadManager.kt) 和 [ManagedDownloadStorage](src/main/java/com/mmc/merimusicplayer/core/download/ManagedDownloadStorage.kt)。下载规则来自 `:download:logic`，来源、网络、歌词和存储接入使用 `:platform`、`:network`、`:lyrics`、`:database` 与 `:local`。
 
-The main entry points are [GlobalDownloadManager](src/main/java/moe/ouom/neriplayer/core/download/GlobalDownloadManager.kt) and [ManagedDownloadStorage](src/main/java/moe/ouom/neriplayer/core/download/ManagedDownloadStorage.kt). Rules come from `:download:logic`; sources, networking, lyrics, and storage use `:platform`, `:network`, `:lyrics`, `:database`, and `:local`.
+The main entry points are [GlobalDownloadManager](src/main/java/com/mmc/merimusicplayer/core/download/GlobalDownloadManager.kt) and [ManagedDownloadStorage](src/main/java/com/mmc/merimusicplayer/core/download/ManagedDownloadStorage.kt). Rules come from `:download:logic`; sources, networking, lyrics, and storage use `:platform`, `:network`, `:lyrics`, `:database`, and `:local`.
 
 app 在 `core/integration/download` 通过 `DownloadHosts.install(DownloadHostBindings(...))` 安装宿主接口后再启动下载。
 
@@ -24,9 +24,9 @@ The additional Media3 fallback accepts audio-only MP4 whose sample entries and F
 
 ## 兼容 / Compatibility
 
-[后台 Worker](src/main/java/moe/ouom/neriplayer/core/download/execution/worker)、[ManagedDownloadMigrationWorker](src/main/java/moe/ouom/neriplayer/core/download/storage/migration/ManagedDownloadMigrationWorker.kt) 和 [Manifest](src/main/AndroidManifest.xml) 中的 `UidtDownloadJobService` 须保持完整类名兼容，以保留已持久化任务和系统入口。
+[后台 Worker](src/main/java/com/mmc/merimusicplayer/core/download/execution/worker)、[ManagedDownloadMigrationWorker](src/main/java/com/mmc/merimusicplayer/core/download/storage/migration/ManagedDownloadMigrationWorker.kt) 和 [Manifest](src/main/AndroidManifest.xml) 中的 `UidtDownloadJobService` 须保持完整类名兼容，以保留已持久化任务和系统入口。
 
-[Background Workers](src/main/java/moe/ouom/neriplayer/core/download/execution/worker), [ManagedDownloadMigrationWorker](src/main/java/moe/ouom/neriplayer/core/download/storage/migration/ManagedDownloadMigrationWorker.kt), and `UidtDownloadJobService` in the [Manifest](src/main/AndroidManifest.xml) must retain compatible fully qualified names for persisted jobs and system entry points.
+[Background Workers](src/main/java/com/mmc/merimusicplayer/core/download/execution/worker), [ManagedDownloadMigrationWorker](src/main/java/com/mmc/merimusicplayer/core/download/storage/migration/ManagedDownloadMigrationWorker.kt), and `UidtDownloadJobService` in the [Manifest](src/main/AndroidManifest.xml) must retain compatible fully qualified names for persisted jobs and system entry points.
 
 ## 测试 / Tests
 

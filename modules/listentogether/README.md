@@ -6,9 +6,9 @@
 
 ## 结构 / Layout
 
-源码位于 `src/main/java/moe/ouom/neriplayer`。
+源码位于 `src/main/java/com/mmc/merimusicplayer`。
 
-Sources are in `src/main/java/moe/ouom/neriplayer`.
+Sources are in `src/main/java/com/mmc/merimusicplayer`.
 
 - `data/ltw/ListenTogetherSessionManager.kt`：会话入口 / session entry point
 - `api/ltw`：HTTP、WebSocket 与重连 / HTTP, WebSocket, and reconnects

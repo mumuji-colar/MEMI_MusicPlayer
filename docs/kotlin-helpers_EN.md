@@ -8,7 +8,7 @@ when to switch playback paths.
 
 ## Request generations
 
-[`RequestGeneration`](../modules/common/src/main/java/moe/ouom/neriplayer/common/concurrent/RequestGeneration.kt)
+[`RequestGeneration`](../modules/common/src/main/java/com/mmc/merimusicplayer/common/concurrent/RequestGeneration.kt)
 checks whether an asynchronous result still belongs to the current request generation.
 
 ```kotlin
@@ -41,13 +41,13 @@ fun refresh() {
   song and prioritizing manual actions, and `ManualSearchRequestCoordinator` for
   search deduplication.
 
-See [`CommentViewModel`](../app/src/main/java/moe/ouom/neriplayer/ui/viewmodel/CommentViewModel.kt)
-and [`NowPlayingViewModel`](../app/src/main/java/moe/ouom/neriplayer/ui/viewmodel/NowPlayingViewModel.kt)
+See [`CommentViewModel`](../app/src/main/java/com/mmc/merimusicplayer/ui/viewmodel/CommentViewModel.kt)
+and [`NowPlayingViewModel`](../app/src/main/java/com/mmc/merimusicplayer/ui/viewmodel/NowPlayingViewModel.kt)
 for actual call sites.
 
 ## Time and capacity
 
-[`MeasureUnits`](../modules/common/src/main/java/moe/ouom/neriplayer/common/units/MeasureUnits.kt)
+[`MeasureUnits`](../modules/common/src/main/java/com/mmc/merimusicplayer/common/units/MeasureUnits.kt)
 provides singular time extensions. Prefer this form in ordinary Kotlin expressions:
 
 ```kotlin
@@ -76,7 +76,7 @@ Business defaults belong to their corresponding policies; for example, use
 `CacheSizePolicy.DEFAULT_CACHE_SIZE_BYTES` for the default cache capacity.
 
 The input to
-[`elapsedMillisSince`](../modules/common/src/main/java/moe/ouom/neriplayer/common/time/MonotonicTime.kt)
+[`elapsedMillisSince`](../modules/common/src/main/java/com/mmc/merimusicplayer/common/time/MonotonicTime.kt)
 must come from `System.nanoTime()`.
 
 ```kotlin
@@ -90,7 +90,7 @@ to milliseconds. The call site decides whether to clamp negative results to zero
 
 ## Player reads
 
-[`PlayerReadExtensions`](../modules/playback/runtime/src/main/java/moe/ouom/neriplayer/core/player/PlayerReadExtensions.kt)
+[`PlayerReadExtensions`](../modules/playback/runtime/src/main/java/com/mmc/merimusicplayer/core/player/PlayerReadExtensions.kt)
 provides `currentPositionMsOr(fallbackMs)`, `durationMsOr(fallbackMs)`, and properties
 that default to a zero fallback.
 These extensions are `internal` to `:playback:runtime`; app and other libraries
@@ -108,7 +108,7 @@ threads; callers must still follow the Player's application-thread requirements.
 
 ## Coroutine results
 
-[`runCatchingNonCancellation`](../modules/common/src/main/java/moe/ouom/neriplayer/common/coroutines/RunCatchingNonCancellation.kt)
+[`runCatchingNonCancellation`](../modules/common/src/main/java/com/mmc/merimusicplayer/common/coroutines/RunCatchingNonCancellation.kt)
 converts ordinary `Exception` instances into a `Result`, propagates
 `CancellationException`, and does not catch `Error`.
 Both the helper and its block are `suspend`, so call it from a coroutine or another
@@ -129,13 +129,13 @@ or distinct exception categories.
 
 ## PCM requirements
 
-[`pcmAudioRequirements`](../modules/playback/logic/src/main/java/moe/ouom/neriplayer/core/player/policy/offload/PlaybackAudioOffloadPolicy.kt)
+[`pcmAudioRequirements`](../modules/playback/logic/src/main/java/com/mmc/merimusicplayer/core/player/policy/offload/PlaybackAudioOffloadPolicy.kt)
 maps the existing source compatibility rules and audio processing conditions to a
 `Set<PcmAudioRequirement>`. Callers use `isNotEmpty()` to decide whether to disable
 audio offload and can log all reasons.
 
 When adding a condition, update the corresponding rule in
-[`PcmAudioRequirements`](../modules/playback/logic/src/main/java/moe/ouom/neriplayer/core/player/policy/offload/PcmAudioRequirements.kt),
+[`PcmAudioRequirements`](../modules/playback/logic/src/main/java/com/mmc/merimusicplayer/core/player/policy/offload/PcmAudioRequirements.kt),
 keep `pcmAudioRequirements` as the common entry point for returning reasons, and
 add tests for the corresponding reason. An empty set only means the current policy
 has no PCM requirement; actual offload support still depends on Media3 and the device.
@@ -148,7 +148,7 @@ do not clear it by recomputing only user settings. The caller supplies
 
 ## JSON object array mapping
 
-[`mapObjectsNotNull`](../modules/common/src/main/java/moe/ouom/neriplayer/common/json/JsonArrayExtensions.kt)
+[`mapObjectsNotNull`](../modules/common/src/main/java/com/mmc/merimusicplayer/common/json/JsonArrayExtensions.kt)
 is for JSON arrays where skipping non-object elements is allowed. It centralizes
 indexed iteration and the `optJSONObject` check.
 
@@ -173,7 +173,7 @@ every record to be valid.
 
 ## Merging lists by identity
 
-[`mergeDistinctBy`](../modules/common/src/main/java/moe/ouom/neriplayer/common/collections/CollectionMerge.kt)
+[`mergeDistinctBy`](../modules/common/src/main/java/com/mmc/merimusicplayer/common/collections/CollectionMerge.kt)
 reads the existing list before the incoming list and keeps the first item for
 each identity key supplied by the caller.
 

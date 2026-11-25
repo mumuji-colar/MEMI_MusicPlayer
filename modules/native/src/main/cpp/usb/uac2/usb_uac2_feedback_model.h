@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 
 enum class DescriptorValidationStatus {
     Unchecked,
@@ -133,4 +133,4 @@ const char* feedbackModeName(FeedbackMode mode);
 const char* feedbackAssociationKindName(FeedbackAssociationKind kind);
 const char* endpointCapacitySourceName(EndpointCapacitySource source);
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

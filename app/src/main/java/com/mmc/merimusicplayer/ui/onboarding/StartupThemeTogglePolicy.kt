@@ -1,0 +1,20 @@
+package com.mmc.merimusicplayer.ui.onboarding
+
+import com.mmc.merimusicplayer.data.model.settings.appearance.ThemeMode
+
+internal fun shouldBlockStartupOnboardingThemeToggle(
+    captureInFlight: Boolean,
+    revealActive: Boolean
+): Boolean = captureInFlight || revealActive
+
+internal fun resolveStartupOnboardingThemeMode(
+    storedFollowSystemDark: Boolean,
+    storedForceDark: Boolean,
+    pendingFollowSystemDark: Boolean?,
+    pendingForceDark: Boolean?
+): ThemeMode {
+    return ThemeMode.fromPreferenceFlags(
+        forceDark = pendingForceDark ?: storedForceDark,
+        followSystemDark = pendingFollowSystemDark ?: storedFollowSystemDark
+    )
+}

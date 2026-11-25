@@ -11,15 +11,15 @@
 
 #include "usb/control/usb_feature_unit.h"
 
-#define LOG_TAG "NeriUsbExclusive"
+#define LOG_TAG "MemiUsbExclusive"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 namespace {
 
-using neri::usb::control::FeatureUnitControl;
-using neri::usb::control::FeatureUnitVolume;
+using memi::usb::control::FeatureUnitControl;
+using memi::usb::control::FeatureUnitVolume;
 
 // 部分 DAC 不支持某些请求会直接 STALL，超时放短避免拖慢打开
 constexpr unsigned int kFeatureUnitTimeoutMs = 300;
@@ -94,7 +94,7 @@ int setMute(libusb_device_handle* devh, const FeatureUnitControl& control, int i
 
 int setVolume(libusb_device_handle* devh, const FeatureUnitControl& control, int interfaceNumber, int16_t volume) {
     uint8_t value[2] = {};
-    neri::usb::control::encodeLittleEndianInt16(volume, value);
+    memi::usb::control::encodeLittleEndianInt16(volume, value);
     return controlRequest(devh, kLibusbEndpointOut, kSetCur, control, interfaceNumber, value, 2);
 }
 
@@ -108,7 +108,7 @@ bool readVolumeRange(
     if (uacVersion == 2) {
         uint8_t range[kUac2RangeBytes] = {};
         const int rc = controlRequest(devh, kLibusbEndpointIn, kUac2Range, control, interfaceNumber, range, kUac2RangeBytes);
-        return rc > 0 && neri::usb::control::decodeUac2VolumeRange(
+        return rc > 0 && memi::usb::control::decodeUac2VolumeRange(
             range,
             static_cast<size_t>(rc),
             &volume->minimum,
@@ -122,8 +122,8 @@ bool readVolumeRange(
         controlRequest(devh, kLibusbEndpointIn, kUac1GetMax, control, interfaceNumber, high, 2) != 2) {
         return false;
     }
-    volume->minimum = neri::usb::control::decodeLittleEndianInt16(low);
-    volume->maximum = neri::usb::control::decodeLittleEndianInt16(high);
+    volume->minimum = memi::usb::control::decodeLittleEndianInt16(low);
+    volume->maximum = memi::usb::control::decodeLittleEndianInt16(high);
     // 读不到步进时保持 1/256 dB，与原先直接写目标值一致
     uint8_t step[2] = {};
     if (controlRequest(devh, kLibusbEndpointIn, kUac1GetRes, control, interfaceNumber, step, 2) == 2) {
@@ -156,7 +156,7 @@ void applyMute(UsbExclusiveHandle* handle, const FeatureUnitControl& control, Ap
         return;
     }
     result->mutes.push_back(control);
-    state.restore.push_back(FeatureUnitRestoreEntry { control, neri::usb::control::muteRestoreValue(known, current) });
+    state.restore.push_back(FeatureUnitRestoreEntry { control, memi::usb::control::muteRestoreValue(known, current) });
 }
 
 void applyVolume(UsbExclusiveHandle* handle, const FeatureUnitControl& control, ApplyResult* result) {
@@ -170,8 +170,8 @@ void applyVolume(UsbExclusiveHandle* handle, const FeatureUnitControl& control, 
     const uint8_t getCur = handle->device.uacVersion == 2 ? kUac2Cur : kUac1GetCur;
     uint8_t current[2] = {};
     const bool known = controlRequest(devh, kLibusbEndpointIn, getCur, control, state.interfaceNumber, current, 2) == 2;
-    const int16_t unity = neri::usb::control::quantizeVolumeToResolution(
-        neri::usb::control::unityVolumeWithinRange(volume.minimum, volume.maximum),
+    const int16_t unity = memi::usb::control::quantizeVolumeToResolution(
+        memi::usb::control::unityVolumeWithinRange(volume.minimum, volume.maximum),
         volume.minimum,
         volume.maximum,
         volume.resolution
@@ -183,7 +183,7 @@ void applyVolume(UsbExclusiveHandle* handle, const FeatureUnitControl& control, 
     }
     result->volumes.push_back(volume);
     if (known) {
-        state.restore.push_back(FeatureUnitRestoreEntry { control, neri::usb::control::decodeLittleEndianInt16(current) });
+        state.restore.push_back(FeatureUnitRestoreEntry { control, memi::usb::control::decodeLittleEndianInt16(current) });
     }
 }
 
@@ -223,21 +223,21 @@ void applyBitPerfectFeatureUnits(UsbExclusiveHandle* handle) {
         return;
     }
     const std::vector<uint8_t> descriptors = audioControlDescriptors(handle->device.devh, state.interfaceNumber);
-    const auto controls = neri::usb::control::findPlaybackFeatureUnitControls(
+    const auto controls = memi::usb::control::findPlaybackFeatureUnitControls(
         descriptors.data(),
         descriptors.size(),
         handle->device.uacVersion
     );
     ApplyResult result;
     for (const auto& control : controls) {
-        if (control.selector == neri::usb::control::kFeatureUnitMuteSelector) {
+        if (control.selector == memi::usb::control::kFeatureUnitMuteSelector) {
             applyMute(handle, control, &result);
         } else {
             applyVolume(handle, control, &result);
         }
         if (result.deviceGone) break;
     }
-    state.hardwareVolume = neri::usb::control::selectHardwareVolumeControls(result.volumes);
+    state.hardwareVolume = memi::usb::control::selectHardwareVolumeControls(result.volumes);
     if (!state.hardwareVolume.empty()) {
         state.hardwareMute = mutesOfUnit(result.mutes, state.hardwareVolume.front().control.unitId);
     }
@@ -259,7 +259,7 @@ bool setHardwareVolumeFraction(UsbExclusiveHandle* handle, float fraction) {
     if (std::fabs(target - state.appliedFraction) < kVolumeFractionEpsilon) return true;
     bool applied = false;
     for (const auto& volume : state.hardwareVolume) {
-        const int16_t value = neri::usb::control::hardwareVolumeForFraction(
+        const int16_t value = memi::usb::control::hardwareVolumeForFraction(
             target,
             volume.minimum,
             volume.maximum,
@@ -296,7 +296,7 @@ void releaseFeatureUnits(UsbExclusiveHandle* handle, bool restoreDevice) {
     }
     size_t restored = 0;
     for (auto entry = state.restore.rbegin(); entry != state.restore.rend(); ++entry) {
-        const bool mute = entry->control.selector == neri::usb::control::kFeatureUnitMuteSelector;
+        const bool mute = entry->control.selector == memi::usb::control::kFeatureUnitMuteSelector;
         const int rc = mute
             ? setMute(handle->device.devh, entry->control, state.interfaceNumber, entry->value != 0)
             : setVolume(handle->device.devh, entry->control, state.interfaceNumber, entry->value);
@@ -309,13 +309,13 @@ void releaseFeatureUnits(UsbExclusiveHandle* handle, bool restoreDevice) {
     resetFeatureUnitStateLocked(&state);
 }
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive
 
-using neri::usb::exclusive::acquireHandle;
+using memi::usb::exclusive::acquireHandle;
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeSetHardwareVolume(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeSetHardwareVolume(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -326,12 +326,12 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
     if (holder == nullptr || holder->recovery.closing.load() || !holder->recovery.deviceOnline.load()) {
         return JNI_FALSE;
     }
-    return neri::usb::exclusive::setHardwareVolumeFraction(holder.get(), static_cast<float>(fraction)) ? JNI_TRUE : JNI_FALSE;
+    return memi::usb::exclusive::setHardwareVolumeFraction(holder.get(), static_cast<float>(fraction)) ? JNI_TRUE : JNI_FALSE;
 }
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeHasHardwareVolume(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeHasHardwareVolume(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -339,5 +339,5 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
     static_cast<void>(env);
     const auto holder = acquireHandle(handleValue);
     if (holder == nullptr || holder->recovery.closing.load()) return JNI_FALSE;
-    return neri::usb::exclusive::hasHardwareVolume(holder.get()) ? JNI_TRUE : JNI_FALSE;
+    return memi::usb::exclusive::hasHardwareVolume(holder.get()) ? JNI_TRUE : JNI_FALSE;
 }

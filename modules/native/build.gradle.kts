@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.nativebridge"
+    namespace = "com.mmc.merimusicplayer.nativebridge"
 
     defaultConfig {
         externalNativeBuild {

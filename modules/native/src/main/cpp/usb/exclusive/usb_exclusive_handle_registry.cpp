@@ -13,12 +13,12 @@
 #include <thread>
 #include <unordered_map>
 
-#define LOG_TAG "NeriUsbExclusive"
+#define LOG_TAG "MemiUsbExclusive"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 
 struct ParkedHandleSlot {
     std::shared_ptr<UsbExclusiveHandle> handle;
@@ -474,7 +474,7 @@ bool closeHandleInternal(const std::shared_ptr<UsbExclusiveHandle>& handle) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeClose(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeClose(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -504,4 +504,4 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
     markInterfaceTransitionLocked();
 }
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive

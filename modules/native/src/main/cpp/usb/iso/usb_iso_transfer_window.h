@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace neri::usb {
+namespace memi::usb {
 
 constexpr int kDefaultIsoPacketsPerTransfer = 32;
 constexpr int kMinimumIsoTransferCount = 8;
@@ -229,4 +229,4 @@ inline bool shouldRetireIsoReserveTransfer(
         activeTransferCount > targetTransferCount;
 }
 
-} // namespace neri::usb
+} // namespace memi::usb

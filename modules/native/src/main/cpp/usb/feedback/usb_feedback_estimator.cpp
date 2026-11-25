@@ -6,7 +6,7 @@
 #include <array>
 #include <limits>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 namespace {
 
 bool incrementChecked(uint64_t* value) {
@@ -230,4 +230,4 @@ FeedbackEstimateResult FeedbackEstimator::reject(
     return result;
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

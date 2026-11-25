@@ -7,13 +7,13 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackMathStatus;
-using neri::usb::feedback::FeedbackRateQ32;
-using neri::usb::feedback::kQ32One;
+using memi::usb::feedback::FeedbackMathStatus;
+using memi::usb::feedback::FeedbackRateQ32;
+using memi::usb::feedback::kQ32One;
 
 void verifiesRateConstructionAndPpmMath() {
     FeedbackRateQ32 rate = 0;
-    assert(neri::usb::feedback::makeFeedbackRateQ32(44100, 1000, &rate) ==
+    assert(memi::usb::feedback::makeFeedbackRateQ32(44100, 1000, &rate) ==
         FeedbackMathStatus::Ok);
     const uint64_t expected =
         (UINT64_C(44100) * kQ32One + 500U) / 1000U;
@@ -22,16 +22,16 @@ void verifiesRateConstructionAndPpmMath() {
     const FeedbackRateQ32 reference = UINT64_C(48) * kQ32One;
     const FeedbackRateQ32 shifted = reference + reference / 10000U;
     uint32_t ppm = 0;
-    assert(neri::usb::feedback::computeRateDeltaPpm(
+    assert(memi::usb::feedback::computeRateDeltaPpm(
         shifted,
         reference,
         &ppm
     ) == FeedbackMathStatus::Ok);
     assert(ppm == 100U);
-    assert(neri::usb::feedback::computeRateDeltaPpm(3, 2, &ppm) ==
+    assert(memi::usb::feedback::computeRateDeltaPpm(3, 2, &ppm) ==
         FeedbackMathStatus::Ok);
     assert(ppm == 500000U);
-    assert(neri::usb::feedback::computeRateDeltaPpm(1, 3, &ppm) ==
+    assert(memi::usb::feedback::computeRateDeltaPpm(1, 3, &ppm) ==
         FeedbackMathStatus::Ok);
     assert(ppm == 666667U);
 }
@@ -39,7 +39,7 @@ void verifiesRateConstructionAndPpmMath() {
 void verifiesExplicitNormalizationMath() {
     FeedbackRateQ32 normalized = 0;
     const uint64_t rawQ16 = UINT64_C(48) << 16U;
-    assert(neri::usb::feedback::normalizeFeedbackRateQ32(
+    assert(memi::usb::feedback::normalizeFeedbackRateQ32(
         rawQ16,
         16,
         1000,
@@ -50,7 +50,7 @@ void verifiesExplicitNormalizationMath() {
     ) == FeedbackMathStatus::Ok);
     assert(normalized == UINT64_C(6) * kQ32One);
 
-    assert(neri::usb::feedback::normalizeFeedbackRateQ32(
+    assert(memi::usb::feedback::normalizeFeedbackRateQ32(
         rawQ16,
         16,
         1000,
@@ -63,21 +63,21 @@ void verifiesExplicitNormalizationMath() {
 }
 
 void convertsServiceIntervalRateToHz() {
-    using neri::usb::feedback::feedbackRateHz;
+    using memi::usb::feedback::feedbackRateHz;
     FeedbackRateQ32 rate = 0;
-    assert(neri::usb::feedback::makeFeedbackRateQ32(48000, 8000, &rate) ==
+    assert(memi::usb::feedback::makeFeedbackRateQ32(48000, 8000, &rate) ==
         FeedbackMathStatus::Ok);
     assert(feedbackRateHz(rate, 8000) == 48000.0);
-    assert(neri::usb::feedback::makeFeedbackRateQ32(44100, 8000, &rate) ==
+    assert(memi::usb::feedback::makeFeedbackRateQ32(44100, 8000, &rate) ==
         FeedbackMathStatus::Ok);
     assert(std::abs(feedbackRateHz(rate, 8000) - 44100.0) < 1e-6);
-    assert(neri::usb::feedback::makeFeedbackRateQ32(44100, 1000, &rate) ==
+    assert(memi::usb::feedback::makeFeedbackRateQ32(44100, 1000, &rate) ==
         FeedbackMathStatus::Ok);
     assert(std::abs(feedbackRateHz(rate, 1000) - 44100.0) < 1e-6);
 
     // 高速 bInterval=2：反馈按输出服务间隔（2 个微帧）归一化，服务间隔为每秒 4000 个
     FeedbackRateQ32 normalized = 0;
-    assert(neri::usb::feedback::normalizeFeedbackRateQ32(
+    assert(memi::usb::feedback::normalizeFeedbackRateQ32(
         UINT64_C(6) << 16U,
         16,
         8000,
@@ -100,7 +100,7 @@ void normalizesReducibleWideFeedbackWithoutFalseOverflow() {
     constexpr uint64_t exactRaw = multiplier * scaleDenominator;
     constexpr uint64_t expected = multiplier * scaleNumerator;
     FeedbackRateQ32 normalized = 0;
-    assert(neri::usb::feedback::normalizeFeedbackRateQ32(
+    assert(memi::usb::feedback::normalizeFeedbackRateQ32(
         exactRaw - 1U,
         32,
         1,
@@ -110,7 +110,7 @@ void normalizesReducibleWideFeedbackWithoutFalseOverflow() {
         &normalized
     ) == FeedbackMathStatus::Ok);
     assert(normalized == expected - 1U);
-    assert(neri::usb::feedback::normalizeFeedbackRateQ32(
+    assert(memi::usb::feedback::normalizeFeedbackRateQ32(
         exactRaw,
         32,
         1,
@@ -120,7 +120,7 @@ void normalizesReducibleWideFeedbackWithoutFalseOverflow() {
         &normalized
     ) == FeedbackMathStatus::Ok);
     assert(normalized == expected);
-    assert(neri::usb::feedback::normalizeFeedbackRateQ32(
+    assert(memi::usb::feedback::normalizeFeedbackRateQ32(
         exactRaw + 1U,
         32,
         1,
@@ -134,11 +134,11 @@ void normalizesReducibleWideFeedbackWithoutFalseOverflow() {
 
 void verifiesLongDurationProjectionWithoutIteration() {
     FeedbackRateQ32 rate = 0;
-    assert(neri::usb::feedback::makeFeedbackRateQ32(44100, 8000, &rate) ==
+    assert(memi::usb::feedback::makeFeedbackRateQ32(44100, 8000, &rate) ==
         FeedbackMathStatus::Ok);
     constexpr uint64_t seconds = 72U * 60U * 60U;
     constexpr uint64_t intervals = seconds * 8000U;
-    const auto projection = neri::usb::feedback::projectScheduledFrames(
+    const auto projection = memi::usb::feedback::projectScheduledFrames(
         rate,
         0,
         intervals
@@ -151,7 +151,7 @@ void verifiesLongDurationProjectionWithoutIteration() {
     assert(frameError <= 1U);
 
     const auto highIntervalProjection =
-        neri::usb::feedback::projectScheduledFrames(
+        memi::usb::feedback::projectScheduledFrames(
             kQ32One + (kQ32One / 2U),
             static_cast<uint32_t>(kQ32One / 4U),
             kQ32One + 3U
@@ -164,11 +164,11 @@ void verifiesLongDurationProjectionWithoutIteration() {
 
 void rejectsInvalidAndOverflowingMath() {
     FeedbackRateQ32 output = 0;
-    assert(neri::usb::feedback::makeFeedbackRateQ32(0, 1000, &output) ==
+    assert(memi::usb::feedback::makeFeedbackRateQ32(0, 1000, &output) ==
         FeedbackMathStatus::InvalidArgument);
-    assert(neri::usb::feedback::makeFeedbackRateQ32(768001, 1000, &output) ==
+    assert(memi::usb::feedback::makeFeedbackRateQ32(768001, 1000, &output) ==
         FeedbackMathStatus::OutOfRange);
-    assert(neri::usb::feedback::normalizeFeedbackRateQ32(
+    assert(memi::usb::feedback::normalizeFeedbackRateQ32(
         std::numeric_limits<uint64_t>::max() - 1U,
         0,
         8000,
@@ -177,7 +177,7 @@ void rejectsInvalidAndOverflowingMath() {
         1,
         &output
     ) == FeedbackMathStatus::Overflow);
-    const auto projection = neri::usb::feedback::projectScheduledFrames(
+    const auto projection = memi::usb::feedback::projectScheduledFrames(
         std::numeric_limits<uint64_t>::max(),
         0,
         std::numeric_limits<uint64_t>::max()

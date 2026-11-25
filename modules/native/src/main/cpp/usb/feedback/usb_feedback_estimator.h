@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 constexpr size_t kMaxFeedbackMedianWindow = 9;
 
@@ -86,4 +86,4 @@ private:
     uint32_t consecutiveRejected_ = 0;
 };
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

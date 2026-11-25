@@ -19,7 +19,7 @@ if SCRIPT.exists():
 
 ROOT_FOCUS = "androidx.test.espresso.base.RootViewPicker$RootViewWithoutFocusException: missing focus"
 NATIVE_FOCUS = "java.lang.AssertionError: 原生触摸目标窗口未就绪: attached=true, shown=true, focused=false"
-OVERLAY_CLASS = "moe.ouom.neriplayer.ui.component.overlay.OverlayWindowNavigationBarPolicyTest"
+OVERLAY_CLASS = "com.mmc.merimusicplayer.ui.component.overlay.OverlayWindowNavigationBarPolicyTest"
 OVERLAY_NAME = "immersiveSheetKeepsItsOwnNavigationHiddenThroughFocusAndReopen"
 OVERLAY_TIMEOUT = (
     "androidx.compose.ui.test.ComposeTimeoutException: Condition "
@@ -109,12 +109,12 @@ class ConnectedTestsRecoveryTest(unittest.TestCase):
         self.assertEqual((self.module_runs, self.app_runs), (2, 2))
         gradle = [command for command in self.commands if command[0] == "./gradlew"]
         self.assertEqual(gradle[:2], gradle[2:])
-        self.assertIn("-Pandroid.testInstrumentationRunnerArguments.notAnnotation=moe.ouom.neriplayer.testing.ManualInstrumentedTest", gradle[1])
+        self.assertIn("-Pandroid.testInstrumentationRunnerArguments.notAnnotation=com.mmc.merimusicplayer.testing.ManualInstrumentedTest", gradle[1])
         self.assertIn("-Pandroid.testInstrumentationRunnerArguments.shardIndex=2", gradle[1])
         self.assertIn("--no-daemon", gradle[1])
         self.assertIn("-Pkotlin.compiler.execution.strategy=in-process", gradle[1])
         self.assertEqual([c for c in self.commands if c[0] == "adb"], [
-            ["adb", "-s", "emulator-5554", "shell", "am", "force-stop", "moe.ouom.neriplayer.debug"],
+            ["adb", "-s", "emulator-5554", "shell", "am", "force-stop", "com.mmc.merimusicplayer.debug"],
             ["adb", "-s", "emulator-5554", "shell", "am", "start", "-W", "-a", "android.settings.SETTINGS"],
         ])
         archive = self.root / "build/reports/emulator-host/focus-recovery-attempt-1.zip"

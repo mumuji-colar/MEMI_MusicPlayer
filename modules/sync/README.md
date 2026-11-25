@@ -6,9 +6,9 @@
 
 ## 🧩 结构 / Layout
 
-源码位于 `src/main/java/moe/ouom/neriplayer`。
+源码位于 `src/main/java/com/mmc/merimusicplayer`。
 
-Sources are in `src/main/java/moe/ouom/neriplayer`.
+Sources are in `src/main/java/com/mmc/merimusicplayer`.
 
 - `api/sync`：GitHub/WebDAV 请求与响应 / GitHub/WebDAV requests and responses
 - `data/sync/archive`：V4 可逆记录压缩、ZSTD、Merkle 校验与块缓存 / V4 reversible record packing, ZSTD, Merkle validation, and chunk cache
@@ -20,13 +20,13 @@ Sources are in `src/main/java/moe/ouom/neriplayer`.
 
 | 项目 | 规范 |
 | --- | --- |
-| 发布入口与标识 | 沿用 `neriplayer-sync-v3.manifest` 作为唯一发布文件名，内容封装标识为 `NPSYNC04`，数据对象使用 `neriplayer-sync-v4-` 前缀 |
+| 发布入口与标识 | 沿用 `memiplayer-sync-v3.manifest` 作为唯一发布文件名，内容封装标识为 `NPSYNC04`，数据对象使用 `memiplayer-sync-v4-` 前缀 |
 | 版本校验 | 显式记录协议与 record schema 版本；缺失 V4 版本字段或遇到未知未来版本时，立即中止读取与发布 |
 | 迁移与多端要求 | 传统 JSON/GZIP 与 V3 格式仅供只读迁移；旧客户端无法写入 V4，迁移前须确保共用同一同步目标的所有设备均已升级 |
 
 | Item | Specification |
 | --- | --- |
-| Publication Entry & Prefix | Retains `neriplayer-sync-v3.manifest` as the sole publication filename with envelope `NPSYNC04` and object prefix `neriplayer-sync-v4-` |
+| Publication Entry & Prefix | Retains `memiplayer-sync-v3.manifest` as the sole publication filename with envelope `NPSYNC04` and object prefix `memiplayer-sync-v4-` |
 | Version Validation | Stores explicit protocol and record schema versions; missing V4 version fields or unknown future versions abort both reads and publication |
 | Migration & Device Requirement | Legacy JSON/GZIP and V3 formats are read-only for migration; older clients cannot write V4, so all devices sharing a target must be updated before migrating |
 

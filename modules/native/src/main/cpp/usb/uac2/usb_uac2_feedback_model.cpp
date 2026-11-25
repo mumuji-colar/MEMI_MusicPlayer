@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 namespace {
 
 constexpr uint8_t kEndpointDescriptorType = 0x05;
@@ -593,4 +593,4 @@ const char* endpointCapacitySourceName(EndpointCapacitySource source) {
     return "unknown";
 }
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

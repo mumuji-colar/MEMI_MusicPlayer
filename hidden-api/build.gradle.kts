@@ -3,5 +3,5 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.hiddenapi"
+    namespace = "com.mmc.merimusicplayer.hiddenapi"
 }

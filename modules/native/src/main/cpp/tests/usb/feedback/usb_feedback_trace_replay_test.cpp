@@ -11,19 +11,19 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackClock;
-using neri::usb::feedback::FeedbackClockConfig;
-using neri::usb::feedback::FeedbackClockState;
-using neri::usb::feedback::FeedbackDecodeInput;
-using neri::usb::feedback::FeedbackDecodeProfile;
-using neri::usb::feedback::FeedbackEstimateStatus;
-using neri::usb::feedback::FeedbackEstimator;
-using neri::usb::feedback::FeedbackEstimatorConfig;
-using neri::usb::feedback::FeedbackMathStatus;
-using neri::usb::feedback::FeedbackPacketScheduler;
-using neri::usb::feedback::FeedbackRawUnit;
-using neri::usb::feedback::FeedbackRateQ32;
-using neri::usb::feedback::kQ32One;
+using memi::usb::feedback::FeedbackClock;
+using memi::usb::feedback::FeedbackClockConfig;
+using memi::usb::feedback::FeedbackClockState;
+using memi::usb::feedback::FeedbackDecodeInput;
+using memi::usb::feedback::FeedbackDecodeProfile;
+using memi::usb::feedback::FeedbackEstimateStatus;
+using memi::usb::feedback::FeedbackEstimator;
+using memi::usb::feedback::FeedbackEstimatorConfig;
+using memi::usb::feedback::FeedbackMathStatus;
+using memi::usb::feedback::FeedbackPacketScheduler;
+using memi::usb::feedback::FeedbackRawUnit;
+using memi::usb::feedback::FeedbackRateQ32;
+using memi::usb::feedback::kQ32One;
 
 uint64_t seedFromEnvironment() {
     const char* value = std::getenv("NERI_USB_TEST_SEED");
@@ -104,7 +104,7 @@ void replaysJitterLossAndRelockDeterministically() {
             }
             std::array<uint8_t, 4> payload {};
             writesLittleEndian(rawForPpm(ppm), &payload);
-            const auto decoded = neri::usb::feedback::decodeFeedbackSample(
+            const auto decoded = memi::usb::feedback::decodeFeedbackSample(
                 profile,
                 FeedbackDecodeInput {
                     payload.data(),

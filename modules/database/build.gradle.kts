@@ -6,7 +6,7 @@ plugins {
 }
 
 extensions.configure<LibraryExtension> {
-    namespace = "moe.ouom.neriplayer.data.database"
+    namespace = "com.mmc.merimusicplayer.data.database"
     defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     sourceSets.getByName("androidTest").assets.directories.add("schemas")
 }

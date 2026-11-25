@@ -8,13 +8,13 @@
 
 namespace {
 
-using neri::usb::uac2::ConfigurationSnapshot;
-using neri::usb::uac2::DescriptorValidationStatus;
-using neri::usb::uac2::EndpointCapacitySource;
-using neri::usb::uac2::EndpointSnapshot;
-using neri::usb::uac2::FeedbackAssociationKind;
-using neri::usb::uac2::FeedbackMode;
-using neri::usb::uac2::FeedbackResolverPolicy;
+using memi::usb::uac2::ConfigurationSnapshot;
+using memi::usb::uac2::DescriptorValidationStatus;
+using memi::usb::uac2::EndpointCapacitySource;
+using memi::usb::uac2::EndpointSnapshot;
+using memi::usb::uac2::FeedbackAssociationKind;
+using memi::usb::uac2::FeedbackMode;
+using memi::usb::uac2::FeedbackResolverPolicy;
 
 constexpr uint8_t kIsoDataAsync = 0x05;
 constexpr uint8_t kIsoDataAdaptive = 0x09;
@@ -70,7 +70,7 @@ FeedbackResolverPolicy verifiedTimingPolicy(
     std::string profileId = "fixture-hs"
 ) {
     FeedbackResolverPolicy policy;
-    policy.timing = neri::usb::uac2::FeedbackTimingEvidence {
+    policy.timing = memi::usb::uac2::FeedbackTimingEvidence {
         true,
         outputAddress,
         feedbackAddress,
@@ -88,7 +88,7 @@ void resolvesStandardEndpointNumberAndRequiresTiming() {
     const EndpointSnapshot feedback = makeStandardFeedback();
     const ConfigurationSnapshot configuration = configurationOf({ output, feedback });
 
-    auto result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    auto result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configuration, output
     );
     assert(result.structuralStatus == DescriptorValidationStatus::Valid);
@@ -98,13 +98,13 @@ void resolvesStandardEndpointNumberAndRequiresTiming() {
     assert(!result.eligible);
     assert(result.reason == "timing_profile_unknown");
 
-    result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configuration, output, verifiedTimingPolicy()
     );
     assert(result.status == DescriptorValidationStatus::Valid);
     assert(result.eligible);
     assert(result.feedback.endpointAddress == 0x86);
-    assert(std::string(neri::usb::uac2::feedbackAssociationKindName(
+    assert(std::string(memi::usb::uac2::feedbackAssociationKindName(
         result.association
     )) == "endpoint_number");
 }
@@ -114,7 +114,7 @@ void acceptsNonStandardShapeOnlyWithSignedAssociationProfile() {
     const EndpointSnapshot feedback = makeNonStandardFeedback();
     const ConfigurationSnapshot configuration = configurationOf({ output, feedback });
 
-    auto result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    auto result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configuration,
         output,
         verifiedTimingPolicy(0x06, 0x87)
@@ -124,7 +124,7 @@ void acceptsNonStandardShapeOnlyWithSignedAssociationProfile() {
 
     FeedbackResolverPolicy policy = verifiedTimingPolicy(0x06, 0x87);
     policy.nonStandardAssociationProfileId = "synthetic-signed-endpoint-order";
-    result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configuration, output, policy
     );
     assert(result.status == DescriptorValidationStatus::Valid);
@@ -134,7 +134,7 @@ void acceptsNonStandardShapeOnlyWithSignedAssociationProfile() {
 
 void rejectsMissingAmbiguousAndWrongAssociation() {
     const EndpointSnapshot output = makeOutput();
-    auto result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    auto result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ output }), output, verifiedTimingPolicy()
     );
     assert(result.status == DescriptorValidationStatus::Missing);
@@ -143,7 +143,7 @@ void rejectsMissingAmbiguousAndWrongAssociation() {
     const EndpointSnapshot second = makeNonStandardFeedback();
     FeedbackResolverPolicy quirk = verifiedTimingPolicy();
     quirk.nonStandardAssociationProfileId = "profile";
-    result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ output, first, second }), output, quirk
     );
     assert(result.status == DescriptorValidationStatus::Valid);
@@ -152,7 +152,7 @@ void rejectsMissingAmbiguousAndWrongAssociation() {
 
     EndpointSnapshot wrong = makeEndpoint(9, 5, 0x86, 0x12, 4);
     wrong.bInterval = 3;
-    result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ output, wrong }), output, verifiedTimingPolicy()
     );
     assert(result.status == DescriptorValidationStatus::Invalid);
@@ -164,14 +164,14 @@ void rejectsMalformedDescriptorAndCapacity() {
     EndpointSnapshot feedback = makeStandardFeedback();
     feedback.effectiveCapacityKnown = false;
     feedback.effectiveMaxPacketBytes = 0;
-    auto result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    auto result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ output, feedback }), output, verifiedTimingPolicy()
     );
     assert(result.status == DescriptorValidationStatus::CapacityUnknown);
 
     feedback = makeStandardFeedback();
     feedback.descriptorLength = 9;
-    result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ output, feedback }), output, verifiedTimingPolicy()
     );
     assert(result.status == DescriptorValidationStatus::Invalid);
@@ -179,7 +179,7 @@ void rejectsMalformedDescriptorAndCapacity() {
 
     feedback = makeStandardFeedback();
     feedback.rawMaxPacketSize = 0x1804;
-    result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ output, feedback }), output, verifiedTimingPolicy()
     );
     assert(result.status == DescriptorValidationStatus::Invalid);
@@ -188,7 +188,7 @@ void rejectsMalformedDescriptorAndCapacity() {
     feedback = makeStandardFeedback();
     feedback.rawMaxPacketSize = 0x0801;
     feedback.effectiveMaxPacketBytes = 2;
-    result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ output, feedback }), output, verifiedTimingPolicy()
     );
     assert(result.status == DescriptorValidationStatus::Invalid);
@@ -198,7 +198,7 @@ void rejectsMalformedDescriptorAndCapacity() {
 void rejectsDuplicatesImplicitAndNonAsync() {
     const EndpointSnapshot output = makeOutput();
     const EndpointSnapshot feedback = makeStandardFeedback();
-    auto result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    auto result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ output, feedback, feedback }),
         output,
         verifiedTimingPolicy()
@@ -208,7 +208,7 @@ void rejectsDuplicatesImplicitAndNonAsync() {
 
     EndpointSnapshot implicit = output;
     implicit.bmAttributes = kIsoImplicitAsync;
-    result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ implicit }), implicit, verifiedTimingPolicy()
     );
     assert(result.status == DescriptorValidationStatus::Unsupported);
@@ -216,7 +216,7 @@ void rejectsDuplicatesImplicitAndNonAsync() {
 
     EndpointSnapshot adaptive = output;
     adaptive.bmAttributes = kIsoDataAdaptive;
-    result = neri::usb::uac2::resolveExplicitFeedbackEndpoint(
+    result = memi::usb::uac2::resolveExplicitFeedbackEndpoint(
         configurationOf({ adaptive }), adaptive, verifiedTimingPolicy()
     );
     assert(result.status == DescriptorValidationStatus::Invalid);
@@ -224,10 +224,10 @@ void rejectsDuplicatesImplicitAndNonAsync() {
 }
 
 void exposesStableNames() {
-    assert(std::string(neri::usb::uac2::descriptorValidationStatusName(
+    assert(std::string(memi::usb::uac2::descriptorValidationStatusName(
         DescriptorValidationStatus::QuirkRequired
     )) == "quirk_required");
-    assert(std::string(neri::usb::uac2::endpointCapacitySourceName(
+    assert(std::string(memi::usb::uac2::endpointCapacitySourceName(
         EndpointCapacitySource::StandardDescriptor
     )) == "standard_descriptor");
 }

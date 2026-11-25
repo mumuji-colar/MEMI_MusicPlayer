@@ -4,10 +4,10 @@
 #include <limits>
 
 int main() {
-    using neri::usb::kIsoPacketErrorFailureScore;
-    using neri::usb::completedIsoPacketBytes;
-    using neri::usb::shouldFailForIsoPacketErrors;
-    using neri::usb::updateIsoPacketErrorScore;
+    using memi::usb::kIsoPacketErrorFailureScore;
+    using memi::usb::completedIsoPacketBytes;
+    using memi::usb::shouldFailForIsoPacketErrors;
+    using memi::usb::updateIsoPacketErrorScore;
 
     int score = updateIsoPacketErrorScore(0, 1);
     assert(score == 1);

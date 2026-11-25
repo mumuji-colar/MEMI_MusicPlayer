@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 enum class StreamGatePacketStatus {
     NotRunning,
@@ -76,4 +76,4 @@ private:
 
 const char* streamGatePacketStatusName(StreamGatePacketStatus status);
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

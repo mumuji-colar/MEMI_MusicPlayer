@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 
 enum class ClockEntityKind {
     Unknown,
@@ -89,4 +89,4 @@ ClockGraphResult resolveTerminalClockSource(
 const char* clockGraphStatusName(ClockGraphStatus status);
 const char* clockValidityStateName(ClockValidityState state);
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

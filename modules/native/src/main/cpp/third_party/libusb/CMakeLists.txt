@@ -1,6 +1,6 @@
-add_library(neri_libusb_headers INTERFACE)
+add_library(memi_libusb_headers INTERFACE)
 target_include_directories(
-    neri_libusb_headers
+    memi_libusb_headers
     INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/.."
 )
@@ -10,7 +10,7 @@ if(NOT ANDROID)
 endif()
 
 add_library(
-    neri_libusb
+    memi_libusb
     STATIC
     core.c
     descriptor.c
@@ -23,17 +23,17 @@ add_library(
     os/events_posix.c
     os/threads_posix.c
 )
-set_target_properties(neri_libusb PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(memi_libusb PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(
-    neri_libusb
+    memi_libusb
     PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/os"
 )
-target_link_libraries(neri_libusb PUBLIC neri_libusb_headers)
-target_compile_definitions(neri_libusb PRIVATE HAVE_CONFIG_H)
+target_link_libraries(memi_libusb PUBLIC memi_libusb_headers)
+target_compile_definitions(memi_libusb PRIVATE HAVE_CONFIG_H)
 target_compile_options(
-    neri_libusb
+    memi_libusb
     PRIVATE
     -w
     -ffunction-sections
@@ -43,5 +43,5 @@ target_compile_options(
 
 if(CMAKE_ANDROID_ARCH_ABI STREQUAL "arm64-v8a" OR
    CMAKE_ANDROID_ARCH_ABI STREQUAL "x86_64")
-    target_compile_options(neri_libusb PRIVATE -fomit-frame-pointer)
+    target_compile_options(memi_libusb PRIVATE -fomit-frame-pointer)
 endif()

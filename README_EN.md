@@ -204,7 +204,7 @@ Go to [GitHub Releases](https://github.com/mumuji-colar/MEMI_MusicPlayer/release
 | Item | Value |
 | :--- | :--- |
 | Published ABI | **`arm64-v8a`** (64-bit ARM; covers most devices from 2018 onward) |
-| Package name | `com.mmc.merimusicplayer` (independent from upstream `moe.ouom.neriplayer`; both can be installed side by side) |
+| Package name | `com.mmc.merimusicplayer` (independent from upstream `com.mmc.merimusicplayer`; both can be installed side by side) |
 | Minimum system | Android 9 / API 28 |
 | License | GPL-3.0 |
 
@@ -242,7 +242,7 @@ Go to [GitHub Releases](https://github.com/mumuji-colar/MEMI_MusicPlayer/release
 
 > Debug builds are for testing only. Their performance and size do not represent Release builds.
 > Debug builds use `com.mmc.merimusicplayer.debug`, an orange launcher icon, and a `DEBUG` app-name suffix that also distinguishes themed icons. They can coexist with Release builds and keep separate app data.
-> Invitations shared by Debug use `neriplayer-debug://`. Regular invitation links can still be pasted into the app to join.
+> Invitations shared by Debug use `memiplayer-debug://`. Regular invitation links can still be pasted into the app to join.
 > A Debug build warning appears after onboarding. Once confirmed, it stays dismissed across updates; clearing app data or reinstalling resets it.
 
 To run from Android Studio, select the `app` run configuration and the `debug` variant

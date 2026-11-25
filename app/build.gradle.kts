@@ -56,7 +56,7 @@ val releaseSigningReady = releaseKeystoreFile.exists() &&
     !releaseKeyPassword.isNullOrBlank()
 
 android {
-    namespace = "moe.ouom.neriplayer"
+    namespace = "com.mmc.merimusicplayer"
     val suppliedBuildUuid = providers.gradleProperty("buildUuid")
         .orElse(providers.environmentVariable("NERI_BUILD_UUID")).orNull
     val buildUUID = suppliedBuildUuid?.let { value ->
@@ -101,18 +101,18 @@ android {
         // 正式版独立包名：与旧版音理音理互不影响，可并存安装
         applicationId = "com.mmc.merimusicplayer"
         // 正式版固定版本信息（v1.40 / 2614001）
-        versionCode = 2615001
-        versionName = "1.50"
-        val inviteScheme = "neriplayer"
+        versionCode = 2615101
+        versionName = "1.51"
+        val inviteScheme = "memiplayer"
         manifestPlaceholders["listenTogetherInviteScheme"] = inviteScheme
         buildConfigField("String", "LISTEN_TOGETHER_INVITE_SCHEME", "\"$inviteScheme\"")
 
         buildConfigField("String", "BUILD_UUID", "\"${buildUUID}\"")
-        buildConfigField("String", "TAG", "\"[NeriPlayer]\"")
+        buildConfigField("String", "TAG", "\"[MemiPlayer]\"")
         buildConfigField("long", "BUILD_TIMESTAMP", "${buildTimestamp}L")
 
 
-        testInstrumentationRunner = "moe.ouom.neriplayer.testing.NeriPlayerInstrumentationTestRunner"
+        testInstrumentationRunner = "com.mmc.merimusicplayer.testing.MemiPlayerInstrumentationTestRunner"
 
         renderscriptTargetApi = 31
         renderscriptSupportModeEnabled = true
@@ -124,7 +124,7 @@ android {
 
         debug {
             applicationIdSuffix = ".debug"
-            val inviteScheme = "neriplayer-debug"
+            val inviteScheme = "memiplayer-debug"
             manifestPlaceholders["listenTogetherInviteScheme"] = inviteScheme
             buildConfigField("String", "LISTEN_TOGETHER_INVITE_SCHEME", "\"$inviteScheme\"")
             enableUnitTestCoverage = true
@@ -154,7 +154,7 @@ android {
                 applicationIdSuffix = ".benchmark"
                 signingConfig = signingConfigs.getByName("debug")
                 matchingFallbacks += "release"
-                val inviteScheme = "neriplayer-benchmark"
+                val inviteScheme = "memiplayer-benchmark"
                 manifestPlaceholders["listenTogetherInviteScheme"] = inviteScheme
                 buildConfigField("String", "LISTEN_TOGETHER_INVITE_SCHEME", "\"$inviteScheme\"")
             }
@@ -433,7 +433,7 @@ androidComponents {
                 ?: ""
             output.outputFileName.set(
                 output.versionName.orElse("dev").map { versionName ->
-                    "NeriPlayer-${versionName}${abiSuffix}.apk"
+                    "MemiPlayer-${versionName}${abiSuffix}.apk"
                 }
             )
         }

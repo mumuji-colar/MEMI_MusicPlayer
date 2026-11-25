@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <mutex>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 enum class ExplicitFeedbackRuntimeState {
     Disabled,
@@ -113,4 +113,4 @@ private:
 const char* explicitFeedbackRuntimeStateName(ExplicitFeedbackRuntimeState state);
 const char* explicitFeedbackRuntimeFailureName(ExplicitFeedbackRuntimeFailure failure);
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

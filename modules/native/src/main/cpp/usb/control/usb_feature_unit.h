@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace neri::usb::control {
+namespace memi::usb::control {
 
 inline constexpr uint8_t kFeatureUnitMuteSelector = 0x01;
 inline constexpr uint8_t kFeatureUnitVolumeSelector = 0x02;
@@ -74,4 +74,4 @@ bool decodeUac2VolumeRange(
 int16_t decodeLittleEndianInt16(const uint8_t* data);
 void encodeLittleEndianInt16(int16_t value, uint8_t* output);
 
-} // namespace neri::usb::control
+} // namespace memi::usb::control

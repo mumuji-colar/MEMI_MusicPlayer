@@ -1,2 +1,2 @@
-add_library(neri_crash OBJECT native_crash_handler.cpp)
-neri_configure_owned_native_target(neri_crash)
+add_library(memi_crash OBJECT native_crash_handler.cpp)
+memi_configure_owned_native_target(memi_crash)

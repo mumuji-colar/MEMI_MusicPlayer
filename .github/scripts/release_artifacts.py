@@ -17,7 +17,7 @@ import zipfile
 
 
 UUID_PATTERN = re.compile(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}")
-RELEASE_BUILD_CONFIG = "app/build/generated/source/buildConfig/release/moe/ouom/neriplayer/BuildConfig.java"
+RELEASE_BUILD_CONFIG = "app/build/generated/source/buildConfig/release/com/mmc/merimusicplayer/BuildConfig.java"
 RELEASE_ABIS = ("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
 TAIPEI = timezone(timedelta(hours=8))
 

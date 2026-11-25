@@ -1,5 +1,5 @@
 add_library(
-    neri_usb_android
+    memi_usb_android
     OBJECT
     usb_exclusive_bridge.cpp
     usb_exclusive_device_selection.cpp
@@ -12,5 +12,5 @@ add_library(
     usb_exclusive_pcm_playback.cpp
     ../feedback/usb_libusb_feedback_backend.cpp
 )
-neri_configure_owned_native_target(neri_usb_android)
-target_link_libraries(neri_usb_android PRIVATE neri_usb_core neri_libusb)
+memi_configure_owned_native_target(memi_usb_android)
+target_link_libraries(memi_usb_android PRIVATE memi_usb_core memi_libusb)

@@ -1,6 +1,6 @@
 #include "usb/feedback/usb_feedback_stream_gate.h"
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 bool FeedbackStreamGate::configure(
     const FeedbackClockConfig& clockConfig,
@@ -197,4 +197,4 @@ const char* streamGatePacketStatusName(StreamGatePacketStatus status) {
     return "unknown";
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

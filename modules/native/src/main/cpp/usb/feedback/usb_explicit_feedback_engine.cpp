@@ -2,7 +2,7 @@
 
 #include <limits>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 namespace {
 
 bool acceptsCompletions(ExplicitFeedbackEngineState state) {
@@ -486,4 +486,4 @@ void ExplicitFeedbackEngine::increment(uint64_t* value) {
     }
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

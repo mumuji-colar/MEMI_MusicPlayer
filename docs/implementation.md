@@ -49,7 +49,7 @@
 
 共享业务契约统一放入 `modules/model`，沿用 `data.model.<业务>` 等既有包名；页面私有状态随 UI 维护，Room 实体随数据库维护，私有算法中间状态随算法维护。物理模块目录与 Kotlin 包名表达不同层次，包名与源码内部目录一致。调整类名时核对真实保存与读取方式；Worker 持久任务、JNI 导出和 Android 组件入口须保持兼容，字段、存储键与历史 schema 不能随目录整理改变。
 
-各模块维护自己的测试、资源与 consumer R8 规则，宿主集成测试保留在 app。Room 业务映射与本地仓库编排位于 `:local`，平台缓存适配位于 `:platform`；历史 schema 位于 `modules/database/schemas`。设置 schema 在 `:local` 运行 KSP，Compose 设置渲染留在 [app 的设置页面](../app/src/main/java/moe/ouom/neriplayer/ui/screen/tab/settings/)。`app` 不保留生产 `data` 目录，下载升级和依赖组装位于 `core/startup/legacy` 与 `core/integration`。
+各模块维护自己的测试、资源与 consumer R8 规则，宿主集成测试保留在 app。Room 业务映射与本地仓库编排位于 `:local`，平台缓存适配位于 `:platform`；历史 schema 位于 `modules/database/schemas`。设置 schema 在 `:local` 运行 KSP，Compose 设置渲染留在 [app 的设置页面](../app/src/main/java/com/mmc/merimusicplayer/ui/screen/tab/settings/)。`app` 不保留生产 `data` 目录，下载升级和依赖组装位于 `core/startup/legacy` 与 `core/integration`。
 
 运行 `./gradlew verifyModularization` 检查结构、JVM 测试、合并 CRAP 覆盖率、计算域依赖和 lint。`:native` 参与登记、结构与 lint 检查；纯 Native 模块不生成 JaCoCo 数据，现有 JVM 模块的覆盖率范围保持完整。Native host 测试和四 ABI 编译通过独立 CI 与模块任务验证，入口见 [:native README](../modules/native/README.md)。针对性任务见各模块 README，例如：
 
@@ -67,7 +67,7 @@ python3 -B tools_pub/quality/module_boundaries.py
 ## 入口与导航
 
 - `MainActivity` 是主界面入口，同时处理启动流程、通知权限、
-  外部音频导入、USB 设备插入事件和 `neriplayer://listen-together/join` 深链。
+  外部音频导入、USB 设备插入事件和 `memiplayer://listen-together/join` 深链。
   网页登录使用独立 Activity；蓝牙媒体验证入口和 `CarMediaBrowserService` 分别处理车载能力验证与曲库浏览。
 - 如果上次启动发生 JVM / Native 崩溃或系统 ANR，会优先进入 `Safe Mode`，
   只开放日志预览导出、配置导出、登录重置、设置重置和恢复正常启动。

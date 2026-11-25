@@ -1,6 +1,6 @@
 #include "usb/feedback/usb_feedback_types.h"
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 const char* feedbackMathStatusName(FeedbackMathStatus status) {
     switch (status) {
@@ -78,4 +78,4 @@ const char* feedbackClockFailureReasonName(FeedbackClockFailureReason reason) {
     return "unknown";
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

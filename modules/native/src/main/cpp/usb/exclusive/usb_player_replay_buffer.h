@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-namespace neri::usb {
+namespace memi::usb {
 
 class PlayerReplayBuffer final {
 public:
@@ -78,4 +78,4 @@ private:
     size_t queuedBytes_ = 0;
 };
 
-} // namespace neri::usb
+} // namespace memi::usb

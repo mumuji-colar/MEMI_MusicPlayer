@@ -9,16 +9,16 @@ namespace {
 constexpr int64_t kExpectedReportPeriodNs = 500'000;
 constexpr int64_t kSoftMissNs = 32'000'000;
 
-using neri::usb::feedback::ExplicitFeedbackRuntime;
-using neri::usb::feedback::ExplicitFeedbackRuntimeConfig;
-using neri::usb::feedback::ExplicitFeedbackRuntimeFailure;
-using neri::usb::feedback::ExplicitFeedbackRuntimeState;
-using neri::usb::feedback::FeedbackInCompletion;
-using neri::usb::feedback::FeedbackInCompletionStatus;
-using neri::usb::feedback::FeedbackClockFailureReason;
-using neri::usb::feedback::FeedbackClockState;
-using neri::usb::feedback::FeedbackRawUnit;
-using neri::usb::feedback::StreamGatePacketStatus;
+using memi::usb::feedback::ExplicitFeedbackRuntime;
+using memi::usb::feedback::ExplicitFeedbackRuntimeConfig;
+using memi::usb::feedback::ExplicitFeedbackRuntimeFailure;
+using memi::usb::feedback::ExplicitFeedbackRuntimeState;
+using memi::usb::feedback::FeedbackInCompletion;
+using memi::usb::feedback::FeedbackInCompletionStatus;
+using memi::usb::feedback::FeedbackClockFailureReason;
+using memi::usb::feedback::FeedbackClockState;
+using memi::usb::feedback::FeedbackRawUnit;
+using memi::usb::feedback::StreamGatePacketStatus;
 
 constexpr uint64_t q32(uint64_t value) {
     return value << 32U;

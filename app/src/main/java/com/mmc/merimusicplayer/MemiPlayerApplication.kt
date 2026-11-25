@@ -1,0 +1,227 @@
+package com.mmc.merimusicplayer
+
+/*
+ * NeriPlayer - A unified Android player for streaming music and videos from multiple online platforms.
+ * Copyright (C) 2025-2025 NeriPlayer developers
+ * https://github.com/cwuom/NeriPlayer
+ *
+ * This software is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software.
+ * If not, see <https://www.gnu.org/licenses/>.
+ *
+ * File: com.mmc.merimusicplayer/MemiPlayerApplication
+ * Created: 2025/8/19
+ */
+
+import android.app.Application
+import android.content.res.Configuration
+import android.os.Build
+import android.webkit.WebView
+import androidx.work.Configuration as WorkConfiguration
+import com.mmc.merimusicplayer.activity.UsbDeviceAttachHandling
+import com.mmc.merimusicplayer.core.di.AppContainer
+import com.mmc.merimusicplayer.core.di.player.installPlayerDependencies
+import com.mmc.merimusicplayer.core.di.player.installPlaybackStatsCaptureBarrier
+import com.mmc.merimusicplayer.core.download.GlobalDownloadManager
+import com.mmc.merimusicplayer.core.download.ManagedDownloadStorage
+import com.mmc.merimusicplayer.core.download.execution.scheduling.ids.newDownloadWorkManagerConfigurationBuilder
+import com.mmc.merimusicplayer.core.download.execution.uidt.UidtDownloadJobService
+import com.mmc.merimusicplayer.core.download.storage.backend.recoverInterruptedManagedTemporaryWrites
+import com.mmc.merimusicplayer.lyrics.lyricon.LyriconManager
+import com.mmc.merimusicplayer.common.logging.NPLogger
+import com.mmc.merimusicplayer.core.player.PlayerManager
+import com.mmc.merimusicplayer.core.player.lyrics.FloatingLyricsOverlayManager
+import com.mmc.merimusicplayer.core.startup.AppStartupWorkGate
+import com.mmc.merimusicplayer.core.startup.app.AppImageLoaderInitializer
+import com.mmc.merimusicplayer.core.startup.app.AppProcessClassifier
+import com.mmc.merimusicplayer.core.startup.app.AppStartupPlanner
+import com.mmc.merimusicplayer.core.startup.app.WebViewDataDirectorySuffix
+import com.mmc.merimusicplayer.core.startup.app.YouTubeMusicUiGatewayInitializer
+import com.mmc.merimusicplayer.core.player.shizuku.AndroidRuntimeCompatibility
+import com.mmc.merimusicplayer.data.auth.youtube.YouTubeAuthRotationWorker
+import com.mmc.merimusicplayer.data.local.media.metadata.LocalMediaMetadataRecoveryStore
+import com.mmc.merimusicplayer.data.playlist.favorite.FavoritePlaylistRepository
+import com.mmc.merimusicplayer.data.settings.playback.readPlaybackPreferenceSnapshotSync
+import com.mmc.merimusicplayer.util.crash.AnrWatchdog
+import com.mmc.merimusicplayer.core.crash.ExceptionHandler
+import com.mmc.merimusicplayer.common.locale.LanguageManager
+import com.mmc.merimusicplayer.util.crash.NativeCrashHandler
+import com.mmc.merimusicplayer.core.startup.safemode.SafeModeManager
+import com.mmc.merimusicplayer.ui.feedback.AppFeedback
+import com.mmc.merimusicplayer.widget.PlaybackWidgetUpdater
+
+class MemiPlayerApplication : Application(), WorkConfiguration.Provider {
+    @Volatile
+    private var normalComponentsInitialized = false
+
+    override val workManagerConfiguration: WorkConfiguration
+        get() = newDownloadWorkManagerConfigurationBuilder()
+            // 系统可能在重启恢复旧任务时拒绝调度，不能让库异常穿透到进程
+            .setSchedulingExceptionHandler { error ->
+                NPLogger.e(
+                    "NERI-WorkManager",
+                    "系统暂时拒绝后台任务调度，保留持久下载队列等待恢复: " +
+                        error.message,
+                    error
+                )
+            }
+            .build()
+
+    override fun onCreate() {
+        super.onCreate()
+        AndroidRuntimeCompatibility.installHiddenApiExemptions()
+        AppFeedback.initialize(this)
+        installPlayerDependencies(this)
+        // 冷启动首个播放点击可能早于 Compose 的 SideEffect, 先把 Application 绑给播放器
+        PlayerManager.bindApplication(this)
+        val runningInMainProcess = AppProcessClassifier.isMainProcess(
+            currentProcessName = getProcessName(),
+            configuredMainProcessName = applicationInfo.processName,
+            packageName = packageName
+        )
+        installPlaybackStatsCaptureBarrier(runningInMainProcess)
+        configureWebViewDataDirectoryIfNeeded(runningInMainProcess)
+
+        // 初始化语言设置
+        LanguageManager.init(this)
+        val startupPlan = AppStartupPlanner.plan(
+            runningInMainProcess = runningInMainProcess,
+            safeModeRequested = runningInMainProcess && SafeModeManager.shouldEnterSafeMode(this)
+        )
+        if (startupPlan.shouldCapturePreviousAnr) {
+            AnrWatchdog.capturePreviousAnrIfNeeded(this)
+        }
+        ExceptionHandler.init(
+            this,
+            installNativeCrashHandler = startupPlan.shouldInstallNativeCrashHandler
+        )
+
+        if (!startupPlan.shouldInitializeNormalComponents) {
+            return
+        }
+        initializeNormalComponents()
+        if (shouldTrimUidtPendingJobs(runningInMainProcess, Build.VERSION.SDK_INT)) {
+            AppContainer.launchBackgroundIo {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    UidtDownloadJobService.trimPendingJobs(this@MemiPlayerApplication)
+                }
+            }
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        LanguageManager.applyLanguage(this)
+        if (AppProcessClassifier.isMainProcess(
+                currentProcessName = getProcessName(),
+                configuredMainProcessName = applicationInfo.processName,
+                packageName = packageName,
+            )
+        ) {
+            PlaybackWidgetUpdater.refreshForConfigurationChange(this)
+        }
+    }
+
+    private fun configureWebViewDataDirectoryIfNeeded(runningInMainProcess: Boolean) {
+        if (runningInMainProcess) {
+            return
+        }
+        WebView.setDataDirectorySuffix(
+            WebViewDataDirectorySuffix.forProcess(getProcessName())
+        )
+    }
+
+    internal fun initializeNormalComponents() {
+        if (normalComponentsInitialized) return
+        synchronized(this) {
+            if (normalComponentsInitialized) {
+                return@synchronized
+            }
+
+            NativeCrashHandler.init(this)
+            AppContainer.initialize(this)
+            AppContainer.launchBackgroundIo {
+                val recoveredMetadataWrites = LocalMediaMetadataRecoveryStore.recoverInterruptedWrites(
+                    this@MemiPlayerApplication
+                )
+                val recoveredTemporaryWrites = recoverInterruptedManagedTemporaryWrites(
+                    this@MemiPlayerApplication
+                )
+                if (recoveredMetadataWrites > 0 || recoveredTemporaryWrites > 0) {
+                    NPLogger.i(
+                        "MemiPlayerApplication",
+                        "启动恢复未完成写入: metadata=$recoveredMetadataWrites, " +
+                            "temporary=$recoveredTemporaryWrites"
+                    )
+                }
+            }
+
+            // 后台预热收藏仓库: 首次构造会同步 loadFromDisk, 放到 IO 线程避免首个 UI 触达在主线程读盘
+            AppContainer.launchBackgroundIo {
+                AppStartupWorkGate.awaitInteractiveContentOrTimeout()
+                FavoritePlaylistRepository.getInstance(this@MemiPlayerApplication)
+            }
+            AppContainer.launchBackgroundIo {
+                AppStartupWorkGate.awaitInteractiveContentOrTimeout()
+                AppContainer.playHistoryRepo
+            }
+            // 这些统计仓库首次创建会读取完整快照，预热后详情页不会在主线程首次读盘
+            AppContainer.launchBackgroundIo {
+                AppStartupWorkGate.awaitInteractiveContentOrTimeout()
+                AppContainer.playlistUsageRepo
+                AppContainer.localPlaylistPlaybackStatsRepo
+                AppContainer.playbackStatsRepo
+                AppContainer.trafficStatsRepo
+            }
+            AppContainer.launchBackgroundIo {
+                AppStartupWorkGate.awaitInteractiveContentOrTimeout()
+                AppContainer.neteasePlaylistCacheRepo.importLegacyCaches()
+                AppContainer.biliFavoriteFolderCacheRepo.importLegacyCaches()
+                AppContainer.biliArchiveCacheRepo.importLegacyCaches()
+                AppContainer.youtubeMusicPlaylistCacheRepo.importLegacyCaches()
+            }
+            AppContainer.launchBackgroundIo {
+                AppContainer.settingsRepo.usbDeviceAttachHandlingEnabledFlow.collect { enabled ->
+                    UsbDeviceAttachHandling.applyComponentState(
+                        this@MemiPlayerApplication,
+                        enabled
+                    )
+                }
+            }
+
+            // 提前注册前后台回调, 避免等播放器初始化后才开始统计 Activity 状态
+            FloatingLyricsOverlayManager.initialize(this)
+            ManagedDownloadStorage.initialize(this)
+
+            YouTubeMusicUiGatewayInitializer.initialize()
+
+            // 长期不开 App 时没有任何前台流程会去续期, 靠这个周期任务把会话保活
+            YouTubeAuthRotationWorker.schedulePeriodicRotation(this)
+
+            // 初始化全局下载管理器
+            GlobalDownloadManager.initialize(this)
+
+            // 初始化 LyriconManager, 如果用户启用了 Lyricon 功能
+            if (readPlaybackPreferenceSnapshotSync(this).lyriconEnabled) {
+                LyriconManager.initialize(this)
+            }
+
+            AppImageLoaderInitializer.initialize(this)
+            normalComponentsInitialized = true
+        }
+    }
+}
+
+internal fun shouldTrimUidtPendingJobs(runningInMainProcess: Boolean, sdkInt: Int): Boolean {
+    return runningInMainProcess && sdkInt >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+}

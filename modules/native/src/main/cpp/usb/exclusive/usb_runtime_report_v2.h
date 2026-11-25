@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-namespace neri::usb {
+namespace memi::usb {
 
 enum class UsbRuntimeFeedbackMode {
     Disabled,
@@ -86,4 +86,4 @@ bool buildUsbRuntimeReportV2Fields(
     std::string* error
 );
 
-} // namespace neri::usb
+} // namespace memi::usb

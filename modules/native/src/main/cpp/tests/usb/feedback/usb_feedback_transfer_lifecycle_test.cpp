@@ -6,16 +6,16 @@
 
 namespace {
 
-using neri::usb::feedback::CancelResult;
-using neri::usb::feedback::CompletionDisposition;
-using neri::usb::feedback::GenerationLifecycleState;
-using neri::usb::feedback::StartTransactionStep;
-using neri::usb::feedback::StreamGenerationLifecycle;
-using neri::usb::feedback::TransferCompletionStatus;
-using neri::usb::feedback::TransferKind;
+using memi::usb::feedback::CancelResult;
+using memi::usb::feedback::CompletionDisposition;
+using memi::usb::feedback::GenerationLifecycleState;
+using memi::usb::feedback::StartTransactionStep;
+using memi::usb::feedback::StreamGenerationLifecycle;
+using memi::usb::feedback::TransferCompletionStatus;
+using memi::usb::feedback::TransferKind;
 
 void successfulStartRollsBackInReverseOrder() {
-    auto transaction = neri::usb::feedback::runStartTransaction(
+    auto transaction = memi::usb::feedback::runStartTransaction(
         StartTransactionStep::ClaimInterfaces,
         false
     );
@@ -23,7 +23,7 @@ void successfulStartRollsBackInReverseOrder() {
     assert(!transaction.resources.empty());
     assert(transaction.completedSteps.size() == 7U);
 
-    neri::usb::feedback::rollbackStartTransaction(&transaction);
+    memi::usb::feedback::rollbackStartTransaction(&transaction);
     assert(!transaction.started);
     assert(transaction.resources.empty());
     assert(transaction.completedSteps.empty());
@@ -31,14 +31,14 @@ void successfulStartRollsBackInReverseOrder() {
     assert(transaction.rollbackOrder.front() == StartTransactionStep::SubmitZeroBootstrap);
     assert(transaction.rollbackOrder.back() == StartTransactionStep::ClaimInterfaces);
 
-    neri::usb::feedback::rollbackStartTransaction(&transaction);
+    memi::usb::feedback::rollbackStartTransaction(&transaction);
     assert(transaction.rollbackOrder.size() == 7U);
 }
 
 void everyStartFailureReleasesEarlierResources() {
     for (int rawStep = 0; rawStep < 7; ++rawStep) {
         const auto failAt = static_cast<StartTransactionStep>(rawStep);
-        const auto transaction = neri::usb::feedback::runStartTransaction(failAt, true);
+        const auto transaction = memi::usb::feedback::runStartTransaction(failAt, true);
         assert(!transaction.started);
         assert(transaction.resources.empty());
         assert(transaction.completedSteps.empty());
@@ -190,13 +190,13 @@ void failedSubmissionReleasesReservedSlotWithoutFakeCompletion() {
 }
 
 void exposesStableNames() {
-    assert(std::string(neri::usb::feedback::transferKindName(
+    assert(std::string(memi::usb::feedback::transferKindName(
         TransferKind::FeedbackIn
     )) == "feedback_in");
-    assert(std::string(neri::usb::feedback::completionDispositionName(
+    assert(std::string(memi::usb::feedback::completionDispositionName(
         CompletionDisposition::StaleGenerationIgnored
     )) == "stale_generation_ignored");
-    assert(std::string(neri::usb::feedback::generationLifecycleStateName(
+    assert(std::string(memi::usb::feedback::generationLifecycleStateName(
         GenerationLifecycleState::Reclaimable
     )) == "reclaimable");
 }

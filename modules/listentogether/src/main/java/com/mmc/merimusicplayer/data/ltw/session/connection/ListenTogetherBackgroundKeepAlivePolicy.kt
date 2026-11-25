@@ -1,0 +1,9 @@
+package com.mmc.merimusicplayer.data.ltw.session.connection
+
+fun shouldHoldListenTogetherBackgroundKeepAlive(
+    sessionActive: Boolean,
+    reconnectEnabled: Boolean,
+    applicationInForeground: Boolean
+): Boolean {
+    return sessionActive && reconnectEnabled && !applicationInForeground
+}

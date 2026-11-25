@@ -7,7 +7,7 @@ android {
     namespace="prototype.smoke"
     compileSdk=37
     defaultConfig {
-        applicationId=if(candidateOnly) "moe.ouom.neriplayer.beatsynccandidate" else "moe.ouom.neriplayer.beatsyncprototype"
+        applicationId=if(candidateOnly) "com.mmc.merimusicplayer.beatsynccandidate" else "com.mmc.merimusicplayer.beatsyncprototype"
         minSdk=28;targetSdk=36;versionCode=1;versionName="0.1"
         manifestPlaceholders["entryActivity"]=if(candidateOnly) ".CandidateActivity" else ".MainActivity"
     }

@@ -7,12 +7,12 @@
 -dontwarn android.os.INetworkManagementService$Stub
 
 # native 静态绑定要求 USB 桥接类名和方法名保持稳定
--keepclasseswithmembernames,includedescriptorclasses class moe.ouom.neriplayer.core.player.usb.transport.UsbExclusiveNativeBridge {
+-keepclasseswithmembernames,includedescriptorclasses class com.mmc.merimusicplayer.core.player.usb.transport.UsbExclusiveNativeBridge {
     native <methods>;
 }
 
 # 音效 DSP 同样使用静态 JNI 绑定
--keepclasseswithmembernames,includedescriptorclasses class moe.ouom.neriplayer.core.player.audio.effects.AudioEffectsNativeBridge {
+-keepclasseswithmembernames,includedescriptorclasses class com.mmc.merimusicplayer.core.player.audio.effects.AudioEffectsNativeBridge {
     native <methods>;
 }
 
@@ -24,9 +24,9 @@
 }
 
 # app_process and Shizuku construct these fixed entrypoints outside normal app calls
--keep class moe.ouom.neriplayer.core.player.privileged.coloros.ColorOsRootMain {
+-keep class com.mmc.merimusicplayer.core.player.privileged.coloros.ColorOsRootMain {
     public static void main(java.lang.String[]);
 }
--keep class moe.ouom.neriplayer.core.player.privileged.coloros.ColorOsUserService {
+-keep class com.mmc.merimusicplayer.core.player.privileged.coloros.ColorOsUserService {
     public <init>(android.content.Context);
 }

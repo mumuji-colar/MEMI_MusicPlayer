@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.data.repository"
+    namespace = "com.mmc.merimusicplayer.data.repository"
     defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     testFixtures.enable = true
     testOptions.unitTests.isIncludeAndroidResources = true

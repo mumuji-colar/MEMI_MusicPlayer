@@ -6,7 +6,7 @@ plugins {
 
 android {
     defaultConfig.consumerProguardFiles("consumer-rules.pro")
-    namespace = "moe.ouom.neriplayer.data.model"
+    namespace = "com.mmc.merimusicplayer.data.model"
 }
 
 dependencies {

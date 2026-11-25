@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace neri::usb::uac1 {
+namespace memi::usb::uac1 {
 
 constexpr uint16_t kPcmFormatTag = 0x0001;
 
@@ -66,4 +66,4 @@ const char* syncTypeName(uint8_t endpointAttributes);
 
 bool requiresFeedbackScheduler(uint8_t endpointAttributes);
 
-} // namespace neri::usb::uac1
+} // namespace memi::usb::uac1

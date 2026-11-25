@@ -1,6 +1,6 @@
 #pragma once
 
-namespace neri::usb::control {
+namespace memi::usb::control {
 
 enum class SampleRateReadback {
     Verified,
@@ -18,4 +18,4 @@ SampleRateReadback classifySampleRateReadback(int requestedRate, int reportedRat
 /** 第 attempt 次回读不一致后再等多久，attempt 从 0 开始 */
 int sampleRateSettleDelayMs(int attempt);
 
-} // namespace neri::usb::control
+} // namespace memi::usb::control

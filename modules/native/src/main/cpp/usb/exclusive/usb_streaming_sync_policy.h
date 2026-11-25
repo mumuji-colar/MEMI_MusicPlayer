@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string_view>
 
-namespace neri::usb {
+namespace memi::usb {
 
 enum class UsbStreamingFeedbackMode {
     None,
@@ -106,4 +106,4 @@ struct UsbStreamingSyncPolicyDecision {
     return "unsupported_uac_version";
 }
 
-} // namespace neri::usb
+} // namespace memi::usb

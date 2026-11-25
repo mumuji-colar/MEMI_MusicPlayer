@@ -6,9 +6,9 @@
 
 ## 结构 / Layout
 
-源码位于 [core/player](src/main/java/moe/ouom/neriplayer/core/player)，依赖 `:model`、`:common`、协程和 Media3 音频接口。实际播放器、服务和设备接入由 `:playback:runtime` 负责。
+源码位于 [core/player](src/main/java/com/mmc/merimusicplayer/core/player)，依赖 `:model`、`:common`、协程和 Media3 音频接口。实际播放器、服务和设备接入由 `:playback:runtime` 负责。
 
-Sources live in [core/player](src/main/java/moe/ouom/neriplayer/core/player), using `:model`, `:common`, coroutines, and Media3 audio interfaces. `:playback:runtime` owns the player, services, and device integration.
+Sources live in [core/player](src/main/java/com/mmc/merimusicplayer/core/player), using `:model`, `:common`, coroutines, and Media3 audio interfaces. `:playback:runtime` owns the player, services, and device integration.
 
 `policy` 不引用 `runtime`、`audio` 或 `queue` 实现；USB 策略保留在 `:playback:runtime`。
 

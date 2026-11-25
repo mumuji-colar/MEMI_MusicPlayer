@@ -66,7 +66,7 @@ class DownloadModuleBoundariesTest(unittest.TestCase):
             )
 
     def source(self, module, family, name, language="java"):
-        package = "moe/ouom/neriplayer/" + family if family != "sample" else family
+        package = "com/mmc/merimusicplayer/" + family if family != "sample" else family
         directory = module / "src/main" / language / package
         directory.mkdir(parents=True, exist_ok=True)
         (directory / f"{name}.kt").write_text(
@@ -115,14 +115,14 @@ class DownloadModuleBoundariesTest(unittest.TestCase):
         repository = Path(__file__).resolve().parents[2]
         config = json.loads((repository / "config/quality/crap-scope.json").read_text())
         families = (*DOWNLOAD_RULE_FAMILIES, *DOWNLOAD_RUNTIME_RULE_FAMILIES, "data/model/download/execution")
-        patterns = [f"moe/ouom/neriplayer/{family}/**/*.kt" for family in families]
+        patterns = [f"com/mmc/merimusicplayer/{family}/**/*.kt" for family in families]
         self.assertTrue(set(patterns).issubset(config["source_patterns"]))
         scope = self.root / "scope.json"
         scope.write_text(json.dumps({"source_patterns": patterns}))
         source_root = self.root / "future-sources"
         packages = []
         for family in families:
-            package = f"moe/ouom/neriplayer/{family}/future"
+            package = f"com/mmc/merimusicplayer/{family}/future"
             path = source_root / package / "NewRule.kt"
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("package " + package.replace("/", ".") + "\nclass NewRule\n")

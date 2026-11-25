@@ -5,12 +5,12 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackEstimateStatus;
-using neri::usb::feedback::FeedbackEstimator;
-using neri::usb::feedback::FeedbackEstimatorConfig;
-using neri::usb::feedback::FeedbackRateQ32;
-using neri::usb::feedback::NormalizedFeedbackSample;
-using neri::usb::feedback::kQ32One;
+using memi::usb::feedback::FeedbackEstimateStatus;
+using memi::usb::feedback::FeedbackEstimator;
+using memi::usb::feedback::FeedbackEstimatorConfig;
+using memi::usb::feedback::FeedbackRateQ32;
+using memi::usb::feedback::NormalizedFeedbackSample;
+using memi::usb::feedback::kQ32One;
 
 FeedbackRateQ32 rateWithPpm(FeedbackRateQ32 nominal, int32_t ppm) {
     const uint64_t scale = static_cast<uint64_t>(1000000 + ppm);

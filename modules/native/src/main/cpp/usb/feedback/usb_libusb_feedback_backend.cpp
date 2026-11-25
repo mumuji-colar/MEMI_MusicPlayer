@@ -1,6 +1,6 @@
 #include "usb/feedback/usb_libusb_feedback_backend.h"
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 libusb_transfer* LibusbFeedbackTransferBackend::allocateTransfer(int isoPacketCount) {
     return libusb_alloc_transfer(isoPacketCount);
@@ -18,4 +18,4 @@ void LibusbFeedbackTransferBackend::freeTransfer(libusb_transfer* transfer) {
     libusb_free_transfer(transfer);
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

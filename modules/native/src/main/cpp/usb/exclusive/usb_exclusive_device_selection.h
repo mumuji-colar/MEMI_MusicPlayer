@@ -10,7 +10,7 @@
 #include "usb/uac2/usb_uac2_feedback_profile.h"
 #include "usb/uac2/usb_uac2_format.h"
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 
 struct ClaimedUsbInterface {
     int interfaceNumber = -1;
@@ -27,18 +27,18 @@ struct StreamingAltSelection {
     uint8_t feedbackEndpoint = 0;
     int feedbackEndpointMaxPacketBytes = 0;
     int feedbackEndpointInterval = 0;
-    neri::usb::uac2::Uac2FeedbackTimingProfile feedbackTimingProfile;
+    memi::usb::uac2::Uac2FeedbackTimingProfile feedbackTimingProfile;
     int score = std::numeric_limits<int>::min();
     int uacVersion = 0;
     struct Uac1Details {
-        neri::usb::uac1::TypeIFormat format;
-        neri::usb::uac1::EndpointControls endpointControls;
+        memi::usb::uac1::TypeIFormat format;
+        memi::usb::uac1::EndpointControls endpointControls;
     } uac1;
     struct Uac2Details {
-        neri::usb::uac2::TypeIFormat format;
+        memi::usb::uac2::TypeIFormat format;
         int clockSourceId = 0;
-        neri::usb::uac2::ControlCapability sampleRateControl =
-            neri::usb::uac2::ControlCapability::None;
+        memi::usb::uac2::ControlCapability sampleRateControl =
+            memi::usb::uac2::ControlCapability::None;
     } uac2;
     std::string syncType = "none";
     std::string feedback = "none";
@@ -78,4 +78,4 @@ bool findStreamingAlt(
     std::string* failureReason
 );
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive

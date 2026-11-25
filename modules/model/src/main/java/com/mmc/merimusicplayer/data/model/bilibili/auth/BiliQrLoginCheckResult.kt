@@ -1,0 +1,10 @@
+package com.mmc.merimusicplayer.data.model.bilibili.auth
+
+data class BiliQrLoginCheckResult(
+    val code: Int,
+    val message: String,
+    val cookies: Map<String, String> = emptyMap()
+) {
+    val isConfirmed: Boolean
+        get() = code == 0
+}

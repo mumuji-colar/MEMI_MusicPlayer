@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.network"
+    namespace = "com.mmc.merimusicplayer.network"
 }
 
 dependencies {

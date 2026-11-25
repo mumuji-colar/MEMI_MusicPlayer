@@ -7,8 +7,8 @@
 
 namespace {
 
-using neri::usb::uac2::UsbBusSpeed;
-using neri::usb::uac2::Uac2DescriptorSnapshotStatus;
+using memi::usb::uac2::UsbBusSpeed;
+using memi::usb::uac2::Uac2DescriptorSnapshotStatus;
 
 std::vector<uint8_t> syntheticExplicitFeedbackDescriptor() {
     std::vector<uint8_t> bytes {
@@ -24,7 +24,7 @@ std::vector<uint8_t> syntheticExplicitFeedbackDescriptor() {
 
 void buildsHighSpeedSnapshot() {
     const auto bytes = syntheticExplicitFeedbackDescriptor();
-    const auto result = neri::usb::uac2::buildUac2DescriptorSnapshot(
+    const auto result = memi::usb::uac2::buildUac2DescriptorSnapshot(
         bytes.data(),
         bytes.size(),
         UsbBusSpeed::High
@@ -46,27 +46,27 @@ void buildsHighSpeedSnapshot() {
 void rejectsMalformedDescriptorShapes() {
     auto bytes = syntheticExplicitFeedbackDescriptor();
     bytes[2] = 49;
-    auto result = neri::usb::uac2::buildUac2DescriptorSnapshot(
+    auto result = memi::usb::uac2::buildUac2DescriptorSnapshot(
         bytes.data(), bytes.size(), UsbBusSpeed::High
     );
     assert(result.status == Uac2DescriptorSnapshotStatus::DescriptorBodyTruncated);
 
     bytes = syntheticExplicitFeedbackDescriptor();
     bytes[9 + 9 + 9 + 9] = 9;
-    result = neri::usb::uac2::buildUac2DescriptorSnapshot(
+    result = memi::usb::uac2::buildUac2DescriptorSnapshot(
         bytes.data(), bytes.size(), UsbBusSpeed::High
     );
     assert(result.status == Uac2DescriptorSnapshotStatus::EndpointDescriptorInvalid);
 
     bytes = syntheticExplicitFeedbackDescriptor();
     bytes[31] = 1;
-    result = neri::usb::uac2::buildUac2DescriptorSnapshot(
+    result = memi::usb::uac2::buildUac2DescriptorSnapshot(
         bytes.data(), bytes.size(), UsbBusSpeed::High
     );
     assert(result.status == Uac2DescriptorSnapshotStatus::EndpointCountMismatch);
 
     bytes = syntheticExplicitFeedbackDescriptor();
-    result = neri::usb::uac2::buildUac2DescriptorSnapshot(
+    result = memi::usb::uac2::buildUac2DescriptorSnapshot(
         bytes.data(), bytes.size(), UsbBusSpeed::Super
     );
     assert(result.status == Uac2DescriptorSnapshotStatus::UnsupportedBusSpeed);
@@ -76,7 +76,7 @@ void rejectsNonUac2AndFullSpeedTransactionBits() {
     auto bytes = syntheticExplicitFeedbackDescriptor();
     bytes[25] = 0x10;
     bytes[34] = 0x10;
-    auto result = neri::usb::uac2::buildUac2DescriptorSnapshot(
+    auto result = memi::usb::uac2::buildUac2DescriptorSnapshot(
         bytes.data(), bytes.size(), UsbBusSpeed::High
     );
     assert(result.status == Uac2DescriptorSnapshotStatus::Uac2StreamingInterfaceMissing);
@@ -84,7 +84,7 @@ void rejectsNonUac2AndFullSpeedTransactionBits() {
     bytes = syntheticExplicitFeedbackDescriptor();
     bytes[4 + 9 + 9 + 9 + 9] = 0x00;
     bytes[5 + 9 + 9 + 9 + 9] = 0x0E;
-    result = neri::usb::uac2::buildUac2DescriptorSnapshot(
+    result = memi::usb::uac2::buildUac2DescriptorSnapshot(
         bytes.data(), bytes.size(), UsbBusSpeed::Full
     );
     assert(result.status == Uac2DescriptorSnapshotStatus::EndpointDescriptorInvalid);
@@ -94,7 +94,7 @@ void rejectsIllegalHighBandwidthPacketEncoding() {
     auto bytes = syntheticExplicitFeedbackDescriptor();
     bytes[40] = 0x01;
     bytes[41] = 0x08;
-    const auto result = neri::usb::uac2::buildUac2DescriptorSnapshot(
+    const auto result = memi::usb::uac2::buildUac2DescriptorSnapshot(
         bytes.data(),
         bytes.size(),
         UsbBusSpeed::High
@@ -103,7 +103,7 @@ void rejectsIllegalHighBandwidthPacketEncoding() {
 }
 
 void exposesStableNames() {
-    assert(std::string(neri::usb::uac2::uac2DescriptorSnapshotStatusName(
+    assert(std::string(memi::usb::uac2::uac2DescriptorSnapshotStatusName(
         Uac2DescriptorSnapshotStatus::Valid
     )) == "valid");
 }

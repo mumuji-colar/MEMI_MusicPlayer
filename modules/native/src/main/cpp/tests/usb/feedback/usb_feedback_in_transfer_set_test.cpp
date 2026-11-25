@@ -12,13 +12,13 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackInCompletion;
-using neri::usb::feedback::FeedbackInCompletionConsumer;
-using neri::usb::feedback::FeedbackInCompletionStatus;
-using neri::usb::feedback::FeedbackInTransferConfig;
-using neri::usb::feedback::FeedbackInTransferSet;
-using neri::usb::feedback::FeedbackInTransferSetState;
-using neri::usb::feedback::FeedbackTransferBackend;
+using memi::usb::feedback::FeedbackInCompletion;
+using memi::usb::feedback::FeedbackInCompletionConsumer;
+using memi::usb::feedback::FeedbackInCompletionStatus;
+using memi::usb::feedback::FeedbackInTransferConfig;
+using memi::usb::feedback::FeedbackInTransferSet;
+using memi::usb::feedback::FeedbackInTransferSetState;
+using memi::usb::feedback::FeedbackTransferBackend;
 
 struct RecordedCompletion {
     uint64_t generation = 0;
@@ -444,10 +444,10 @@ void rejectsInvalidConfigurationAndExposesNames() {
     invalid.endpointAddress = 0x04;
     assert(!transfers.allocate(invalid, &consumer, &error));
     assert(error == "feedback_transfer_config_invalid");
-    assert(std::string(neri::usb::feedback::feedbackInTransferSetStateName(
+    assert(std::string(memi::usb::feedback::feedbackInTransferSetStateName(
         FeedbackInTransferSetState::Stopping
     )) == "stopping");
-    assert(std::string(neri::usb::feedback::feedbackInCompletionStatusName(
+    assert(std::string(memi::usb::feedback::feedbackInCompletionStatusName(
         FeedbackInCompletionStatus::PacketError
     )) == "packet_error");
 }

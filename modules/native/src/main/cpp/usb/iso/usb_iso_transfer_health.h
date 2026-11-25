@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace neri::usb {
+namespace memi::usb {
 
 constexpr int kIsoPacketErrorFailureScore = 8;
 
@@ -34,4 +34,4 @@ inline unsigned int completedIsoPacketBytes(
     return std::min(requestedLength, actualLength);
 }
 
-} // namespace neri::usb
+} // namespace memi::usb

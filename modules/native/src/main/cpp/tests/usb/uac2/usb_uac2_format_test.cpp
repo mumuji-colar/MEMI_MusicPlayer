@@ -16,9 +16,9 @@ void verifiesUac2TypeI24BitPcmFormat() {
         0x00, 0x00, 2, 0x03, 0x00, 0x00, 0x00, 0,
         6, 0x24, 0x02, 0x01, 3, 24
     };
-    neri::usb::uac2::TypeIFormat format;
+    memi::usb::uac2::TypeIFormat format;
     std::string error;
-    assert(neri::usb::uac2::parseTypeIFormat(
+    assert(memi::usb::uac2::parseTypeIFormat(
         descriptors,
         sizeof(descriptors),
         &format,
@@ -31,13 +31,13 @@ void verifiesUac2TypeI24BitPcmFormat() {
     assert(format.subslotBytes == 3);
     assert(format.bitsPerSample == 24);
 
-    const neri::usb::uac2::FormatTarget exactTarget { 2, 3, 24 };
-    assert(neri::usb::uac2::matchesTarget(format, exactTarget, &error));
-    const neri::usb::uac2::FormatTarget padded24Target { 2, 4, 24 };
-    assert(!neri::usb::uac2::matchesTarget(format, padded24Target, &error));
+    const memi::usb::uac2::FormatTarget exactTarget { 2, 3, 24 };
+    assert(memi::usb::uac2::matchesTarget(format, exactTarget, &error));
+    const memi::usb::uac2::FormatTarget padded24Target { 2, 4, 24 };
+    assert(!memi::usb::uac2::matchesTarget(format, padded24Target, &error));
     assert(error == "subslot_mismatch_3");
-    const neri::usb::uac2::FormatTarget wrongDepth { 2, 3, 32 };
-    assert(!neri::usb::uac2::matchesTarget(format, wrongDepth, &error));
+    const memi::usb::uac2::FormatTarget wrongDepth { 2, 3, 32 };
+    assert(!memi::usb::uac2::matchesTarget(format, wrongDepth, &error));
     assert(error == "bit_depth_mismatch_24");
 }
 
@@ -47,9 +47,9 @@ void verifiesUac2TypeI32BitPcmFormat() {
         0x00, 0x00, 2, 0x03, 0x00, 0x00, 0x00, 0,
         6, 0x24, 0x02, 0x01, 4, 32
     };
-    neri::usb::uac2::TypeIFormat format;
+    memi::usb::uac2::TypeIFormat format;
     std::string error;
-    assert(neri::usb::uac2::parseTypeIFormat(
+    assert(memi::usb::uac2::parseTypeIFormat(
         descriptors,
         sizeof(descriptors),
         &format,
@@ -60,8 +60,8 @@ void verifiesUac2TypeI32BitPcmFormat() {
     assert(format.subslotBytes == 4);
     assert(format.bitsPerSample == 32);
 
-    const neri::usb::uac2::FormatTarget exactTarget { 2, 4, 32 };
-    assert(neri::usb::uac2::matchesTarget(format, exactTarget, &error));
+    const memi::usb::uac2::FormatTarget exactTarget { 2, 4, 32 };
+    assert(memi::usb::uac2::matchesTarget(format, exactTarget, &error));
 }
 
 void verifiesUac2TypeI24BitPaddedContainerFormat() {
@@ -70,25 +70,25 @@ void verifiesUac2TypeI24BitPaddedContainerFormat() {
         0x00, 0x00, 2, 0x03, 0x00, 0x00, 0x00, 0,
         6, 0x24, 0x02, 0x01, 4, 24
     };
-    neri::usb::uac2::TypeIFormat format;
+    memi::usb::uac2::TypeIFormat format;
     std::string error;
-    assert(neri::usb::uac2::parseTypeIFormat(
+    assert(memi::usb::uac2::parseTypeIFormat(
         descriptors,
         sizeof(descriptors),
         &format,
         &error
     ));
-    const neri::usb::uac2::FormatTarget exactTarget { 2, 4, 24 };
-    assert(neri::usb::uac2::matchesTarget(format, exactTarget, &error));
+    const memi::usb::uac2::FormatTarget exactTarget { 2, 4, 24 };
+    assert(memi::usb::uac2::matchesTarget(format, exactTarget, &error));
 }
 
 void rejectsMalformedUac2StreamingDescriptors() {
     constexpr uint8_t truncated[] = {
         16, 0x24, 0x01, 2, 0, 0x01, 0x01, 0x00
     };
-    neri::usb::uac2::TypeIFormat format;
+    memi::usb::uac2::TypeIFormat format;
     std::string error;
-    assert(!neri::usb::uac2::parseTypeIFormat(
+    assert(!memi::usb::uac2::parseTypeIFormat(
         truncated,
         sizeof(truncated),
         &format,
@@ -100,7 +100,7 @@ void rejectsMalformedUac2StreamingDescriptors() {
         8, 0x24, 0x01, 2, 0, 0x01, 0x01, 0x00,
         6, 0x24, 0x02, 0x01, 3, 24
     };
-    assert(!neri::usb::uac2::parseTypeIFormat(
+    assert(!memi::usb::uac2::parseTypeIFormat(
         shortGeneral,
         sizeof(shortGeneral),
         &format,
@@ -112,7 +112,7 @@ void rejectsMalformedUac2StreamingDescriptors() {
         16, 0x24, 0x01, 2, 0, 0x01, 0x01, 0x00,
         0x00, 0x00, 2, 0x03, 0x00, 0x00, 0x00, 0
     };
-    assert(!neri::usb::uac2::parseTypeIFormat(
+    assert(!memi::usb::uac2::parseTypeIFormat(
         missingFormat,
         sizeof(missingFormat),
         &format,
@@ -123,9 +123,9 @@ void rejectsMalformedUac2StreamingDescriptors() {
 
 void verifiesEndpointAndClockControls() {
     constexpr uint8_t endpointDescriptor[] = { 8, 0x25, 0x01, 0x00, 0x03, 0, 0, 0 };
-    neri::usb::uac2::EndpointControls controls;
+    memi::usb::uac2::EndpointControls controls;
     std::string error;
-    assert(neri::usb::uac2::parseEndpointControls(
+    assert(memi::usb::uac2::parseEndpointControls(
         endpointDescriptor,
         sizeof(endpointDescriptor),
         &controls,
@@ -135,16 +135,16 @@ void verifiesEndpointAndClockControls() {
     assert(controls.controls == 0x03);
 
     constexpr uint8_t clockSource[] = { 8, 0x24, 0x0A, 4, 3, 0x03, 0, 0 };
-    neri::usb::uac2::ClockSource clock;
-    assert(neri::usb::uac2::parseClockSourceDescriptor(
+    memi::usb::uac2::ClockSource clock;
+    assert(memi::usb::uac2::parseClockSourceDescriptor(
         clockSource,
         sizeof(clockSource),
         &clock,
         &error
     ));
     assert(clock.id == 4);
-    assert(clock.samplingFrequencyControl() == neri::usb::uac2::ControlCapability::ReadWrite);
-    assert(std::string(neri::usb::uac2::controlCapabilityName(
+    assert(clock.samplingFrequencyControl() == memi::usb::uac2::ControlCapability::ReadWrite);
+    assert(std::string(memi::usb::uac2::controlCapabilityName(
         clock.samplingFrequencyControl()
     )) == "read_write");
 }
@@ -157,9 +157,9 @@ void verifiesTerminalClockSourceMapping() {
     constexpr uint8_t outputTerminal[] = {
         12, 0x24, 0x03, 3, 0x01, 0x03, 0, 2, 4, 0, 0, 0
     };
-    neri::usb::uac2::TerminalClockSource terminal;
+    memi::usb::uac2::TerminalClockSource terminal;
     std::string error;
-    assert(neri::usb::uac2::parseTerminalClockSourceDescriptor(
+    assert(memi::usb::uac2::parseTerminalClockSourceDescriptor(
         inputTerminal,
         sizeof(inputTerminal),
         &terminal,
@@ -167,7 +167,7 @@ void verifiesTerminalClockSourceMapping() {
     ));
     assert(terminal.terminalId == 2);
     assert(terminal.clockSourceId == 4);
-    assert(neri::usb::uac2::parseTerminalClockSourceDescriptor(
+    assert(memi::usb::uac2::parseTerminalClockSourceDescriptor(
         outputTerminal,
         sizeof(outputTerminal),
         &terminal,
@@ -182,13 +182,13 @@ void rejectsFormatsThatNeedFeedbackScheduling() {
     constexpr uint8_t isochronousAsynchronous = 0x05;
     constexpr uint8_t isochronousSynchronous = 0x0D;
     constexpr uint8_t isochronousImplicitFeedback = 0x21;
-    assert(std::string(neri::usb::uac2::syncTypeName(isochronousAdaptive)) == "adaptive");
-    assert(std::string(neri::usb::uac2::syncTypeName(isochronousAsynchronous)) == "asynchronous");
-    assert(std::string(neri::usb::uac2::syncTypeName(isochronousSynchronous)) == "synchronous");
-    assert(!neri::usb::uac2::requiresFeedbackScheduler(isochronousAdaptive));
-    assert(!neri::usb::uac2::requiresFeedbackScheduler(isochronousSynchronous));
-    assert(neri::usb::uac2::requiresFeedbackScheduler(isochronousAsynchronous));
-    assert(neri::usb::uac2::requiresFeedbackScheduler(isochronousImplicitFeedback));
+    assert(std::string(memi::usb::uac2::syncTypeName(isochronousAdaptive)) == "adaptive");
+    assert(std::string(memi::usb::uac2::syncTypeName(isochronousAsynchronous)) == "asynchronous");
+    assert(std::string(memi::usb::uac2::syncTypeName(isochronousSynchronous)) == "synchronous");
+    assert(!memi::usb::uac2::requiresFeedbackScheduler(isochronousAdaptive));
+    assert(!memi::usb::uac2::requiresFeedbackScheduler(isochronousSynchronous));
+    assert(memi::usb::uac2::requiresFeedbackScheduler(isochronousAsynchronous));
+    assert(memi::usb::uac2::requiresFeedbackScheduler(isochronousImplicitFeedback));
 }
 
 void verifiesSampleRateRanges() {
@@ -204,9 +204,9 @@ void verifiesSampleRateRanges() {
         0x00, 0x77, 0x01, 0x00,
         0x01, 0x00, 0x00, 0x00
     };
-    std::vector<neri::usb::uac2::SampleRateSubrange> ranges;
+    std::vector<memi::usb::uac2::SampleRateSubrange> ranges;
     std::string error;
-    assert(neri::usb::uac2::parseSampleRateRanges(
+    assert(memi::usb::uac2::parseSampleRateRanges(
         rangeResponse,
         sizeof(rangeResponse),
         &ranges,
@@ -226,28 +226,28 @@ void verifiesCurrentSampleRateDecoding() {
     int sampleRate = 0;
     std::string error;
 
-    assert(neri::usb::uac2::decodeCurrentSampleRate(
+    assert(memi::usb::uac2::decodeCurrentSampleRate(
         rate48000,
         sizeof(rate48000),
         &sampleRate,
         &error
     ));
     assert(sampleRate == 48000);
-    assert(!neri::usb::uac2::decodeCurrentSampleRate(
+    assert(!memi::usb::uac2::decodeCurrentSampleRate(
         zeroRate,
         sizeof(zeroRate),
         &sampleRate,
         &error
     ));
     assert(error == "current_sample_rate_out_of_range");
-    assert(!neri::usb::uac2::decodeCurrentSampleRate(
+    assert(!memi::usb::uac2::decodeCurrentSampleRate(
         signedOverflow,
         sizeof(signedOverflow),
         &sampleRate,
         &error
     ));
     assert(error == "current_sample_rate_out_of_range");
-    assert(!neri::usb::uac2::decodeCurrentSampleRate(
+    assert(!memi::usb::uac2::decodeCurrentSampleRate(
         rate48000,
         3,
         &sampleRate,
@@ -257,7 +257,7 @@ void verifiesCurrentSampleRateDecoding() {
 }
 
 bool hasControl(
-    const std::vector<neri::usb::control::FeatureUnitControl>& controls,
+    const std::vector<memi::usb::control::FeatureUnitControl>& controls,
     int unitId,
     int channel,
     uint8_t selector
@@ -279,13 +279,13 @@ void findsPlaybackFeatureUnitsButLeavesTheMicrophonePathAlone() {
         14, 0x24, 0x06, 0x05, 0x04, 0x0F, 0, 0, 0, 0x0F, 0, 0, 0, 0,
         12, 0x24, 0x03, 0x06, 0x01, 0x01, 0x00, 0x05, 0x05, 0x00, 0x00, 0
     };
-    const auto uac2 = neri::usb::control::findPlaybackFeatureUnitControls(uac2Descriptors, sizeof(uac2Descriptors), 2);
+    const auto uac2 = memi::usb::control::findPlaybackFeatureUnitControls(uac2Descriptors, sizeof(uac2Descriptors), 2);
     assert(uac2.size() == 3);
-    assert(hasControl(uac2, 2, 0, neri::usb::control::kFeatureUnitMuteSelector));
-    assert(hasControl(uac2, 2, 0, neri::usb::control::kFeatureUnitVolumeSelector));
-    assert(hasControl(uac2, 2, 1, neri::usb::control::kFeatureUnitVolumeSelector));
-    assert(!hasControl(uac2, 2, 2, neri::usb::control::kFeatureUnitVolumeSelector));
-    assert(!hasControl(uac2, 5, 0, neri::usb::control::kFeatureUnitMuteSelector));
+    assert(hasControl(uac2, 2, 0, memi::usb::control::kFeatureUnitMuteSelector));
+    assert(hasControl(uac2, 2, 0, memi::usb::control::kFeatureUnitVolumeSelector));
+    assert(hasControl(uac2, 2, 1, memi::usb::control::kFeatureUnitVolumeSelector));
+    assert(!hasControl(uac2, 2, 2, memi::usb::control::kFeatureUnitVolumeSelector));
+    assert(!hasControl(uac2, 5, 0, memi::usb::control::kFeatureUnitMuteSelector));
 
     constexpr uint8_t uac1Descriptors[] = {
         12, 0x24, 0x02, 0x01, 0x01, 0x01, 0x00, 2, 0x03, 0x00, 0, 0,
@@ -293,19 +293,19 @@ void findsPlaybackFeatureUnitsButLeavesTheMicrophonePathAlone() {
         8, 0x24, 0x06, 0x07, 0x02, 0x01, 0x01, 0,
         9, 0x24, 0x03, 0x03, 0x01, 0x03, 0x00, 0x07, 0
     };
-    const auto uac1 = neri::usb::control::findPlaybackFeatureUnitControls(uac1Descriptors, sizeof(uac1Descriptors), 1);
+    const auto uac1 = memi::usb::control::findPlaybackFeatureUnitControls(uac1Descriptors, sizeof(uac1Descriptors), 1);
     assert(uac1.size() == 5);
-    assert(hasControl(uac1, 7, 0, neri::usb::control::kFeatureUnitMuteSelector));
-    assert(hasControl(uac1, 2, 0, neri::usb::control::kFeatureUnitMuteSelector));
-    assert(hasControl(uac1, 2, 2, neri::usb::control::kFeatureUnitVolumeSelector));
+    assert(hasControl(uac1, 7, 0, memi::usb::control::kFeatureUnitMuteSelector));
+    assert(hasControl(uac1, 2, 0, memi::usb::control::kFeatureUnitMuteSelector));
+    assert(hasControl(uac1, 2, 2, memi::usb::control::kFeatureUnitVolumeSelector));
 
-    assert(neri::usb::control::findPlaybackFeatureUnitControls(nullptr, 0, 2).empty());
+    assert(memi::usb::control::findPlaybackFeatureUnitControls(nullptr, 0, 2).empty());
     constexpr uint8_t truncated[] = { 18, 0x24, 0x06, 0x02 };
-    assert(neri::usb::control::findPlaybackFeatureUnitControls(truncated, sizeof(truncated), 2).empty());
+    assert(memi::usb::control::findPlaybackFeatureUnitControls(truncated, sizeof(truncated), 2).empty());
 }
 
 void choosesUnityHardwareVolumeWithinTheDeviceRange() {
-    using neri::usb::control::unityVolumeWithinRange;
+    using memi::usb::control::unityVolumeWithinRange;
     assert(unityVolumeWithinRange(-12800, 0) == 0);
     assert(unityVolumeWithinRange(-6400, 3072) == 0);
     assert(unityVolumeWithinRange(-12800, -256) == -256);
@@ -315,26 +315,26 @@ void choosesUnityHardwareVolumeWithinTheDeviceRange() {
     int16_t minimum = 1;
     int16_t maximum = 1;
     uint16_t resolution = 0;
-    assert(neri::usb::control::decodeUac2VolumeRange(range, sizeof(range), &minimum, &maximum, &resolution));
+    assert(memi::usb::control::decodeUac2VolumeRange(range, sizeof(range), &minimum, &maximum, &resolution));
     assert(minimum == -12800);
     assert(maximum == 0);
     assert(resolution == 128);
     constexpr uint8_t empty[] = { 0, 0, 0x00, 0xCE, 0x00, 0x00, 0x80, 0x00 };
-    assert(!neri::usb::control::decodeUac2VolumeRange(empty, sizeof(empty), &minimum, &maximum, &resolution));
-    assert(!neri::usb::control::decodeUac2VolumeRange(range, 4, &minimum, &maximum, &resolution));
+    assert(!memi::usb::control::decodeUac2VolumeRange(empty, sizeof(empty), &minimum, &maximum, &resolution));
+    assert(!memi::usb::control::decodeUac2VolumeRange(range, 4, &minimum, &maximum, &resolution));
 
     uint8_t encoded[2] = { 0, 0 };
-    neri::usb::control::encodeLittleEndianInt16(-12800, encoded);
+    memi::usb::control::encodeLittleEndianInt16(-12800, encoded);
     assert(encoded[0] == 0x00 && encoded[1] == 0xCE);
-    assert(neri::usb::control::decodeLittleEndianInt16(encoded) == -12800);
+    assert(memi::usb::control::decodeLittleEndianInt16(encoded) == -12800);
 }
 
 void mapsVolumeKeysOntoOneHardwareVolumeControl() {
-    using neri::usb::control::FeatureUnitControl;
-    using neri::usb::control::FeatureUnitVolume;
-    using neri::usb::control::hardwareVolumeForFraction;
-    using neri::usb::control::kFeatureUnitVolumeSelector;
-    using neri::usb::control::selectHardwareVolumeControls;
+    using memi::usb::control::FeatureUnitControl;
+    using memi::usb::control::FeatureUnitVolume;
+    using memi::usb::control::hardwareVolumeForFraction;
+    using memi::usb::control::kFeatureUnitVolumeSelector;
+    using memi::usb::control::selectHardwareVolumeControls;
     const auto volume = [](int unitId, int channel, int16_t minimum, int16_t maximum) {
         return FeatureUnitVolume { FeatureUnitControl { unitId, channel, kFeatureUnitVolumeSelector }, minimum, maximum };
     };
@@ -366,9 +366,9 @@ void mapsVolumeKeysOntoOneHardwareVolumeControl() {
 }
 
 void waitsForTheClockBeforeTrustingTheRateReadback() {
-    using neri::usb::control::SampleRateReadback;
-    using neri::usb::control::classifySampleRateReadback;
-    using neri::usb::control::sampleRateSettleDelayMs;
+    using memi::usb::control::SampleRateReadback;
+    using memi::usb::control::classifySampleRateReadback;
+    using memi::usb::control::sampleRateSettleDelayMs;
     assert(classifySampleRateReadback(44100, 44100, 0) == SampleRateReadback::Verified);
     assert(classifySampleRateReadback(44100, 48000, 0) == SampleRateReadback::Settle);
     assert(classifySampleRateReadback(44100, 48000, 2) == SampleRateReadback::Settle);

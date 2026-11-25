@@ -3,7 +3,7 @@ plugins {
     id("build-logic.android.module-quality")
 }
 android {
-    namespace = "moe.ouom.neriplayer.lanltw"
+    namespace = "com.mmc.merimusicplayer.lanltw"
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")

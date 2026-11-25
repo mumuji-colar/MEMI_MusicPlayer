@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 
 enum class Uac2DescriptorSnapshotStatus {
     Valid,
@@ -51,4 +51,4 @@ const char* uac2DescriptorSnapshotStatusName(
     Uac2DescriptorSnapshotStatus status
 );
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

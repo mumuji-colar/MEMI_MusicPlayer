@@ -16,8 +16,8 @@ NeriPlayer 按根目录的 [GPL-3.0 许可证](LICENSE) 发布。本文记录部
 | libusb | Sources and headers in [`modules/native/src/main/cpp/third_party/libusb/`](modules/native/src/main/cpp/third_party/libusb/) used by USB exclusive output | LGPL-2.1-or-later, as declared in the imported source headers |
 
 The Super Island adaptations are in
-[`shizuku/`](modules/playback/runtime/src/main/java/moe/ouom/neriplayer/core/player/shizuku/)
-and [`service/lyrics/`](modules/playback/runtime/src/main/java/moe/ouom/neriplayer/core/player/service/lyrics/).
+[`shizuku/`](modules/playback/runtime/src/main/java/com/mmc/merimusicplayer/core/player/shizuku/)
+and [`service/lyrics/`](modules/playback/runtime/src/main/java/com/mmc/merimusicplayer/core/player/service/lyrics/).
 File-specific notices remain authoritative. NeriPlayer's native alternative
 license covers only the owned portions listed in the
 [native license document](modules/native/src/main/cpp/README.md); it does not

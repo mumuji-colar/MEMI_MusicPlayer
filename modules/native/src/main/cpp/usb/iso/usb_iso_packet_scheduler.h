@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstdint>
 
-namespace neri::usb {
+namespace memi::usb {
 
 struct IsoPacketPlan {
     int frames = 0;
@@ -39,4 +39,4 @@ private:
     uint64_t frameRemainder_ = 0;
 };
 
-} // namespace neri::usb
+} // namespace memi::usb

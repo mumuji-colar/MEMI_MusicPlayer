@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 
 constexpr uint8_t kUac2InterfaceProtocol = 0x20;
 
@@ -135,4 +135,4 @@ const char* candidateRejectionCodeName(CandidateRejectionCode code);
 const char* candidateSyncModeName(CandidateSyncMode mode);
 const char* claimInterfaceKindName(ClaimInterfaceKind kind);
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

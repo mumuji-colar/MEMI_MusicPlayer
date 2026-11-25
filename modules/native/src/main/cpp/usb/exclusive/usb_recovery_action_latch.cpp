@@ -1,6 +1,6 @@
 #include "usb/exclusive/usb_recovery_action_latch.h"
 
-namespace neri::usb {
+namespace memi::usb {
 namespace {
 
 bool isTerminalAction(UsbRuntimeRecoveryAction action) {
@@ -93,4 +93,4 @@ const char* usbRecoveryActionAckStatusName(UsbRecoveryActionAckStatus status) {
     return "NO_PENDING";
 }
 
-} // namespace neri::usb
+} // namespace memi::usb

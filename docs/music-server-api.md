@@ -264,7 +264,7 @@ offset 和结构依据：[structuredLyrics](https://opensubsonic.netlify.app/doc
 
 ## 8. 客户端仓库契约
 
-实际方法位于 [SubsonicRepository](../modules/platform/src/main/java/moe/ouom/neriplayer/platform/subsonic/repository/SubsonicRepository.kt)，客户端未实现一个新的全平台公共 Provider 接口。
+实际方法位于 [SubsonicRepository](../modules/platform/src/main/java/com/mmc/merimusicplayer/platform/subsonic/repository/SubsonicRepository.kt)，客户端未实现一个新的全平台公共 Provider 接口。
 
 | 方法 | 输入 | 输出 / 行为 |
 | --- | --- | --- |

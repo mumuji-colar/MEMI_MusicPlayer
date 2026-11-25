@@ -7,9 +7,9 @@
         android:shortcutShortLabel="@string/launcher_shortcut_continue_short"
         android:shortcutLongLabel="@string/launcher_shortcut_continue_long">
         <intent
-            android:action="moe.ouom.neriplayer.action.CONTINUE_PLAYBACK"
+            android:action="com.mmc.merimusicplayer.action.CONTINUE_PLAYBACK"
             android:targetPackage="com.mmc.merimusicplayer"
-            android:targetClass="moe.ouom.neriplayer.activity.MainActivity" />
+            android:targetClass="com.mmc.merimusicplayer.activity.MainActivity" />
     </shortcut>
 
     <shortcut
@@ -19,9 +19,9 @@
         android:shortcutShortLabel="@string/launcher_shortcut_explore_short"
         android:shortcutLongLabel="@string/launcher_shortcut_explore_long">
         <intent
-            android:action="moe.ouom.neriplayer.action.OPEN_EXPLORE"
+            android:action="com.mmc.merimusicplayer.action.OPEN_EXPLORE"
             android:targetPackage="com.mmc.merimusicplayer"
-            android:targetClass="moe.ouom.neriplayer.activity.MainActivity" />
+            android:targetClass="com.mmc.merimusicplayer.activity.MainActivity" />
     </shortcut>
 
     <shortcut
@@ -31,9 +31,9 @@
         android:shortcutShortLabel="@string/launcher_shortcut_library_short"
         android:shortcutLongLabel="@string/launcher_shortcut_library_long">
         <intent
-            android:action="moe.ouom.neriplayer.action.OPEN_LIBRARY"
+            android:action="com.mmc.merimusicplayer.action.OPEN_LIBRARY"
             android:targetPackage="com.mmc.merimusicplayer"
-            android:targetClass="moe.ouom.neriplayer.activity.MainActivity" />
+            android:targetClass="com.mmc.merimusicplayer.activity.MainActivity" />
     </shortcut>
 
     <shortcut
@@ -43,8 +43,8 @@
         android:shortcutShortLabel="@string/launcher_shortcut_shuffle_favorites_short"
         android:shortcutLongLabel="@string/launcher_shortcut_shuffle_favorites_long">
         <intent
-            android:action="moe.ouom.neriplayer.action.SHUFFLE_FAVORITES"
+            android:action="com.mmc.merimusicplayer.action.SHUFFLE_FAVORITES"
             android:targetPackage="com.mmc.merimusicplayer"
-            android:targetClass="moe.ouom.neriplayer.activity.MainActivity" />
+            android:targetClass="com.mmc.merimusicplayer.activity.MainActivity" />
     </shortcut>
 </shortcuts>

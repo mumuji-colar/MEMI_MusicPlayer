@@ -222,7 +222,7 @@ static void exit_dlls(void)
  * Parameters:
  * dev_info: a pointer to a dev_info list
  * dev_info_data: a pointer to an SP_DEVINFO_DATA to be filled (or NULL if not needed)
- * enumerator: the generic USB class for which to retrieve interface details
+ * enumerator: the gememic USB class for which to retrieve interface details
  * index: zero based index of the interface in the device info list
  *
  * Note: it is the responsibility of the caller to free the DEVICE_INTERFACE_DETAIL_DATA
@@ -1682,7 +1682,7 @@ static int winusb_get_device_list(struct libusb_context *ctx, struct discovered_
 	// PASS 0 : enumerate HUBs
 	// PASS 1 : (re)enumerate master devices that have a DEVice interface
 	// PASS 2 : (re)enumerate HCDs (allow for HCD hotplug)
-	// PASS 3 : (re)enumerate GENeric devices (including driverless)
+	// PASS 3 : (re)enumerate GEMemic devices (including driverless)
 	//           and list additional device interface GUIDs to explore
 	// PASS 4 : (re)enumerate device interface GUIDs (including HID)
 	//           and set the device interfaces
@@ -1774,7 +1774,7 @@ static int winusb_get_device_list(struct libusb_context *ctx, struct discovered_
 
 			usbi_dbg(ctx, "ENUM processing %s", dev_id);
 
-			// Set API to use or get additional data from generic pass
+			// Set API to use or get additional data from gememic pass
 			api = USB_API_UNSUPPORTED;
 			sub_api = SUB_API_NOTSET;
 			switch (pass_type) {

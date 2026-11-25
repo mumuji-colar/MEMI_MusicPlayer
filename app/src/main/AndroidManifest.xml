@@ -47,8 +47,8 @@
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NeriPlayer.Starting"
-        android:name=".NeriPlayerApplication"
+        android:theme="@style/Theme.MemiPlayer.Starting"
+        android:name=".MemiPlayerApplication"
         tools:targetApi="33">
 
         <provider
@@ -158,7 +158,7 @@
         </receiver>
 
         <receiver
-            android:name=".widget.NeriPlayerPlaybackWidgetProvider"
+            android:name=".widget.MemiPlayerPlaybackWidgetProvider"
             android:exported="false"
             android:label="@string/widget_playback_4x2_label">
             <intent-filter>
@@ -171,7 +171,7 @@
         </receiver>
 
         <receiver
-            android:name=".widget.NeriPlayerCompactWidgetProvider"
+            android:name=".widget.MemiPlayerCompactWidgetProvider"
             android:exported="false"
             android:label="@string/widget_playback_2x2_label">
             <intent-filter>
@@ -184,7 +184,7 @@
         </receiver>
         
         <receiver
-            android:name=".widget.NeriPlayerStripWidgetProvider"
+            android:name=".widget.MemiPlayerStripWidgetProvider"
             android:exported="false"
             android:label="@string/widget_playback_4x1_label">
             <intent-filter>
@@ -210,12 +210,12 @@
             android:name=".mv.MvDemoActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
-            android:theme="@style/Theme.NeriPlayer" />
+            android:theme="@style/Theme.MemiPlayer" />
             <activity
             android:name=".mv.MvPlayerActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
-            android:theme="@style/Theme.NeriPlayer" />
+            android:theme="@style/Theme.MemiPlayer" />
 
 </application>
 

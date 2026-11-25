@@ -6,8 +6,8 @@
 
 namespace {
 
-neri::usb::UsbRuntimeReportV2Snapshot validDisabledSnapshot() {
-    neri::usb::UsbRuntimeReportV2Snapshot snapshot;
+memi::usb::UsbRuntimeReportV2Snapshot validDisabledSnapshot() {
+    memi::usb::UsbRuntimeReportV2Snapshot snapshot;
     snapshot.transportRunning = true;
     snapshot.realPcmReleased = true;
     snapshot.canAcceptPcm = true;
@@ -23,7 +23,7 @@ void verifiesDisabledReport() {
     const auto snapshot = validDisabledSnapshot();
     std::string report;
     std::string error;
-    assert(neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(error.empty());
     assert(report.find("reportVersion=2") == 0);
     assert(report.find("feedbackMode=disabled") != std::string::npos);
@@ -37,7 +37,7 @@ void rejectsReadinessMismatch() {
     snapshot.transportRunning = false;
     std::string report;
     std::string error;
-    assert(!neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(!memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(error == "inconsistent_playback_ready");
 }
 
@@ -47,14 +47,14 @@ void verifiesLatchedTerminalAction() {
     snapshot.canAcceptPcm = false;
     snapshot.playbackReady = false;
     snapshot.terminalFailure = true;
-    snapshot.recommendedAction = neri::usb::UsbRuntimeRecoveryAction::FreshOpen;
+    snapshot.recommendedAction = memi::usb::UsbRuntimeRecoveryAction::FreshOpen;
     snapshot.actionId = 17;
-    snapshot.actionOwner = neri::usb::UsbRuntimeRecoveryOwner::Kotlin;
+    snapshot.actionOwner = memi::usb::UsbRuntimeRecoveryOwner::Kotlin;
     snapshot.actionLatched = true;
     snapshot.errorCode = "TransportFailed";
     std::string report;
     std::string error;
-    assert(neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(report.find("recommendedAction=FRESH_OPEN") != std::string::npos);
     assert(report.find("actionId=17") != std::string::npos);
     assert(report.find("actionOwner=kotlin") != std::string::npos);
@@ -69,7 +69,7 @@ void rejectsUnlatchedTerminalFailure() {
     snapshot.terminalFailure = true;
     std::string report;
     std::string error;
-    assert(!neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(!memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(error == "invalid_none_action");
 }
 
@@ -78,7 +78,7 @@ void rejectsGenerationMismatch() {
     snapshot.actionGeneration = snapshot.nativeStreamGeneration - 1;
     std::string report;
     std::string error;
-    assert(!neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(!memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(error == "invalid_generation");
 }
 
@@ -87,7 +87,7 @@ void rejectsInvalidActionIdentity() {
     snapshot.actionId = 1;
     std::string report;
     std::string error;
-    assert(!neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(!memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(error == "invalid_none_action");
 }
 
@@ -96,15 +96,15 @@ void verifiesSignedFeedbackPpm() {
     snapshot.feedbackRatePpm = -37;
     std::string report;
     std::string error;
-    assert(neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(report.find("feedbackRatePpm=-37") != std::string::npos);
 }
 
 void verifiesExplicitFeedbackReport() {
     auto snapshot = validDisabledSnapshot();
-    snapshot.feedbackMode = neri::usb::UsbRuntimeFeedbackMode::Explicit;
+    snapshot.feedbackMode = memi::usb::UsbRuntimeFeedbackMode::Explicit;
     snapshot.feedbackEndpointAddress = 0x84;
-    snapshot.feedbackState = neri::usb::UsbRuntimeFeedbackState::Locked;
+    snapshot.feedbackState = memi::usb::UsbRuntimeFeedbackState::Locked;
     snapshot.feedbackPayloadBytes = 4;
     snapshot.feedbackExpectedPeriodUs = 1000;
     snapshot.feedbackClockFailure = "holdover_timeout";
@@ -119,7 +119,7 @@ void verifiesExplicitFeedbackReport() {
     snapshot.feedbackReusable = true;
     std::string report;
     std::string error;
-    assert(neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(error.empty());
     assert(report.find("feedbackMode=explicit") != std::string::npos);
     assert(report.find("feedbackEndpoint=0x84") != std::string::npos);
@@ -132,28 +132,28 @@ void verifiesExplicitFeedbackReport() {
 
 void verifiesMaximumFeedbackEndpointAddress() {
     auto snapshot = validDisabledSnapshot();
-    snapshot.feedbackMode = neri::usb::UsbRuntimeFeedbackMode::Explicit;
+    snapshot.feedbackMode = memi::usb::UsbRuntimeFeedbackMode::Explicit;
     snapshot.feedbackEndpointAddress = 0xFF;
-    snapshot.feedbackState = neri::usb::UsbRuntimeFeedbackState::Locked;
+    snapshot.feedbackState = memi::usb::UsbRuntimeFeedbackState::Locked;
     snapshot.feedbackPayloadBytes = 4;
     snapshot.feedbackExpectedPeriodUs = 1000;
     std::string report;
     std::string error;
-    assert(neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(error.empty());
     assert(report.find("feedbackEndpoint=0xFF") != std::string::npos);
 }
 
 void rejectsOutOfRangeFeedbackEndpointAddress() {
     auto snapshot = validDisabledSnapshot();
-    snapshot.feedbackMode = neri::usb::UsbRuntimeFeedbackMode::Explicit;
+    snapshot.feedbackMode = memi::usb::UsbRuntimeFeedbackMode::Explicit;
     snapshot.feedbackEndpointAddress = 0x100;
-    snapshot.feedbackState = neri::usb::UsbRuntimeFeedbackState::Locked;
+    snapshot.feedbackState = memi::usb::UsbRuntimeFeedbackState::Locked;
     snapshot.feedbackPayloadBytes = 4;
     snapshot.feedbackExpectedPeriodUs = 1000;
     std::string report;
     std::string error;
-    assert(!neri::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
+    assert(!memi::usb::buildUsbRuntimeReportV2Fields(snapshot, &report, &error));
     assert(report.empty());
     assert(error == "invalid_active_feedback");
 }

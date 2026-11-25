@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.platform"
+    namespace = "com.mmc.merimusicplayer.platform"
     defaultConfig.consumerProguardFiles("consumer-rules.pro")
     testOptions.unitTests.isIncludeAndroidResources = true
 }

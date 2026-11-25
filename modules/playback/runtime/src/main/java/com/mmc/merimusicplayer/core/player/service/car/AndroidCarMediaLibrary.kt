@@ -1,0 +1,114 @@
+package com.mmc.merimusicplayer.core.player.service.car
+
+import android.content.Context
+import android.media.MediaDescription
+import android.media.browse.MediaBrowser
+import android.media.session.MediaSession
+import android.os.Bundle
+import com.mmc.merimusicplayer.core.player.PlayerManager
+import com.mmc.merimusicplayer.core.player.host.PlayerDependencies
+import com.mmc.merimusicplayer.core.player.service.car.artwork.CarArtworkProvider
+import com.mmc.merimusicplayer.core.player.service.car.library.CarLibraryItem
+import com.mmc.merimusicplayer.core.player.service.car.library.CarLibrarySnapshot
+import com.mmc.merimusicplayer.core.player.service.car.library.CarLibraryLabels
+import com.mmc.merimusicplayer.core.player.service.car.library.CarMediaIds
+import com.mmc.merimusicplayer.core.player.service.car.library.CarMediaLibrary
+import com.mmc.merimusicplayer.data.history.toSongItem
+import com.mmc.merimusicplayer.data.identity.stableKey
+import com.mmc.merimusicplayer.data.local.playlist.system.LocalFilesPlaylist
+import com.mmc.merimusicplayer.data.local.media.displayArtist
+import com.mmc.merimusicplayer.data.local.media.displayAlbum
+import com.mmc.merimusicplayer.data.local.media.displayName
+import com.mmc.merimusicplayer.data.model.SongItem
+import com.mmc.merimusicplayer.common.R as CoreCommonR
+import com.mmc.merimusicplayer.common.locale.LanguageManager
+
+internal fun androidCarMediaLibrary(context: Context): CarMediaLibrary {
+    val localizedContext = LanguageManager.applyLanguage(context)
+    val labels = CarLibraryLabels(
+        root = localizedContext.getString(CoreCommonR.string.app_name),
+        queue = localizedContext.getString(CoreCommonR.string.playlist_queue),
+        playlists = localizedContext.getString(CoreCommonR.string.library_favorite_tab_playlists),
+        history = localizedContext.getString(CoreCommonR.string.recent_title),
+        offline = localizedContext.getString(CoreCommonR.string.local_files),
+    )
+    if (!PlayerDependencies.isInitialized()) return CarMediaLibrary(CarLibrarySnapshot(), labels)
+    val playlists = PlayerManager.playlistsFlow.value
+    val offline = LocalFilesPlaylist.firstOrNull(playlists, context)?.songs.orEmpty() +
+        PlayerDependencies.downloads.downloadedSongs()
+    return CarMediaLibrary(CarLibrarySnapshot(
+        queue = PlayerManager.currentQueueFlow.value,
+        playlists = playlists,
+        history = PlayerDependencies.repositories.playHistoryRepo.historyFlow.value.map { it.toSongItem() },
+        offlineSongs = offline.distinctBy { it.stableKey() },
+    ), labels)
+}
+
+internal fun CarLibraryItem.toAndroidMediaItem(context: Context): MediaBrowser.MediaItem {
+    val localizedContext = LanguageManager.applyLanguage(context)
+    val builder = MediaDescription.Builder()
+        .setMediaId(mediaId)
+        .setTitle(title.take(CAR_MEDIA_TEXT_LIMIT))
+        .setSubtitle(subtitle?.take(CAR_MEDIA_TEXT_LIMIT))
+        .setDescription((song?.displayAlbum(localizedContext) ?: description)?.take(CAR_MEDIA_TEXT_LIMIT))
+        .setExtras(Bundle().apply {
+            putInt("android.media.browse.CONTENT_STYLE_PLAYABLE_HINT", 1)
+            putInt("android.media.browse.CONTENT_STYLE_BROWSABLE_HINT", 1)
+        })
+    song?.let { builder.setIconUri(CarArtworkProvider.uriFor(context, it)) }
+    return MediaBrowser.MediaItem(
+        builder.build(),
+        if (isPlayable) MediaBrowser.MediaItem.FLAG_PLAYABLE else MediaBrowser.MediaItem.FLAG_BROWSABLE,
+    )
+}
+
+/**
+ * 构建车机会话队列。
+ *
+ * [currentItemTitleOverride] / [currentItemSubtitleOverride] 覆盖队列当前项的标题与副标题,
+ * 用来和 session metadata 对齐。
+ *
+ * AOSP 蓝牙栈的 MediaPlayerWrapper.isMetadataSynced() 会比较队列当前项与当前 metadata,
+ * 不一致时不立即下发, 而是等 CALLBACK_TIMEOUT_MS(2 秒), 期间的更新都会被丢弃。
+ * 蓝牙歌词下 metadata 的 title 是随进度变化的歌词, 队列项的 title 固定是歌名, 两者不可能一致。
+ */
+internal fun carMediaSessionQueue(
+    context: Context,
+    songs: List<SongItem>,
+    selectedIndex: Int,
+    currentItemTitleOverride: String? = null,
+    currentItemSubtitleOverride: String? = null,
+): List<MediaSession.QueueItem> {
+    return carQueueWindow(carQueueEntries(songs), selectedIndex).map { entry ->
+        val song = entry.song
+        val isCurrent = entry.index == selectedIndex
+        val item = CarLibraryItem(
+            mediaId = CarMediaIds.song(CarMediaIds.QUEUE, entry.index, song.stableKey()),
+            title = if (isCurrent) currentItemTitleOverride ?: song.displayName() else song.displayName(),
+            subtitle = if (isCurrent) {
+                currentItemSubtitleOverride ?: song.displayArtist()
+            } else {
+                song.displayArtist()
+            },
+            description = song.album,
+            song = song,
+        )
+        MediaSession.QueueItem(item.toAndroidMediaItem(context).description, entry.id)
+    }
+}
+
+internal fun carBrowserRootId(rootHints: Bundle?, supportedFlags: Int?): String {
+    val flags = supportedFlags ?: 0
+    if (flags and MediaBrowser.MediaItem.FLAG_BROWSABLE != 0 && flags and MediaBrowser.MediaItem.FLAG_PLAYABLE == 0) {
+        return CarMediaIds.ROOT
+    }
+    return carRequestedBrowserRootId(rootHints)
+}
+
+internal fun carRequestedBrowserRootId(rootHints: Bundle?): String = when {
+    rootHints?.getBoolean("android.service.media.extra.OFFLINE", false) == true -> CarMediaIds.OFFLINE
+    rootHints?.getBoolean("android.service.media.extra.RECENT", false) == true -> CarMediaIds.HISTORY
+    else -> CarMediaIds.ROOT
+}
+
+private const val CAR_MEDIA_TEXT_LIMIT = 512

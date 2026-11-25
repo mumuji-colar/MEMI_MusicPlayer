@@ -6,15 +6,15 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackClock;
-using neri::usb::feedback::FeedbackClockConfig;
-using neri::usb::feedback::FeedbackClockFailureReason;
-using neri::usb::feedback::FeedbackClockState;
-using neri::usb::feedback::FeedbackEstimateResult;
-using neri::usb::feedback::FeedbackEstimateStatus;
-using neri::usb::feedback::FeedbackMathStatus;
-using neri::usb::feedback::FeedbackRateQ32;
-using neri::usb::feedback::kQ32One;
+using memi::usb::feedback::FeedbackClock;
+using memi::usb::feedback::FeedbackClockConfig;
+using memi::usb::feedback::FeedbackClockFailureReason;
+using memi::usb::feedback::FeedbackClockState;
+using memi::usb::feedback::FeedbackEstimateResult;
+using memi::usb::feedback::FeedbackEstimateStatus;
+using memi::usb::feedback::FeedbackMathStatus;
+using memi::usb::feedback::FeedbackRateQ32;
+using memi::usb::feedback::kQ32One;
 
 constexpr int64_t kPeriodNs = 1000000;
 
@@ -86,7 +86,7 @@ void locksHoldsOverAndRelocksWithBoundedSlew() {
     assert(snapshot.holdoverCount == 1);
     assert(snapshot.holdoverTotalNs == 3 * kPeriodNs);
     assert(snapshot.relockCount == 1);
-    assert(std::string(neri::usb::feedback::feedbackClockStateName(
+    assert(std::string(memi::usb::feedback::feedbackClockStateName(
         snapshot.state
     )) == "locked");
 }

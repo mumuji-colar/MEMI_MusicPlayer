@@ -6,8 +6,8 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 
-LYRICS_CLASS = "moe.ouom.neriplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest"
-ROTATION_CLASS = "moe.ouom.neriplayer.activity.MainActivityRotationContinuityTest"
+LYRICS_CLASS = "com.mmc.merimusicplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest"
+ROTATION_CLASS = "com.mmc.merimusicplayer.activity.MainActivityRotationContinuityTest"
 LYRICS_CASES = {
     "cleanExternalLyricsPageBottomRowsReceiveNativeTouchesWithMiniPlayer",
     "cleanExternalLyricsPageBottomRowsReceiveNativeTouchesAtExpandedUiDensity",

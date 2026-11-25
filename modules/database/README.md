@@ -4,9 +4,9 @@
 
 `:database` owns `NeriUserDataDatabase`, Room entities, DAOs, stores, and migrations. It persists playlists, history, statistics, the playback queue, download records, and platform caches.
 
-源码在 `src/main/java/moe/ouom/neriplayer/data/local/database`，历史 schema 在 `schemas`。模块仅依赖 `:model`，通过 KSP 生成 Room 代码。业务映射由 `:local` 维护，平台缓存策略由 `:platform` 维护；数据库仅在应用主进程打开。
+源码在 `src/main/java/com/mmc/merimusicplayer/data/local/database`，历史 schema 在 `schemas`。模块仅依赖 `:model`，通过 KSP 生成 Room 代码。业务映射由 `:local` 维护，平台缓存策略由 `:platform` 维护；数据库仅在应用主进程打开。
 
-Sources are in `src/main/java/moe/ouom/neriplayer/data/local/database`, with historical schemas in `schemas`. The module depends only on `:model` and uses KSP to generate Room code. `:local` owns business mappings and `:platform` owns cache policies. The database opens only in the app's main process.
+Sources are in `src/main/java/com/mmc/merimusicplayer/data/local/database`, with historical schemas in `schemas`. The module depends only on `:model` and uses KSP to generate Room code. `:local` owns business mappings and `:platform` owns cache policies. The database opens only in the app's main process.
 
 ## 升级 / Migrations
 

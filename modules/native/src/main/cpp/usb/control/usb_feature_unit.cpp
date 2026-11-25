@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace neri::usb::control {
+namespace memi::usb::control {
 namespace {
 
 constexpr uint8_t kClassSpecificInterface = 0x24;
@@ -207,4 +207,4 @@ void encodeLittleEndianInt16(int16_t value, uint8_t* output) {
     output[1] = static_cast<uint8_t>((raw >> 8) & 0xFF);
 }
 
-} // namespace neri::usb::control
+} // namespace memi::usb::control

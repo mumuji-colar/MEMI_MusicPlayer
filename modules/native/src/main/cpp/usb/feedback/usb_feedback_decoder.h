@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 struct FeedbackDecodeProfile {
     uint8_t payloadBytesExpected = 0;
@@ -46,4 +46,4 @@ FeedbackDecodeResult decodeFeedbackSample(
     const FeedbackDecodeInput& input
 );
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

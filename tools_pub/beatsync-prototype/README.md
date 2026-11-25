@@ -34,7 +34,7 @@
 
 AndroidBuild 默认构建推荐组合（QuickJS + Java-WebSocket + OkHttp，`-Pcandidate=true`）。传 `-FullAndroidComparison` 可复现包含 Rhino/Ktor 的全候选构建；其 release 当前预期会因缺失桌面 JDK 类而失败，证据保留在 results。全候选 debug APK 已保存为 `artifacts/beatsync-full-debug.apk`。
 
-最新构建的 debug APK 位于 `android-smoke/build/outputs/apk/debug/`。release 为未签名的 R8 验证包，不用于安装发布。设备运行需手动点击 Run candidate validation 并保持前台；它没有生产级后台/重入生命周期管理。结果在应用私有目录 `files/results/`。推荐组合的 debug 包可通过 `adb shell run-as moe.ouom.neriplayer.beatsynccandidate cat files/results/zipline-quickjs.json` 读取结果；全候选包 id 为 `moe.ouom.neriplayer.beatsyncprototype`。候选包测 JS 同组场景和单次回环握手，全候选包才运行完整网络对照。
+最新构建的 debug APK 位于 `android-smoke/build/outputs/apk/debug/`。release 为未签名的 R8 验证包，不用于安装发布。设备运行需手动点击 Run candidate validation 并保持前台；它没有生产级后台/重入生命周期管理。结果在应用私有目录 `files/results/`。推荐组合的 debug 包可通过 `adb shell run-as com.mmc.merimusicplayer.beatsynccandidate cat files/results/zipline-quickjs.json` 读取结果；全候选包 id 为 `com.mmc.merimusicplayer.beatsyncprototype`。候选包测 JS 同组场景和单次回环握手，全候选包才运行完整网络对照。
 
 ## 结果解释
 

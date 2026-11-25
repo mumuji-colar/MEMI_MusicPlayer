@@ -11,7 +11,7 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.data.sync"
+    namespace = "com.mmc.merimusicplayer.data.sync"
     defaultConfig.consumerProguardFiles("consumer-rules.pro")
     defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 }
@@ -61,7 +61,7 @@ val verifySyncCoverageExecution = tasks.register<VerifyCoverageExecutionData>("v
 val syncCoverageSources = tasks.register<Sync>("syncCoverageSources") {
     from(layout.projectDirectory.dir("src/main/java"))
     from(modelProject.layout.projectDirectory.dir("src/main/java")) {
-        include("moe/ouom/neriplayer/data/model/sync/**")
+        include("com/mmc/merimusicplayer/data/model/sync/**")
     }
     into(layout.buildDirectory.dir("reports/crap/sources"))
     duplicatesStrategy = DuplicatesStrategy.FAIL
@@ -125,8 +125,8 @@ val generateSyncDomainScope = tasks.register("generateSyncDomainScope") {
         val domains = JsonSlurper().parse(rootProject.file("config/quality/domain-dependencies.json")) as List<*>
         val selected = domains.filter { domain ->
             val prefix = (domain as Map<*, *>)["package"] as String
-            prefix.startsWith("moe.ouom.neriplayer.data.sync.") ||
-                prefix.startsWith("moe.ouom.neriplayer.api.sync.")
+            prefix.startsWith("com.mmc.merimusicplayer.data.sync.") ||
+                prefix.startsWith("com.mmc.merimusicplayer.api.sync.")
         }
         check(selected.isNotEmpty()) { "Sync dependency scope has no domains" }
         syncDomainScope.get().asFile.apply {

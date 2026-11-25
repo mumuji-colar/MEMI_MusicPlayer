@@ -5,7 +5,7 @@
 namespace {
 
 void verifiesUac1FullSpeedBaselineStartup() {
-    using namespace neri::usb;
+    using namespace memi::usb;
 
     const IsoTransferWindowPlan uac1FullSpeed = planIsoTransferWindow(1000, 320, 3000);
     assert(uac1FullSpeed.packetsPerTransfer == 32);
@@ -18,7 +18,7 @@ void verifiesUac1FullSpeedBaselineStartup() {
 }
 
 void verifiesUac1PauseReplayRestartsWarmup() {
-    using namespace neri::usb;
+    using namespace memi::usb;
 
     constexpr int baselineTransferCount = 10;
     constexpr int transferBytes = 6144;
@@ -43,7 +43,7 @@ void verifiesUac1PauseReplayRestartsWarmup() {
 }
 
 void verifiesUac1LifecycleWindowBoundaryAndSafetyWaterline() {
-    using namespace neri::usb;
+    using namespace memi::usb;
 
     constexpr int baselineTransferCount = 10;
     constexpr int transferBytes = 6144;
@@ -84,7 +84,7 @@ void verifiesUac1LifecycleWindowBoundaryAndSafetyWaterline() {
 }
 
 void verifiesUacTransportModeRegressionMatrix() {
-    using namespace neri::usb;
+    using namespace memi::usb;
 
     // UAC1 adaptive/synchronous routes have no explicit feedback clock.
     const IsoTransferWindowPlan uac1NoFeedback = planIsoTransferWindow(1000, 320, 3000);

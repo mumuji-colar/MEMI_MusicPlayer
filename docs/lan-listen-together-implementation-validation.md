@@ -57,7 +57,7 @@ ADB 识别两台设备（Android 17 / Android 16）。Android 17 上 `LanSession
 
 正式 Debug 应用曾在 Android 17 界面显示已连接、RTT 约 17ms 与当前歌曲；这是界面/会话证据，不能证明声音同步精度。最终按钮/系统媒体音量版本已通过 `adb push` + `adb shell pm install -r -t` 覆盖安装到两台设备，保留原有 Debug 数据，没有要求手机端安装确认。
 
-独立 `moe.ouom.neriplayer.lanltw.test` 已从两台设备卸载；推送到 `/data/local/tmp` 的本次 APK 和 UI dump 已删除。本次启动的只读模拟器已关闭。原来存在的正式版 `moe.ouom.neriplayer` 保留，当前 Debug 版本保留。
+独立 `com.mmc.merimusicplayer.lanltw.test` 已从两台设备卸载；推送到 `/data/local/tmp` 的本次 APK 和 UI dump 已删除。本次启动的只读模拟器已关闭。原来存在的正式版 `com.mmc.merimusicplayer` 保留，当前 Debug 版本保留。
 
 ## 未完成的验收
 

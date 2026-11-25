@@ -6,9 +6,9 @@
 
 ## 结构 / Layout
 
-源码位于 [core/download](src/main/java/moe/ouom/neriplayer/core/download)。依赖 `:model`、`:common`、协程、OkHttp 和 AndroidX 文件兼容库；实际传输、Room 队列和后台任务由 `:download:runtime` 负责。
+源码位于 [core/download](src/main/java/com/mmc/merimusicplayer/core/download)。依赖 `:model`、`:common`、协程、OkHttp 和 AndroidX 文件兼容库；实际传输、Room 队列和后台任务由 `:download:runtime` 负责。
 
-Sources live in [core/download](src/main/java/moe/ouom/neriplayer/core/download). Dependencies include `:model`, `:common`, coroutines, OkHttp, and AndroidX file helpers. `:download:runtime` owns transfers, Room queues, and background jobs.
+Sources live in [core/download](src/main/java/com/mmc/merimusicplayer/core/download). Dependencies include `:model`, `:common`, coroutines, OkHttp, and AndroidX file helpers. `:download:runtime` owns transfers, Room queues, and background jobs.
 
 `resource/permit/DownloadTransferPermitRegistry` 统一管理传输槽位、FIFO 等待和心跳。调用方在结束或取消时释放 `Permit`。
 

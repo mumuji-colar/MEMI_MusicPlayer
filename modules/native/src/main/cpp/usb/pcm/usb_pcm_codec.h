@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace neri::usb {
+namespace memi::usb {
 
 int bytesPerSampleForEncoding(int encoding);
 
@@ -38,4 +38,4 @@ void writeIntegerPcmValue(
     int64_t value
 );
 
-} // namespace neri::usb
+} // namespace memi::usb

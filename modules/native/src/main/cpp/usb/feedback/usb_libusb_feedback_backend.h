@@ -2,7 +2,7 @@
 
 #include "usb/feedback/usb_feedback_in_transfer_set.h"
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 class LibusbFeedbackTransferBackend final : public FeedbackTransferBackend {
 public:
@@ -12,4 +12,4 @@ public:
     void freeTransfer(libusb_transfer* transfer) override;
 };
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

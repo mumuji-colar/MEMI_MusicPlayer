@@ -18,7 +18,7 @@ namespace {
 
 constexpr double kPi = 3.14159265358979323846;
 
-neri::usb::PcmPipelineConfig configFor(int inputRate, int outputRate) {
+memi::usb::PcmPipelineConfig configFor(int inputRate, int outputRate) {
     return {
         { outputRate, 2, 2, 16, 4 },
         { inputRate, 2, 2 },
@@ -28,7 +28,7 @@ neri::usb::PcmPipelineConfig configFor(int inputRate, int outputRate) {
     };
 }
 
-neri::usb::PcmPipelineConfig configFor32Bit(int inputRate, int outputRate) {
+memi::usb::PcmPipelineConfig configFor32Bit(int inputRate, int outputRate) {
     return {
         { outputRate, 2, 4, 32, 8 },
         { inputRate, 2, 4 },
@@ -38,7 +38,7 @@ neri::usb::PcmPipelineConfig configFor32Bit(int inputRate, int outputRate) {
     };
 }
 
-neri::usb::PcmPipelineConfig configFor24BitIn32Container(int inputRate, int outputRate) {
+memi::usb::PcmPipelineConfig configFor24BitIn32Container(int inputRate, int outputRate) {
     return {
         { outputRate, 2, 4, 24, 8 },
         { inputRate, 2, 22 },
@@ -63,7 +63,7 @@ int16_t readInt16Sample(const std::vector<uint8_t>& output, size_t byteOffset) {
 }
 
 void verifiesExactRatePassThroughAcrossWrites() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
     const std::array<uint8_t, 8> first { 1, 0, 2, 0, 3, 0, 4, 0 };
@@ -81,7 +81,7 @@ void verifiesExactRatePassThroughAcrossWrites() {
 }
 
 void verifiesStreamingResampleKeepsLongTermFrameCount() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(44100, 48000), &error));
     constexpr int inputFramesPerChunk = 441;
@@ -95,7 +95,7 @@ void verifiesStreamingResampleKeepsLongTermFrameCount() {
 }
 
 void verifiesPausePreservesQueuedAudio() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
     const std::array<uint8_t, 8> input { 1, 0, 2, 0, 3, 0, 4, 0 };
@@ -109,7 +109,7 @@ void verifiesPausePreservesQueuedAudio() {
 }
 
 void verifiesResumeAfterSilentOutputRampsFromZero() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
     pipeline.setTargetGain(1.0f);
@@ -139,7 +139,7 @@ void verifiesResumeAfterSilentOutputRampsFromZero() {
 }
 
 void verifiesTransportStartRampRearmsWithoutDroppingQueuedAudio() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
     pipeline.setTargetGain(1.0f);
@@ -199,7 +199,7 @@ void verifiesTransportStartRampRearmsWithoutDroppingQueuedAudio() {
 }
 
 void verifiesPartialUnderrunFadesLastValidFramesToSilence() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
 
@@ -227,7 +227,7 @@ void verifiesPartialUnderrunFadesLastValidFramesToSilence() {
 }
 
 void verifiesUnsupportedEncodingIsRejected() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     auto config = configFor(48000, 48000);
     config.input.encoding = -1;
@@ -236,7 +236,7 @@ void verifiesUnsupportedEncodingIsRejected() {
 }
 
 void verifiesRuntimeRingResizePreservesQueuedAudio() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
     const std::array<uint8_t, 8> input { 1, 0, 2, 0, 3, 0, 4, 0 };
@@ -250,7 +250,7 @@ void verifiesRuntimeRingResizePreservesQueuedAudio() {
 }
 
 void verifiesHighResolutionRingUsesBoundedAllocation() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     auto config = configFor(768000, 768000);
     config.output = { 768000, 8, 4, 32, 32 };
@@ -263,7 +263,7 @@ void verifiesHighResolutionRingUsesBoundedAllocation() {
 }
 
 void verifiesBackpressureSnapshotTracksFullRing() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     auto config = configFor(48000, 48000);
     config.ringDurationMs = 1;
@@ -294,7 +294,7 @@ void verifiesBackpressureSnapshotTracksFullRing() {
 }
 
 void verifiesFloatInputResampleProducesUsbSignalStats() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     auto config = configFor(96000, 48000);
     config.input.encoding = 4;
@@ -335,7 +335,7 @@ void verifiesFloatInputResampleProducesUsbSignalStats() {
 }
 
 void verifiesFloatInputPassThroughProduces32BitUsbSignal() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor32Bit(96000, 96000), &error));
 
@@ -363,14 +363,14 @@ void verifiesFloatInputPassThroughProduces32BitUsbSignal() {
     assert(snapshot.outputPeak >= 0.5f);
     assert(snapshot.lastOutputPeak >= 0.5f);
 
-    const float firstLeft = neri::usb::readIntegerPcmSample(output.data(), 4, 32);
-    const float secondLeft = neri::usb::readIntegerPcmSample(output.data() + 8, 4, 32);
+    const float firstLeft = memi::usb::readIntegerPcmSample(output.data(), 4, 32);
+    const float secondLeft = memi::usb::readIntegerPcmSample(output.data() + 8, 4, 32);
     assert(firstLeft > 0.49f && firstLeft <= 0.5f);
     assert(secondLeft < -0.49f && secondLeft >= -0.5f);
 }
 
 void verifies32BitIntegerPassThroughPreservesRawBytes() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     auto config = configFor32Bit(48000, 48000);
     config.input.encoding = 22;
@@ -394,9 +394,9 @@ std::array<uint8_t, Bytes> bitPerfectPassThrough(
     int bitsPerSample,
     const std::vector<uint8_t>& input
 ) {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
-    const neri::usb::PcmPipelineConfig config {
+    const memi::usb::PcmPipelineConfig config {
         { 48000, 2, subslotBytes, bitsPerSample, 2 * subslotBytes },
         { 48000, 2, encoding },
         250,
@@ -439,19 +439,19 @@ void verifiesBigEndianIntegerInputStaysBitExact() {
     assert((bitPerfectPassThrough<4>(kPcm16BitBigEndian, 2, 16, int16BigEndian) ==
         std::array<uint8_t, 4> { 0x34, 0x12, 0x01, 0x80 }));
 
-    assert(neri::usb::readEncodedIntegerPcmSample(int32BigEndian.data(), kPcm32BitBigEndian) ==
+    assert(memi::usb::readEncodedIntegerPcmSample(int32BigEndian.data(), kPcm32BitBigEndian) ==
         INT32_C(0x12345679));
-    assert(neri::usb::readEncodedIntegerPcmSample(int24BigEndian.data() + 3, kPcm24BitBigEndian) ==
+    assert(memi::usb::readEncodedIntegerPcmSample(int24BigEndian.data() + 3, kPcm24BitBigEndian) ==
         -INT32_C(0x7FFFFF));
-    assert(neri::usb::readEncodedIntegerPcmSample(int16BigEndian.data(), 2) == INT32_C(0x3412));
-    assert(neri::usb::readEncodedIntegerPcmSample(int16BigEndian.data(), 4) == 0);
+    assert(memi::usb::readEncodedIntegerPcmSample(int16BigEndian.data(), 2) == INT32_C(0x3412));
+    assert(memi::usb::readEncodedIntegerPcmSample(int16BigEndian.data(), 4) == 0);
     std::array<uint8_t, 2> saturated {};
-    neri::usb::writeIntegerPcmValue(saturated.data(), 2, 16, INT64_C(0x10000));
+    memi::usb::writeIntegerPcmValue(saturated.data(), 2, 16, INT64_C(0x10000));
     assert((saturated == std::array<uint8_t, 2> { 0xFF, 0x7F }));
 }
 
 void verifiesStereoChannelPeaksPreserveChannelOrder() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     auto config = configFor(48000, 48000);
     config.input.encoding = 4;
@@ -486,7 +486,7 @@ void verifiesStereoChannelPeaksPreserveChannelOrder() {
 }
 
 void verifies32BitInputCanDrive24BitUsb32Container() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor24BitIn32Container(96000, 96000), &error));
 
@@ -514,36 +514,36 @@ void verifies32BitInputCanDrive24BitUsb32Container() {
     assert(snapshot.outputPeak >= 0.5f);
     assert(snapshot.lastOutputPeak >= 0.5f);
 
-    const float firstLeft = neri::usb::readIntegerPcmSample(output.data(), 4, 24);
-    const float secondLeft = neri::usb::readIntegerPcmSample(output.data() + 8, 4, 24);
+    const float firstLeft = memi::usb::readIntegerPcmSample(output.data(), 4, 24);
+    const float secondLeft = memi::usb::readIntegerPcmSample(output.data() + 8, 4, 24);
     assert(firstLeft > 0.49f && firstLeft <= 0.5f);
     assert(secondLeft < -0.49f && secondLeft >= -0.5f);
 }
 
 void verifiesIntegerCodecDepthsAndEndianInputs() {
     std::array<uint8_t, 4> output {};
-    neri::usb::writeIntegerPcmSample(output.data(), 3, 24, -1.0f);
+    memi::usb::writeIntegerPcmSample(output.data(), 3, 24, -1.0f);
     assert(output[0] == 0x00);
     assert(output[1] == 0x00);
     assert(output[2] == 0x80);
-    assert(neri::usb::readIntegerPcmSample(output.data(), 3, 24) == -1.0f);
+    assert(memi::usb::readIntegerPcmSample(output.data(), 3, 24) == -1.0f);
 
     std::array<uint8_t, 4> padded24Output {};
-    neri::usb::writeIntegerPcmSample(padded24Output.data(), 4, 24, -1.0f);
+    memi::usb::writeIntegerPcmSample(padded24Output.data(), 4, 24, -1.0f);
     assert(padded24Output[0] == 0x00);
     assert(padded24Output[1] == 0x00);
     assert(padded24Output[2] == 0x00);
     assert(padded24Output[3] == 0x80);
-    assert(neri::usb::readIntegerPcmSample(padded24Output.data(), 4, 24) == -1.0f);
+    assert(memi::usb::readIntegerPcmSample(padded24Output.data(), 4, 24) == -1.0f);
 
     std::array<uint8_t, 3> positive24 { 0xFF, 0xFF, 0x7F };
-    const float positive24Sample = neri::usb::readIntegerPcmSample(
+    const float positive24Sample = memi::usb::readIntegerPcmSample(
         positive24.data(),
         3,
         24
     );
     std::array<uint8_t, 3> positive24RoundTrip {};
-    neri::usb::writeIntegerPcmSample(
+    memi::usb::writeIntegerPcmSample(
         positive24RoundTrip.data(),
         3,
         24,
@@ -552,13 +552,13 @@ void verifiesIntegerCodecDepthsAndEndianInputs() {
     assert(positive24RoundTrip == positive24);
 
     std::array<uint8_t, 2> positive16 { 0xFF, 0x7F };
-    const float positive16Sample = neri::usb::readIntegerPcmSample(
+    const float positive16Sample = memi::usb::readIntegerPcmSample(
         positive16.data(),
         2,
         16
     );
     std::array<uint8_t, 2> positive16RoundTrip {};
-    neri::usb::writeIntegerPcmSample(
+    memi::usb::writeIntegerPcmSample(
         positive16RoundTrip.data(),
         2,
         16,
@@ -568,8 +568,8 @@ void verifiesIntegerCodecDepthsAndEndianInputs() {
 
     constexpr std::array<uint8_t, 2> littleEndianHalf { 0x00, 0x40 };
     constexpr std::array<uint8_t, 2> bigEndianHalf { 0x40, 0x00 };
-    assert(neri::usb::readEncodedPcmSample(littleEndianHalf.data(), 2) == 0.5f);
-    assert(neri::usb::readEncodedPcmSample(
+    assert(memi::usb::readEncodedPcmSample(littleEndianHalf.data(), 2) == 0.5f);
+    assert(memi::usb::readEncodedPcmSample(
         bigEndianHalf.data(),
         0x10000000
     ) == 0.5f);
@@ -577,10 +577,10 @@ void verifiesIntegerCodecDepthsAndEndianInputs() {
     std::array<uint8_t, 4> floatInfinity {};
     const float infinity = std::numeric_limits<float>::infinity();
     std::memcpy(floatInfinity.data(), &infinity, sizeof(infinity));
-    assert(neri::usb::readEncodedPcmSample(floatInfinity.data(), 4) == 0.0f);
+    assert(memi::usb::readEncodedPcmSample(floatInfinity.data(), 4) == 0.0f);
 
     std::array<uint8_t, 2> finiteGuardOutput {};
-    neri::usb::writeIntegerPcmSample(
+    memi::usb::writeIntegerPcmSample(
         finiteGuardOutput.data(),
         2,
         16,
@@ -601,7 +601,7 @@ std::vector<uint8_t> fullScale16BitFrames(size_t frames) {
 }
 
 void verifiesBitPerfectResumeAndTransportStartKeepSamplesExact() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
     pipeline.setBitPerfect(true);
@@ -622,7 +622,7 @@ void verifiesBitPerfectResumeAndTransportStartKeepSamplesExact() {
 }
 
 void verifiesBitPerfectMuteIsHardAndUnmuteIsExact() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
     pipeline.setBitPerfect(true);
@@ -642,7 +642,7 @@ void verifiesBitPerfectMuteIsHardAndUnmuteIsExact() {
 }
 
 void verifiesBitPerfectPartialUnderrunKeepsValidFrames() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
     pipeline.setBitPerfect(true);
@@ -657,7 +657,7 @@ void verifiesBitPerfectPartialUnderrunKeepsValidFrames() {
 }
 
 void verifiesBitPerfectLeavingRestoresSmoothGain() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(48000, 48000), &error));
     pipeline.setBitPerfect(true);
@@ -676,7 +676,7 @@ void verifiesBitPerfectLeavingRestoresSmoothGain() {
 }
 
 void verifiesIntegerUpconversionPadsWithoutChangingBits() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     auto config = configFor24BitIn32Container(48000, 48000);
     config.input.encoding = 2;
@@ -697,7 +697,7 @@ void verifiesIntegerUpconversionPadsWithoutChangingBits() {
 }
 
 void verifiesFloatFromIntegerSourceRoundTripsExactly() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     auto config = configFor(48000, 48000);
     config.input.encoding = 4;
@@ -736,7 +736,7 @@ double peakAfter(const std::vector<float>& samples, size_t skipFrames) {
 }
 
 std::vector<float> resampleWhole(int inputRate, int outputRate, const std::vector<float>& input) {
-    neri::usb::PcmResampler resampler;
+    memi::usb::PcmResampler resampler;
     assert(resampler.configure(inputRate, outputRate, 2));
     std::vector<float> output;
     resampler.process(input.data(), static_cast<int>(input.size() / 2U), &output);
@@ -747,7 +747,7 @@ void verifiesResamplerOutputDoesNotDependOnChunking() {
     const std::vector<float> input = stereoTone(44100, 997.0, 0.5, 44100);
     const std::vector<float> whole = resampleWhole(44100, 48000, input);
 
-    neri::usb::PcmResampler resampler;
+    memi::usb::PcmResampler resampler;
     assert(resampler.configure(44100, 48000, 2));
     std::vector<float> chunked;
     const int chunkSizes[] = { 1, 7, 64, 441, 1000, 3 };
@@ -791,7 +791,7 @@ void verifiesResamplerRejectsContentAboveOutputNyquist() {
 void verifiesResamplerInputBoundNeverOverfillsOutput() {
     const std::vector<float> input = stereoTone(44100, 440.0, 0.5, 20000);
     for (const auto& rates : { std::pair<int, int>{ 44100, 48000 }, std::pair<int, int>{ 192000, 48000 } }) {
-        neri::usb::PcmResampler resampler;
+        memi::usb::PcmResampler resampler;
         assert(resampler.configure(rates.first, rates.second, 2));
         int offset = 0;
         for (const size_t maxOutput : { size_t { 0 }, size_t { 1 }, size_t { 37 }, size_t { 480 }, size_t { 5 } }) {
@@ -807,7 +807,7 @@ void verifiesResamplerInputBoundNeverOverfillsOutput() {
 
 void verifiesResamplerDrainEmitsLookaheadTail() {
     const std::vector<float> input = stereoTone(44100, 997.0, 0.5, 44100);
-    neri::usb::PcmResampler resampler;
+    memi::usb::PcmResampler resampler;
     assert(resampler.configure(44100, 48000, 2));
     std::vector<float> output;
     const size_t streamed = resampler.process(input.data(), 44100, &output);
@@ -827,7 +827,7 @@ void verifiesResamplerDrainEmitsLookaheadTail() {
 }
 
 void verifiesPipelineDrainQueuesResamplerTail() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     assert(pipeline.configure(configFor(44100, 48000), &error));
     std::vector<uint8_t> chunk(441U * 4U, 0);
@@ -841,7 +841,7 @@ void verifiesPipelineDrainQueuesResamplerTail() {
     assert(pipeline.drainResampler(&error));
     assert(pipeline.queuedFrames() == 4800);
 
-    neri::usb::PcmPipeline passThrough;
+    memi::usb::PcmPipeline passThrough;
     assert(passThrough.configure(configFor(48000, 48000), &error));
     assert(passThrough.write(chunk.data(), chunk.size(), &error) == chunk.size());
     assert(passThrough.drainResampler(&error));
@@ -849,7 +849,7 @@ void verifiesPipelineDrainQueuesResamplerTail() {
 }
 
 void verifiesPipelineDrainWaitsForRingSpace() {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     auto config = configFor(44100, 48000);
     config.ringDurationMs = 1;
@@ -874,7 +874,7 @@ void verifiesChannelLayoutsCarryStereoWithoutDuplicatingExtraChannels() {
     const std::array<uint8_t, 4> stereoFrame { 0x00, 0x10, 0x00, 0xF0 };
     std::string error;
 
-    neri::usb::PcmPipeline quad;
+    memi::usb::PcmPipeline quad;
     auto quadConfig = configFor(48000, 48000);
     quadConfig.output = { 48000, 4, 2, 16, 8 };
     assert(quad.configure(quadConfig, &error));
@@ -886,7 +886,7 @@ void verifiesChannelLayoutsCarryStereoWithoutDuplicatingExtraChannels() {
     assert(readInt16Sample({ quadOutput.begin(), quadOutput.end() }, 4) == 0);
     assert(readInt16Sample({ quadOutput.begin(), quadOutput.end() }, 6) == 0);
 
-    neri::usb::PcmPipeline mono;
+    memi::usb::PcmPipeline mono;
     auto monoConfig = configFor(48000, 48000);
     monoConfig.output = { 48000, 1, 2, 16, 2 };
     assert(mono.configure(monoConfig, &error));
@@ -896,7 +896,7 @@ void verifiesChannelLayoutsCarryStereoWithoutDuplicatingExtraChannels() {
     assert(mono.fill(monoOutput.data(), monoOutput.size(), true) == monoOutput.size());
     assert(readInt16Sample({ monoOutput.begin(), monoOutput.end() }, 0) == 0x1800);
 
-    neri::usb::PcmPipeline widened;
+    memi::usb::PcmPipeline widened;
     auto widenedConfig = configFor(48000, 48000);
     widenedConfig.input.channelCount = 1;
     widenedConfig.output = { 48000, 4, 2, 16, 8 };

@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstring>
 
-namespace neri::usb {
+namespace memi::usb {
 namespace {
 
 constexpr int kEncodingPcm16Bit = 2;
@@ -221,4 +221,4 @@ void writeIntegerPcmValue(
     encodeIntegerPcmValue(output, subslotBytes, validBits, std::clamp(value, -scale, scale - 1));
 }
 
-} // namespace neri::usb
+} // namespace memi::usb

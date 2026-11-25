@@ -4,7 +4,7 @@
 #include <limits>
 #include <map>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 namespace {
 
 struct PathResult {
@@ -403,4 +403,4 @@ const char* clockValidityStateName(ClockValidityState state) {
     return "unknown";
 }
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

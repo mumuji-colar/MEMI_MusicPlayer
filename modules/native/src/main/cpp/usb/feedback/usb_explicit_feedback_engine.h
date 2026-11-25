@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 enum class ExplicitFeedbackEngineState {
     Disabled,
@@ -196,4 +196,4 @@ const char* explicitFeedbackEngineStateName(ExplicitFeedbackEngineState state);
 const char* explicitFeedbackEngineResultName(ExplicitFeedbackEngineResult result);
 const char* explicitFeedbackFailureReasonName(ExplicitFeedbackFailureReason reason);
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

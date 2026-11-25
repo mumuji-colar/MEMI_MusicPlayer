@@ -5,12 +5,12 @@
 #include <mutex>
 #include <string>
 
-#define LOG_TAG "NeriUsbExclusive"
+#define LOG_TAG "MemiUsbExclusive"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 
 std::atomic<int64_t> g_nextNativeStreamGeneration { 1 };
 std::atomic<int64_t> g_nextRecoveryActionId { 1 };
@@ -30,7 +30,7 @@ void requestDeviceStop(UsbExclusiveHandle* handle, bool detachBroadcastConfirmed
     handle->recovery.stopRequested.store(true);
     latchTerminalRecoveryAction(
         handle,
-        neri::usb::UsbRuntimeRecoveryAction::StopPreserveIntent
+        memi::usb::UsbRuntimeRecoveryAction::StopPreserveIntent
     );
 }
 
@@ -74,11 +74,11 @@ void assignNewNativeStreamGeneration(UsbExclusiveHandle* handle) {
 
 void latchTerminalRecoveryAction(
     UsbExclusiveHandle* handle,
-    neri::usb::UsbRuntimeRecoveryAction action
+    memi::usb::UsbRuntimeRecoveryAction action
 ) {
     if (handle == nullptr ||
-        (action != neri::usb::UsbRuntimeRecoveryAction::FreshOpen &&
-            action != neri::usb::UsbRuntimeRecoveryAction::StopPreserveIntent)) {
+        (action != memi::usb::UsbRuntimeRecoveryAction::FreshOpen &&
+            action != memi::usb::UsbRuntimeRecoveryAction::StopPreserveIntent)) {
         return;
     }
     handle->recovery.recoveryActionLatch.latch(
@@ -95,8 +95,8 @@ void markTransportFailed(UsbExclusiveHandle* handle) {
     latchTerminalRecoveryAction(
         handle,
         handle->recovery.deviceOnline.load()
-            ? neri::usb::UsbRuntimeRecoveryAction::FreshOpen
-            : neri::usb::UsbRuntimeRecoveryAction::StopPreserveIntent
+            ? memi::usb::UsbRuntimeRecoveryAction::FreshOpen
+            : memi::usb::UsbRuntimeRecoveryAction::StopPreserveIntent
     );
 }
 
@@ -116,13 +116,13 @@ void refreshTerminalRecoveryAction(
     latchTerminalRecoveryAction(
         handle,
         handle->recovery.deviceOnline.load()
-            ? neri::usb::UsbRuntimeRecoveryAction::FreshOpen
-            : neri::usb::UsbRuntimeRecoveryAction::StopPreserveIntent
+            ? memi::usb::UsbRuntimeRecoveryAction::FreshOpen
+            : memi::usb::UsbRuntimeRecoveryAction::StopPreserveIntent
     );
 }
 
 
-neri::usb::UsbRecoveryActionAckStatus acknowledgeRecoveryAction(
+memi::usb::UsbRecoveryActionAckStatus acknowledgeRecoveryAction(
     UsbExclusiveHandle* handle,
     int64_t actionGeneration,
     int64_t actionId
@@ -133,12 +133,12 @@ neri::usb::UsbRecoveryActionAckStatus acknowledgeRecoveryAction(
             actionId,
             handle->recovery.closing.load()
         )
-        : neri::usb::UsbRecoveryActionAckStatus::NoPending;
+        : memi::usb::UsbRecoveryActionAckStatus::NoPending;
 }
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeAcknowledgeRecoveryAction(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeAcknowledgeRecoveryAction(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -147,7 +147,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 ) {
     try {
         const auto holder = acquireHandle(handleValue);
-        const neri::usb::UsbRecoveryActionAckStatus status = acknowledgeRecoveryAction(
+        const memi::usb::UsbRecoveryActionAckStatus status = acknowledgeRecoveryAction(
             holder.get(),
             static_cast<int64_t>(actionGeneration),
             static_cast<int64_t>(actionId)
@@ -156,7 +156,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
             LOGW(
                 "nativeAcknowledgeRecoveryAction ignored invalid handle=%lld status=%s",
                 static_cast<long long>(handleValue),
-                neri::usb::usbRecoveryActionAckStatusName(status)
+                memi::usb::usbRecoveryActionAckStatusName(status)
             );
         } else {
             LOGI(
@@ -165,21 +165,21 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
                 static_cast<long long>(handleValue),
                 static_cast<long long>(actionGeneration),
                 static_cast<long long>(actionId),
-                neri::usb::usbRecoveryActionAckStatusName(status)
+                memi::usb::usbRecoveryActionAckStatusName(status)
             );
         }
-        return env->NewStringUTF(neri::usb::usbRecoveryActionAckStatusName(status));
+        return env->NewStringUTF(memi::usb::usbRecoveryActionAckStatusName(status));
     } catch (const std::exception& error) {
         LOGE("nativeAcknowledgeRecoveryAction exception: %s", error.what());
-        return env->NewStringUTF(neri::usb::usbRecoveryActionAckStatusName(
-            neri::usb::UsbRecoveryActionAckStatus::NoPending
+        return env->NewStringUTF(memi::usb::usbRecoveryActionAckStatusName(
+            memi::usb::UsbRecoveryActionAckStatus::NoPending
         ));
     } catch (...) {
         LOGE("nativeAcknowledgeRecoveryAction unknown exception");
-        return env->NewStringUTF(neri::usb::usbRecoveryActionAckStatusName(
-            neri::usb::UsbRecoveryActionAckStatus::NoPending
+        return env->NewStringUTF(memi::usb::usbRecoveryActionAckStatusName(
+            memi::usb::UsbRecoveryActionAckStatus::NoPending
         ));
     }
 }
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive

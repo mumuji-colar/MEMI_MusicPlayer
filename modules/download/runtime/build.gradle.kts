@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.feature.download"
+    namespace = "com.mmc.merimusicplayer.feature.download"
     testOptions.unitTests.isIncludeAndroidResources = true
 }
 

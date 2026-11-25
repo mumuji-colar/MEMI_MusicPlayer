@@ -3,10 +3,10 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.common"
+    namespace = "com.mmc.merimusicplayer.common"
     testFixtures.enable = true
     buildFeatures.buildConfig = true
-    defaultConfig.buildConfigField("String", "TAG", "\"[NeriPlayer]\"")
+    defaultConfig.buildConfigField("String", "TAG", "\"[MemiPlayer]\"")
 }
 
 dependencies {

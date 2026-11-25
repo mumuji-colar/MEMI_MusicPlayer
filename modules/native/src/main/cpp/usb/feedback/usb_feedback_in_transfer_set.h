@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 enum class FeedbackInTransferSetState {
     Empty,
@@ -151,4 +151,4 @@ private:
 const char* feedbackInTransferSetStateName(FeedbackInTransferSetState state);
 const char* feedbackInCompletionStatusName(FeedbackInCompletionStatus status);
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

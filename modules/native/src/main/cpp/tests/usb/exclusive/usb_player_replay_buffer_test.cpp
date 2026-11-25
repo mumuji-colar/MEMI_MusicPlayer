@@ -7,7 +7,7 @@
 namespace {
 
 void verifiesCancelledTransfersReplayInSubmissionOrder() {
-    neri::usb::PlayerReplayBuffer replay;
+    memi::usb::PlayerReplayBuffer replay;
     const std::array<uint8_t, 4> later { 5, 6, 7, 8 };
     const std::array<uint8_t, 4> earlier { 1, 2, 3, 4 };
     assert(replay.push(2, later.data(), later.size()));
@@ -22,7 +22,7 @@ void verifiesCancelledTransfersReplayInSubmissionOrder() {
 }
 
 void verifiesPartialReplayKeepsRemainingBytes() {
-    neri::usb::PlayerReplayBuffer replay;
+    memi::usb::PlayerReplayBuffer replay;
     const std::array<uint8_t, 8> input { 1, 2, 3, 4, 5, 6, 7, 8 };
     assert(replay.push(1, input.data(), input.size()));
 
@@ -36,7 +36,7 @@ void verifiesPartialReplayKeepsRemainingBytes() {
 }
 
 void verifiesDuplicateSequenceIsRejectedWithoutChangingQueue() {
-    neri::usb::PlayerReplayBuffer replay;
+    memi::usb::PlayerReplayBuffer replay;
     const std::array<uint8_t, 4> first { 1, 2, 3, 4 };
     const std::array<uint8_t, 4> duplicate { 5, 6, 7, 8 };
     assert(replay.push(1, first.data(), first.size()));

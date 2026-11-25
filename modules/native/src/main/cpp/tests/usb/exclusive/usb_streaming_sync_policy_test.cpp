@@ -9,8 +9,8 @@
 
 namespace {
 
-using neri::usb::UsbStreamingFeedbackMode;
-using neri::usb::UsbStreamingSyncPolicyReason;
+using memi::usb::UsbStreamingFeedbackMode;
+using memi::usb::UsbStreamingSyncPolicyReason;
 
 struct SyncPolicyCase {
     int uacVersion;
@@ -23,18 +23,18 @@ struct SyncPolicyCase {
 
 bool requiresFeedbackScheduler(int uacVersion, uint8_t endpointAttributes) {
     return uacVersion == 1
-        ? neri::usb::uac1::requiresFeedbackScheduler(endpointAttributes)
-        : neri::usb::uac2::requiresFeedbackScheduler(endpointAttributes);
+        ? memi::usb::uac1::requiresFeedbackScheduler(endpointAttributes)
+        : memi::usb::uac2::requiresFeedbackScheduler(endpointAttributes);
 }
 
 void verifiesFeedbackDescriptionClassification() {
-    assert(neri::usb::usbStreamingFeedbackModeForDescription("none") ==
+    assert(memi::usb::usbStreamingFeedbackModeForDescription("none") ==
         UsbStreamingFeedbackMode::None);
-    assert(neri::usb::usbStreamingFeedbackModeForDescription("implicit") ==
+    assert(memi::usb::usbStreamingFeedbackModeForDescription("implicit") ==
         UsbStreamingFeedbackMode::Implicit);
-    assert(neri::usb::usbStreamingFeedbackModeForDescription("explicit:0x86") ==
+    assert(memi::usb::usbStreamingFeedbackModeForDescription("explicit:0x86") ==
         UsbStreamingFeedbackMode::Explicit);
-    assert(neri::usb::usbStreamingFeedbackModeForDescription("unsupported") ==
+    assert(memi::usb::usbStreamingFeedbackModeForDescription("unsupported") ==
         UsbStreamingFeedbackMode::None);
 }
 
@@ -128,7 +128,7 @@ void verifiesUac1AndUac2SynchronizationMatrix() {
     };
 
     for (const SyncPolicyCase& testCase : cases) {
-        const auto decision = neri::usb::resolveUsbStreamingSyncPolicy(
+        const auto decision = memi::usb::resolveUsbStreamingSyncPolicy(
             testCase.uacVersion,
             requiresFeedbackScheduler(testCase.uacVersion, testCase.endpointAttributes),
             testCase.feedbackMode
@@ -141,7 +141,7 @@ void verifiesUac1AndUac2SynchronizationMatrix() {
 }
 
 void rejectsUnknownAudioClassWithoutCreatingFeedbackWork() {
-    const auto decision = neri::usb::resolveUsbStreamingSyncPolicy(
+    const auto decision = memi::usb::resolveUsbStreamingSyncPolicy(
         3,
         false,
         UsbStreamingFeedbackMode::None
@@ -149,7 +149,7 @@ void rejectsUnknownAudioClassWithoutCreatingFeedbackWork() {
     assert(!decision.supported);
     assert(!decision.requiresExplicitFeedbackProfile);
     assert(decision.reason == UsbStreamingSyncPolicyReason::UnsupportedUacVersion);
-    assert(std::string(neri::usb::usbStreamingSyncPolicyReasonName(
+    assert(std::string(memi::usb::usbStreamingSyncPolicyReasonName(
         decision.reason
     )) == "unsupported_uac_version");
 }

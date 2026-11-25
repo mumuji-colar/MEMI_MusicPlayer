@@ -228,11 +228,11 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
 
 #### Android client key paths
 
-- `app/src/main/java/moe/ouom/neriplayer/NeriPlayerApplication.kt`
+- `app/src/main/java/com/mmc/merimusicplayer/NeriPlayerApplication.kt`
   - Application initialization. Handles language, crash handling, `AppContainer`,
     Lyricon, global downloads, and the shared image loader.
 
-- `app/src/main/java/moe/ouom/neriplayer/activity/`
+- `app/src/main/java/com/mmc/merimusicplayer/activity/`
   - `MainActivity.kt`: the main UI and audio-sharing/deep-link entry point. Handles safe mode, startup, disclaimer,
     onboarding, external audio imports, Listen Together deep links, and the top-level
     Compose host.
@@ -249,7 +249,7 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
     `BiliWebLoginActivity.kt`, `BiliQrLoginActivity.kt`, and `YouTubeWebLoginActivity.kt`:
     internal platform sign-in pages.
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/NeriApp.kt`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/NeriApp.kt`
   - Top-level Compose app shell. Handles `NavHost`, dynamic bottom bar, `MiniPlayer`,
     `Now Playing` overlay, Debug routes, themes, cache cleanup, and playback service sync.
   - `MainTabLayerHost.kt` retains outgoing and incoming main-tab scenes,
@@ -263,7 +263,7 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
   - `ui/feedback/` owns app-wide Snackbar/Toast feedback policy. Before adding a
     new global feedback surface, check `AppFeedback` and `ViewSnackbar` first.
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/component/lyrics/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/component/lyrics/`
   - `AdvancedLyricsView.kt` and `SyncedLyricsView.kt`: advanced lyric layout,
     word/character highlighting, translation/phonetic display, click-to-seek,
     and long-press callbacks.
@@ -272,18 +272,18 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
   - The old `AppleMusicLyric` name exists only as an `@Deprecated` wrapper in
     `ui/component/LyricsCompatibility.kt`. New code should use `SyncedLyricsView`.
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/component/playback/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/component/playback/`
   - `NeriMiniPlayer.kt`: bottom Mini Player, play/pause, and horizontal swipe for previous/next.
     The sleep-timer sheet also lives here; the audio effects & speed settings page lives in `ui/screen/tab/settings/audio/`.
   - Same-named files in the `ui/component/` root are primarily legacy package
     compatibility entry points. New implementations belong in responsibility-based
     subpackages such as `lyrics/`, `playback/`, `download/`, and `navigation/`.
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/screen/tab/library/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/screen/tab/library/`
   - `LibraryScreen.kt`: top-level Library categories. Local content switches between playlists and artists, Favorites displays playlists, followed artists, and Hot playlists, and a self-hosted music server entry is provided (preview).
   - `LocalArtistLibraryGrid.kt`: local artist grid, empty state, and artist cards.
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/screen/playlist/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/screen/playlist/`
   - `LocalArtistDetailScreen.kt`: local artist details with play-all,
     multi-select, playlist export, and batch download for resolvable online songs.
   - `curation/`: batch lyrics & artwork curation. `LocalCurationCoordinator` owns the
@@ -297,18 +297,18 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
     `modules/local`; timeline, live-version, and LRC tag weighting live in
     `LyricMatchSupplementalSignals.kt` of `:platform`.
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/screen/artist/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/screen/artist/`
   - NetEase artist detail screens for artist info, hot songs, paged albums,
     and follow state.
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/viewmodel/artist/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/viewmodel/artist/`
   - NetEase artist summaries, JSON parsing, and detail-screen state management.
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/onboarding/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/onboarding/`
   - First-run onboarding for language, platform accounts, permission guidance,
     playback controls, GitHub sync, and personalization.
 
-- `modules/platform/src/main/java/moe/ouom/neriplayer/platform/`
+- `modules/platform/src/main/java/com/mmc/merimusicplayer/platform/`
   - `netease/api`: clients, crypto, request parameters, and QR authentication protocols.
   - `bilibili/api`: search, QR login, favorites, collections, and playback information. Repositories and skip policies live in the same library under `platform/bilibili`.
     Explore link recognition preserves selected parts, `cid`, and `season_id`; check `ExploreLinkRecognizer` and `ExploreViewModel` when changing it.
@@ -321,12 +321,12 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
   - `AppContainer` assembles clients and routing with HTTP, debug configuration, and live settings providers; libraries do not read the container or player singleton.
   - `PlainLyrics.kt` in `modules/lyrics` provides shared timeline conversion.
 
-- `modules/platform/src/main/java/moe/ouom/neriplayer/platform/comments/`
+- `modules/platform/src/main/java/com/mmc/merimusicplayer/platform/comments/`
   - Comment sources, parsing, pagination, and caches; comment contracts belong to `:model`;  `AppContainer` injects client providers and cache instances.
   - The host owns cache lifetime. Libraries do not access the global container. Repository tests belong to the module; ViewModel integration tests remain in `app`.
   - Source tags belong to `:model`; Bilibili legacy playback identity resolution lives in the same library under `platform/bilibili/playback/resolver` and does not depend on the player singleton.
 
-- `modules/playback/runtime/src/main/java/moe/ouom/neriplayer/core/player/`
+- `modules/playback/runtime/src/main/java/com/mmc/merimusicplayer/core/player/`
   - `PlayerManager.kt`: unified Media3 ExoPlayer management, playback resolution, queue,
     cache, state recovery, retry, and playback policy.
   - `service/AudioPlayerService.kt`: foreground playback service, media notification,
@@ -408,7 +408,7 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
     PCM-float conversion, UAC2 explicit feedback, coordinated AudioSink
     reconfiguration, dynamic transfer scaling, and backpressure stall recovery.
 
-- `modules/download/runtime/src/main/java/moe/ouom/neriplayer/core/download/`
+- `modules/download/runtime/src/main/java/com/mmc/merimusicplayer/core/download/`
   - `GlobalDownloadManager.kt`: global download tasks and downloaded song list.
   - `ManagedDownloadStorage.kt` is the facade for app-managed and SAF storage.
     Implementation details are split across `storage/commit/`, `delete/`, `lookup/`,
@@ -420,12 +420,12 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
   - `metadata/DownloadedAudioTagWriter.kt`: audio tag writing; `catalog/` owns
     downloaded-song catalog access and projections.
 
-- `app/src/main/java/moe/ouom/neriplayer/core/startup/`
+- `app/src/main/java/com/mmc/merimusicplayer/core/startup/`
   - Startup stages and decisions are split across `app/`, `crash/`, `download/`,
     `logging/`, `permission/`, `player/`, `safemode/`, `sync/`, and `theme/`.
     `MainActivity` coordinates these components with the UI lifecycle.
 
-- `modules/local/src/main/java/moe/ouom/neriplayer/data/`
+- `modules/local/src/main/java/com/mmc/merimusicplayer/data/`
   - `identity/`: song identity conversion; `SongIdentity` and `SongItem` belong to `modules/model`.
   - `settings/`: `DataStore` settings, KSP schema, and preference mapping; snapshot contracts belong to `:model` under `settings`.
   - `auth/`: shared Web login state and the YouTube credential rotation Worker; platform cookie/auth repositories live in `:platform` under `data/auth` and `platform/youtube/auth`.
@@ -445,17 +445,17 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
   - `sync/github/` and `sync/webdav/`: provider backends and compatible Worker entry points; `sync/work/` owns WorkManager, validated-network, and notification adapters.
   - App has no production `data/sync` sources.
 
-- `modules/sync/src/main/java/moe/ouom/neriplayer/`
+- `modules/sync/src/main/java/com/mmc/merimusicplayer/`
   - `api/sync/`: GitHub/WebDAV transport, response reading, and conditional writes.
   - `data/sync/store/`: encrypted credentials, preferences, device identity, causal counters, and deletion state.
   - `data/sync/merge/`: merge entry points, host contracts, conflicts, ordering, and statistics under `engine`, `host`, `playlist`, `song`, `history`, and `stats`.
   - `data/sync/runtime/`, `codec/`, `sanitize/`, `change/`, `mapping/stats/`, `remote/`, `retry/`, and `schedule/`: sessions, compatible codecs, sanitization, change detection, stat mapping, remote protection, retries, and Worker policies.
   - Sync payload and conflict contracts belong to `:model`. `verifyDomainDependencies` retains separate transport and calculation allowlists, rejecting direct Android repository or player dependencies.
 
-- `modules/listentogether/src/main/java/moe/ouom/neriplayer/api/ltw/`
+- `modules/listentogether/src/main/java/com/mmc/merimusicplayer/api/ltw/`
   - HTTP, WebSocket, server URL validation, and reconnect policies using protocol models and an injected HTTP client.
 
-- `modules/listentogether/src/main/java/moe/ouom/neriplayer/data/ltw/`
+- `modules/listentogether/src/main/java/com/mmc/merimusicplayer/data/ltw/`
   - `ListenTogetherSessionManager` assembles session components; `playback/` owns queues, authoritative streams, and position synchronization.
   - `control/`, `session/`, `invite/`, `mapping/`, and `validation/` own controls, sessions, invites, song mapping, and input boundaries.
   - Room, event, and transport models live in `modules/model` under `ltw`; `api/ltw` in `modules/listentogether` owns transport, and `listentogether/protocol` owns bounded reading and message codecs.
@@ -470,17 +470,17 @@ Libraries with Kotlin/Java production sources use `build-logic.android.feature-l
     and its Android configuration live in `third_party/libusb/`. CMake targets link
     by responsibility; the `:native` AAR supplies `lib_neri.so`.
 
-- `modules/lyrics/src/main/java/moe/ouom/neriplayer/lyrics/lyricon/`
+- `modules/lyrics/src/main/java/com/mmc/merimusicplayer/lyrics/lyricon/`
   - Lyricon integration and SuperLyric output for current song, playback state, position,
     word-level lyrics, and translations.
   - The same library's `lyrics/output/` owns the output controller, asynchronous
     request generations, cancellation, and offset snapshots; position anchors and
     coordination state remain internal.
 
-- `app/src/main/java/moe/ouom/neriplayer/navigation/`
+- `app/src/main/java/com/mmc/merimusicplayer/navigation/`
   - `LauncherShortcuts.kt` maps app-icon shortcuts to navigation or playback requests.
 
-- `app/src/main/java/moe/ouom/neriplayer/widget/`
+- `app/src/main/java/com/mmc/merimusicplayer/widget/`
   - Home-screen playback widget providers, state snapshots, artwork-derived visuals,
     and RemoteViews updates.
 
@@ -759,7 +759,7 @@ Use this for cover, lyrics, and track metadata completion, not for `Explore`.
    models must not move back into the GitHub provider package.
 2. Sync data includes playlists, favorite playlists, recent plays, deletion records,
    playback stats, and independent lyric overrides. V4 uses a Protobuf record stream,
-   ZSTD content chunks, and a root manifest, keeping the `neriplayer-sync-v3.manifest` filename.
+   ZSTD content chunks, and a root manifest, keeping the `memiplayer-sync-v3.manifest` filename.
    V3 archives are read only for migration. Legacy JSON, raw GZIP, and Base64 are read
    only when the manifest is absent. GitHub binary upload requests use Base64 only
    as a transport envelope; repository bodies remain raw binary. Migration preserves all legacy lyrics without a lossy option;
@@ -864,7 +864,7 @@ Use this for cover, lyrics, and track metadata completion, not for `Explore`.
 
 #### 12. Modify Lyricon integration
 
-1. SDK integration lives in `modules/lyrics/src/main/java/moe/ouom/neriplayer/lyrics/lyricon/`; output controllers live under `lyrics/output/` in the same module. Playback supplies lyrics, preferences, progress, and lifecycle snapshots rather than managing SDKs.
+1. SDK integration lives in `modules/lyrics/src/main/java/com/mmc/merimusicplayer/lyrics/lyricon/`; output controllers live under `lyrics/output/` in the same module. Playback supplies lyrics, preferences, progress, and lifecycle snapshots rather than managing SDKs.
 2. The setting key is `lyricon_enabled`, and playback lifecycle keeps it in sync.
 3. Lyrics use `LyricEntry`; word-level data comes from `WordTiming`, and
    translations are matched to original lines by timestamp tolerance.

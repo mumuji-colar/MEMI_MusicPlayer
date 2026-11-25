@@ -2,7 +2,7 @@
 
 #include <limits>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 namespace {
 
 constexpr uint8_t kConfigurationDescriptorType = 0x02;
@@ -292,4 +292,4 @@ const char* uac2DescriptorSnapshotStatusName(
     return "unknown";
 }
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

@@ -11,7 +11,7 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.data.ltw"
+    namespace = "com.mmc.merimusicplayer.data.ltw"
 }
 
 dependencies {
@@ -60,7 +60,7 @@ val generateLtwCrapScope = tasks.register("generateLtwCrapScope") {
     doLast {
         ltwCrapScope.get().asFile.apply {
             parentFile.mkdirs()
-            writeText("""{"source_patterns":["moe/ouom/neriplayer/data/ltw/**/*.kt","moe/ouom/neriplayer/listentogether/**/*.kt","moe/ouom/neriplayer/api/ltw/**/*.kt"]}""")
+            writeText("""{"source_patterns":["com/mmc/merimusicplayer/data/ltw/**/*.kt","com/mmc/merimusicplayer/listentogether/**/*.kt","com/mmc/merimusicplayer/api/ltw/**/*.kt"]}""")
         }
     }
 }
@@ -86,9 +86,9 @@ val generateLtwDomainScope = tasks.register("generateLtwDomainScope") {
         val domains = JsonSlurper().parse(rootProject.file("config/quality/domain-dependencies.json")) as List<*>
         val selected = domains.filter { domain ->
             val prefix = (domain as Map<*, *>)["package"] as String
-            prefix.startsWith("moe.ouom.neriplayer.data.ltw.") ||
-                prefix.startsWith("moe.ouom.neriplayer.listentogether.") ||
-                prefix.startsWith("moe.ouom.neriplayer.api.ltw.")
+            prefix.startsWith("com.mmc.merimusicplayer.data.ltw.") ||
+                prefix.startsWith("com.mmc.merimusicplayer.listentogether.") ||
+                prefix.startsWith("com.mmc.merimusicplayer.api.ltw.")
         }
         check(selected.isNotEmpty()) { "Listen Together dependency scope has no domains" }
         ltwDomainScope.get().asFile.apply {

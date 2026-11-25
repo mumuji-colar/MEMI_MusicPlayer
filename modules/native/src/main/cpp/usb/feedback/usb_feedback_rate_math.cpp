@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <limits>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 namespace {
 
 bool checkedMultiply(uint64_t left, uint64_t right, uint64_t* output) {
@@ -506,4 +506,4 @@ FeedbackProjection projectScheduledFrames(
     return result;
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

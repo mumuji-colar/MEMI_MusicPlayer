@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 struct FeedbackProjection {
     FeedbackMathStatus status = FeedbackMathStatus::NotReady;
@@ -43,4 +43,4 @@ FeedbackProjection projectScheduledFrames(
     uint64_t intervalCount
 );
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

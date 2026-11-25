@@ -7,12 +7,12 @@
 #include <exception>
 #include <new>
 
-#define LOG_TAG "NeriUsbExclusive"
+#define LOG_TAG "MemiUsbExclusive"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 
 void subtractAtomicFloorZero(std::atomic<int64_t>& value, int64_t amount) {
     int64_t current = value.load();
@@ -170,7 +170,7 @@ bool fillPlayerTransfer(
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeConfigurePlayerBufferDuration(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeConfigurePlayerBufferDuration(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -232,7 +232,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativePreparePlayerPcm(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativePreparePlayerPcm(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -269,7 +269,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
             return JNI_FALSE;
         }
     }
-    const int bytesPerSample = neri::usb::bytesPerSampleForEncoding(inputEncoding);
+    const int bytesPerSample = memi::usb::bytesPerSampleForEncoding(inputEncoding);
     if (bytesPerSample <= 0 || inputSampleRate < 8000 || inputSampleRate > 768000 ||
         inputChannelCount < 1 || inputChannelCount > 8) {
         setError(holder.get(), "unsupported_player_pcm_format");
@@ -281,7 +281,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
         );
         return JNI_FALSE;
     }
-    const neri::usb::PcmPipelineConfig config {
+    const memi::usb::PcmPipelineConfig config {
         {
             holder->device.sampleRate,
             holder->device.channelCount,
@@ -325,7 +325,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeWritePlayerPcm(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeWritePlayerPcm(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -396,7 +396,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
     if (written == 0 || written < static_cast<size_t>(size)) {
         const int warningIndex = holder->player.shortWriteWarnings.fetch_add(1);
         if (warningIndex < 8) {
-            const neri::usb::PcmPipelineSnapshot pcm = holder->player.pcmPipeline.snapshot();
+            const memi::usb::PcmPipelineSnapshot pcm = holder->player.pcmPipeline.snapshot();
             LOGW(
                 "nativeWritePlayerPcm short write: handle=%lld requested=%d written=%zu "
                 "level=%zu/%zu free=%zu backpressureEvents=%lld backpressureCurrentMs=%lld "
@@ -423,7 +423,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeDrainPlayerPcm(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeDrainPlayerPcm(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -457,7 +457,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativePlayPlayerPcm(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativePlayPlayerPcm(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -480,7 +480,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
         );
         return JNI_FALSE;
     }
-    const neri::usb::PcmPipelineSnapshot before = holder->player.pcmPipeline.snapshot();
+    const memi::usb::PcmPipelineSnapshot before = holder->player.pcmPipeline.snapshot();
     LOGI(
         "nativePlayPlayerPcm request: handle=%lld running=%d queued=%zu/%zu completed=%lld",
         static_cast<long long>(handleValue),
@@ -506,12 +506,12 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeStartPlayerPcm(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeStartPlayerPcm(
     JNIEnv* env,
     jclass clazz,
     jlong handleValue
 ) {
-    return Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativePlayPlayerPcm(
+    return Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativePlayPlayerPcm(
         env,
         clazz,
         handleValue
@@ -520,7 +520,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativePausePlayerPcm(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativePausePlayerPcm(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -543,7 +543,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
         );
         return JNI_FALSE;
     }
-    const neri::usb::PcmPipelineSnapshot before = holder->player.pcmPipeline.snapshot();
+    const memi::usb::PcmPipelineSnapshot before = holder->player.pcmPipeline.snapshot();
     holder->player.playbackEnabled.store(false);
     holder->player.playerReplayFailed.store(false);
     holder->player.preserveCancelledPlayerFrames.store(true);
@@ -570,7 +570,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeFlushPlayerPcm(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeFlushPlayerPcm(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -597,7 +597,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
     const bool transportWasRunning = holder->transfer.running.load();
     holder->player.playbackEnabled.store(false);
     holder->player.playerPaused.store(false);
-    const neri::usb::PcmPipelineSnapshot before = holder->player.pcmPipeline.snapshot();
+    const memi::usb::PcmPipelineSnapshot before = holder->player.pcmPipeline.snapshot();
     LOGI(
         "nativeFlushPlayerPcm begin: handle=%lld restart=%d resume=%d level=%zu/%zu completed=%lld",
         static_cast<long long>(handleValue),
@@ -628,7 +628,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeSetPlayerVolume(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeSetPlayerVolume(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -647,7 +647,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeSetPlayerBitPerfect(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeSetPlayerBitPerfect(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -672,7 +672,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeSetPlayerFocusMuted(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeSetPlayerFocusMuted(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -693,7 +693,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeGetCompletedAudioFrames(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeGetCompletedAudioFrames(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -705,7 +705,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeGetQueuedPlayerFrames(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeGetQueuedPlayerFrames(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -722,7 +722,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeGetPlayerPcmFreeBytes(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeGetPlayerPcmFreeBytes(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue
@@ -735,4 +735,4 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
     return static_cast<jlong>(holder->player.pcmPipeline.snapshot().freeBytes);
 }
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive

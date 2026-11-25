@@ -1,0 +1,53 @@
+package com.mmc.merimusicplayer.data.sync.mapping
+
+import com.mmc.merimusicplayer.data.sync.playlist.normalizedForDisplayOrder
+import com.mmc.merimusicplayer.data.model.sync.SyncPlaylist
+import com.mmc.merimusicplayer.data.model.sync.SyncSong
+import android.content.Context
+import com.mmc.merimusicplayer.data.local.playlist.system.SystemLocalPlaylists
+import com.mmc.merimusicplayer.data.local.playlist.system.FavoritesPlaylist
+import com.mmc.merimusicplayer.data.model.playlist.DISPLAY_ORDER_SONG_ORDER_VERSION
+import com.mmc.merimusicplayer.data.model.playlist.LocalPlaylist
+
+fun SyncPlaylist.Companion.fromLocalPlaylist(playlist: LocalPlaylist, modifiedAt: Long = System.currentTimeMillis(), context: Context? = null, optimizeLegacyLyrics: Boolean = false): SyncPlaylist {
+    val systemDescriptor = context?.let {
+        SystemLocalPlaylists.resolve(playlist.id, playlist.name, it)
+    }
+    return mapResolvedLocalPlaylist(playlist, modifiedAt, systemDescriptor, context, optimizeLegacyLyrics)
+}
+
+internal fun mapResolvedLocalPlaylist(
+    playlist: LocalPlaylist,
+    modifiedAt: Long,
+    systemDescriptor: SystemLocalPlaylists.Descriptor?,
+    context: Context?,
+    optimizeLegacyLyrics: Boolean = false
+): SyncPlaylist {
+    val resolvedId = systemDescriptor?.id ?: playlist.id
+    return SyncPlaylist(
+        id = resolvedId,
+        name = systemDescriptor?.currentName ?: playlist.name,
+        songs = playlist.songs.mapNotNull { song ->
+            if (resolvedId == FavoritesPlaylist.SYSTEM_ID) {
+                FavoritesPlaylist.toSyncableSongOrNull(song, context)
+                    ?.let { SyncSong.fromSongItem(it, context, optimizeLegacyLyrics) }
+            } else {
+                SyncSong.fromSongItemOrNull(song, context, optimizeLegacyLyrics)
+            }
+        },
+        createdAt = playlist.id, // 使用ID作为创建时间
+        modifiedAt = modifiedAt,
+        songOrderVersion = DISPLAY_ORDER_SONG_ORDER_VERSION
+    )
+}
+
+fun SyncPlaylist.toLocalPlaylist(): LocalPlaylist {
+    val normalized = normalizedForDisplayOrder()
+    return LocalPlaylist(
+        id = normalized.id,
+        name = normalized.name,
+        songs = normalized.songs.map { it.toSongItem() }.toMutableList(),
+        modifiedAt = normalized.modifiedAt,
+        songOrderVersion = DISPLAY_ORDER_SONG_ORDER_VERSION
+    )
+}

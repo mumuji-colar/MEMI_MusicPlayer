@@ -894,7 +894,7 @@ struct libusb_ss_endpoint_companion_descriptor {
 };
 
 /** \ingroup libusb_desc
- * A generic representation of a BOS Device Capability descriptor. It is
+ * A gememic representation of a BOS Device Capability descriptor. It is
  * advised to check bDevCapabilityType and call the matching
  * libusb_get_*_descriptor function to get a structure fully matching the type.
  */
@@ -1487,7 +1487,7 @@ struct libusb_transfer;
 typedef void (LIBUSB_CALL *libusb_transfer_cb_fn)(struct libusb_transfer *transfer);
 
 /** \ingroup libusb_asyncio
- * The generic USB transfer structure. The user populates this structure and
+ * The gememic USB transfer structure. The user populates this structure and
  * then submits it in order to request a transfer. After the transfer has
  * completed, the library populates the transfer with the results and passes
  * it back to the user.

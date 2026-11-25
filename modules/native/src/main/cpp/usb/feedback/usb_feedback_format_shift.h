@@ -4,7 +4,7 @@
 
 #include <climits>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 // Many high-speed DACs report feedback in 10.14 instead of 16.16, or count
 // frames per 1 ms frame instead of per microframe. As snd-usb-audio does, the
@@ -63,4 +63,4 @@ private:
     int shift_ = kUnknown;
 };
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

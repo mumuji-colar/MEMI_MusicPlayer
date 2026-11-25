@@ -127,9 +127,9 @@ typedef union {
 		usb_descriptor *descriptor;
 		uint32 config_index;
 		uint32 interface_index;
-		uint32 generic_index;
+		uint32 gememic_index;
 		size_t length;
-	} generic;
+	} gememic;
 
 	struct {
 		status_t status;
@@ -137,9 +137,9 @@ typedef union {
 		uint32 config_index;
 		uint32 interface_index;
 		uint32 alternate_index;
-		uint32 generic_index;
+		uint32 gememic_index;
 		size_t length;
-	} generic_etc;
+	} gememic_etc;
 
 	struct {
 		status_t status;

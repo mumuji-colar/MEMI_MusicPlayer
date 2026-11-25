@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <string>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 
 enum class UsbBusSpeed {
     Unknown,
@@ -58,4 +58,4 @@ Uac2FeedbackTimingProfile buildUac2FeedbackTimingProfile(
 const char* usbBusSpeedName(UsbBusSpeed speed);
 const char* uac2FeedbackProfileStatusName(Uac2FeedbackProfileStatus status);
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

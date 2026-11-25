@@ -13,9 +13,9 @@ void verifiesDiscretePcmFormat() {
         0x44, 0xAC, 0x00,
         0x80, 0xBB, 0x00
     };
-    neri::usb::uac1::TypeIFormat format;
+    memi::usb::uac1::TypeIFormat format;
     std::string error;
-    assert(neri::usb::uac1::parseTypeIFormat(
+    assert(memi::usb::uac1::parseTypeIFormat(
         descriptors,
         sizeof(descriptors),
         &format,
@@ -31,10 +31,10 @@ void verifiesDiscretePcmFormat() {
     assert(!format.supportsSampleRate(96000));
     assert(format.sampleRateSummary() == "44100,48000");
 
-    const neri::usb::uac1::FormatTarget exactTarget { 48000, 2, 2, 16 };
-    assert(neri::usb::uac1::matchesTarget(format, exactTarget, &error));
-    const neri::usb::uac1::FormatTarget wrongDepth { 48000, 2, 3, 24 };
-    assert(!neri::usb::uac1::matchesTarget(format, wrongDepth, &error));
+    const memi::usb::uac1::FormatTarget exactTarget { 48000, 2, 2, 16 };
+    assert(memi::usb::uac1::matchesTarget(format, exactTarget, &error));
+    const memi::usb::uac1::FormatTarget wrongDepth { 48000, 2, 3, 24 };
+    assert(!memi::usb::uac1::matchesTarget(format, wrongDepth, &error));
     assert(error == "subslot_mismatch_2");
 }
 
@@ -45,9 +45,9 @@ void verifiesContinuousRatesAndEndpointControl() {
         0x44, 0xAC, 0x00,
         0x00, 0x77, 0x01
     };
-    neri::usb::uac1::TypeIFormat format;
+    memi::usb::uac1::TypeIFormat format;
     std::string error;
-    assert(neri::usb::uac1::parseTypeIFormat(
+    assert(memi::usb::uac1::parseTypeIFormat(
         descriptors,
         sizeof(descriptors),
         &format,
@@ -59,8 +59,8 @@ void verifiesContinuousRatesAndEndpointControl() {
     assert(format.sampleRateSummary() == "44100..96000");
 
     constexpr uint8_t endpointDescriptor[] = { 7, 0x25, 0x01, 0x01, 0, 0, 0 };
-    neri::usb::uac1::EndpointControls controls;
-    assert(neri::usb::uac1::parseEndpointControls(
+    memi::usb::uac1::EndpointControls controls;
+    assert(memi::usb::uac1::parseEndpointControls(
         endpointDescriptor,
         sizeof(endpointDescriptor),
         &controls,
@@ -76,16 +76,16 @@ void verifiesUac1Padded24BitContainerFormat() {
         11, 0x24, 0x02, 0x01, 2, 4, 24, 1,
         0x80, 0xBB, 0x00
     };
-    neri::usb::uac1::TypeIFormat format;
+    memi::usb::uac1::TypeIFormat format;
     std::string error;
-    assert(neri::usb::uac1::parseTypeIFormat(
+    assert(memi::usb::uac1::parseTypeIFormat(
         descriptors,
         sizeof(descriptors),
         &format,
         &error
     ));
-    const neri::usb::uac1::FormatTarget exactTarget { 48000, 2, 4, 24 };
-    assert(neri::usb::uac1::matchesTarget(format, exactTarget, &error));
+    const memi::usb::uac1::FormatTarget exactTarget { 48000, 2, 4, 24 };
+    assert(memi::usb::uac1::matchesTarget(format, exactTarget, &error));
 }
 
 void rejectsMalformedDescriptors() {
@@ -94,9 +94,9 @@ void rejectsMalformedDescriptors() {
         14, 0x24, 0x02, 0x01, 2, 2, 16, 2,
         0x80, 0xBB
     };
-    neri::usb::uac1::TypeIFormat format;
+    memi::usb::uac1::TypeIFormat format;
     std::string error;
-    assert(!neri::usb::uac1::parseTypeIFormat(
+    assert(!memi::usb::uac1::parseTypeIFormat(
         truncated,
         sizeof(truncated),
         &format,
@@ -105,7 +105,7 @@ void rejectsMalformedDescriptors() {
     assert(error == "descriptor_body_truncated");
 
     constexpr uint8_t zeroLength[] = { 0, 0x24 };
-    assert(!neri::usb::uac1::parseTypeIFormat(
+    assert(!memi::usb::uac1::parseTypeIFormat(
         zeroLength,
         sizeof(zeroLength),
         &format,
@@ -119,13 +119,13 @@ void rejectsFormatsThatNeedFeedbackScheduling() {
     constexpr uint8_t isochronousAsynchronous = 0x05;
     constexpr uint8_t isochronousSynchronous = 0x0D;
     constexpr uint8_t isochronousImplicitFeedback = 0x21;
-    assert(std::string(neri::usb::uac1::syncTypeName(isochronousAdaptive)) == "adaptive");
-    assert(std::string(neri::usb::uac1::syncTypeName(isochronousAsynchronous)) == "asynchronous");
-    assert(std::string(neri::usb::uac1::syncTypeName(isochronousSynchronous)) == "synchronous");
-    assert(!neri::usb::uac1::requiresFeedbackScheduler(isochronousAdaptive));
-    assert(!neri::usb::uac1::requiresFeedbackScheduler(isochronousSynchronous));
-    assert(neri::usb::uac1::requiresFeedbackScheduler(isochronousAsynchronous));
-    assert(neri::usb::uac1::requiresFeedbackScheduler(isochronousImplicitFeedback));
+    assert(std::string(memi::usb::uac1::syncTypeName(isochronousAdaptive)) == "adaptive");
+    assert(std::string(memi::usb::uac1::syncTypeName(isochronousAsynchronous)) == "asynchronous");
+    assert(std::string(memi::usb::uac1::syncTypeName(isochronousSynchronous)) == "synchronous");
+    assert(!memi::usb::uac1::requiresFeedbackScheduler(isochronousAdaptive));
+    assert(!memi::usb::uac1::requiresFeedbackScheduler(isochronousSynchronous));
+    assert(memi::usb::uac1::requiresFeedbackScheduler(isochronousAsynchronous));
+    assert(memi::usb::uac1::requiresFeedbackScheduler(isochronousImplicitFeedback));
 }
 
 } // namespace

@@ -41,7 +41,7 @@ struct TransferUserData {
 
 /** 打开时改写过的硬件静音/音量，关闭时原样写回 */
 struct FeatureUnitRestoreEntry {
-    neri::usb::control::FeatureUnitControl control;
+    memi::usb::control::FeatureUnitControl control;
     int16_t value = 0;
 };
 
@@ -64,21 +64,21 @@ struct UsbDeviceState {
     uint8_t feedbackEndpoint = 0;
     int feedbackEndpointMaxPacketBytes = 0;
     int feedbackEndpointInterval = 0;
-    neri::usb::uac2::Uac2FeedbackTimingProfile feedbackTimingProfile;
+    memi::usb::uac2::Uac2FeedbackTimingProfile feedbackTimingProfile;
     int usbSpeed = LIBUSB_SPEED_UNKNOWN;
     uint16_t vendorId = 0;
     uint16_t productId = 0;
     uint16_t deviceRelease = 0;
     uint8_t busNumber = 0;
     uint8_t deviceAddress = 0;
-    std::vector<neri::usb::exclusive::ClaimedUsbInterface> claimedAudioInterfaces;
+    std::vector<memi::usb::exclusive::ClaimedUsbInterface> claimedAudioInterfaces;
     bool completeAudioFunctionClaim = false;
     int uacVersion = 0;
     int uacClockSourceId = 0;
-    neri::usb::uac1::TypeIFormat uac1Format;
-    neri::usb::uac1::EndpointControls uac1EndpointControls;
-    neri::usb::uac2::ControlCapability uac2SampleRateControl =
-        neri::usb::uac2::ControlCapability::None;
+    memi::usb::uac1::TypeIFormat uac1Format;
+    memi::usb::uac1::EndpointControls uac1EndpointControls;
+    memi::usb::uac2::ControlCapability uac2SampleRateControl =
+        memi::usb::uac2::ControlCapability::None;
     int negotiatedSampleRate = 0;
     std::string descriptorSampleRates = "none";
     std::string formatSelectionReason = "none";
@@ -92,31 +92,31 @@ struct UsbDeviceState {
 };
 
 struct UsbTransferState {
-    neri::usb::feedback::FeedbackRateQ32 feedbackNominalRateQ32 = 0;
+    memi::usb::feedback::FeedbackRateQ32 feedbackNominalRateQ32 = 0;
     int intervalsPerSecond = 1000;
     int bytesPerUsbFrame = 0;
-    int packetsPerTransfer = neri::usb::kDefaultIsoPacketsPerTransfer;
-    int baseTransferCount = neri::usb::kMinimumIsoTransferCount;
-    int transferCount = neri::usb::kMinimumIsoTransferCount;
+    int packetsPerTransfer = memi::usb::kDefaultIsoPacketsPerTransfer;
+    int baseTransferCount = memi::usb::kMinimumIsoTransferCount;
+    int transferCount = memi::usb::kMinimumIsoTransferCount;
     int transferBytes = 0;
     std::vector<libusb_transfer*> transfers;
     std::vector<std::vector<uint8_t>> transferBuffers;
     std::vector<TransferUserData> transferUserData;
     std::vector<int> transferStatuses;
     std::vector<uint8_t> transferSubmitted;
-    neri::usb::feedback::LibusbFeedbackTransferBackend feedbackTransferBackend;
-    neri::usb::feedback::FeedbackInTransferSet feedbackInTransferSet {
+    memi::usb::feedback::LibusbFeedbackTransferBackend feedbackTransferBackend;
+    memi::usb::feedback::FeedbackInTransferSet feedbackInTransferSet {
         &feedbackTransferBackend
     };
-    neri::usb::feedback::ExplicitFeedbackRuntime feedbackRuntime;
+    memi::usb::feedback::ExplicitFeedbackRuntime feedbackRuntime;
     std::thread eventThread;
     std::atomic<bool> running { false };
     std::atomic<int> inFlightTransfers { 0 };
-    std::atomic<int> targetTransferCount { neri::usb::kMinimumIsoTransferCount };
+    std::atomic<int> targetTransferCount { memi::usb::kMinimumIsoTransferCount };
     std::mutex transferSubmitLock;
     std::mutex transferRefillLock;
     std::atomic<StreamSource> streamSource { StreamSource::Tone };
-    neri::usb::IsoPacketScheduler packetScheduler;
+    memi::usb::IsoPacketScheduler packetScheduler;
     double tonePhase = 0.0;
     std::atomic<int> completedTransfers { 0 };
     std::atomic<int64_t> firstTransferSubmittedAtMs { 0 };
@@ -136,9 +136,9 @@ struct UsbPlayerState {
     std::atomic<bool> playbackEnabled { false };
     std::atomic<bool> playerPaused { false };
     std::atomic<bool> focusMuted { false };
-    neri::usb::PcmPipeline pcmPipeline;
-    neri::usb::PlayerReplayBuffer playerReplayBuffer;
-    neri::usb::PlayerStartupPreroll playerStartupPreroll;
+    memi::usb::PcmPipeline pcmPipeline;
+    memi::usb::PlayerReplayBuffer playerReplayBuffer;
+    memi::usb::PlayerStartupPreroll playerStartupPreroll;
     int pcmRingDurationMs = kDefaultPcmRingDurationMs;
     std::atomic<int64_t> stagedPlayerFrames { 0 };
     std::atomic<int64_t> completedAudioFrames { 0 };
@@ -160,7 +160,7 @@ struct UsbRecoveryState {
     std::string lastError;
     int64_t nativeStreamGeneration = 0;
     int64_t recoveryEpoch = 1;
-    neri::usb::UsbRecoveryActionLatch recoveryActionLatch;
+    memi::usb::UsbRecoveryActionLatch recoveryActionLatch;
 };
 
 /** 硬件静音/音量与音量键调节共用 EP0，单独加锁，不和 PCM 写入抢 apiLock */
@@ -169,8 +169,8 @@ struct UsbFeatureUnitState {
     bool active = false;
     int interfaceNumber = -1;
     std::vector<FeatureUnitRestoreEntry> restore;
-    std::vector<neri::usb::control::FeatureUnitVolume> hardwareVolume;
-    std::vector<neri::usb::control::FeatureUnitControl> hardwareMute;
+    std::vector<memi::usb::control::FeatureUnitVolume> hardwareVolume;
+    std::vector<memi::usb::control::FeatureUnitControl> hardwareMute;
     float appliedFraction = 1.0f;
     bool mutedForVolume = false;
     std::string status = "not_attempted";

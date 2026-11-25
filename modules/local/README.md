@@ -6,9 +6,9 @@
 
 ## 结构 / Layout
 
-源码位于 `src/main/java/moe/ouom/neriplayer/data`。
+源码位于 `src/main/java/com/mmc/merimusicplayer/data`。
 
-Sources are in `src/main/java/moe/ouom/neriplayer/data`.
+Sources are in `src/main/java/com/mmc/merimusicplayer/data`.
 
 - `local`：媒体、导入与歌单 / media, imports, and playlists
 - `local/media/curation`、`local/media/metadata`：批量整理的写入授权、内嵌资源检查与元数据恢复事务 / write authorization, embedded asset inspection, and metadata recovery transactions for batch curation

@@ -200,7 +200,7 @@ MEMI輕音基于 [NeriPlayer](https://github.com/cwuom/NeriPlayer)，是一个�
 | 项目 | 值 |
 | :--- | :--- |
 | 当前发布架构 | **`arm64-v8a`**（64 位 ARM，覆盖 2018 年后绝大多数设备） |
-| 包名 | `com.mmc.merimusicplayer`（与原版 `moe.ouom.neriplayer` **互不影响，可并存安装**） |
+| 包名 | `com.mmc.merimusicplayer`（与原版 `com.mmc.merimusicplayer` **互不影响，可并存安装**） |
 | 最低系统 | Android 9 / API 28 |
 | 许可证 | GPL-3.0 |
 
@@ -236,7 +236,7 @@ MEMI輕音基于 [NeriPlayer](https://github.com/cwuom/NeriPlayer)，是一个�
 
 > DEBUG 构建仅用于测试，性能和体积不代表发布版。
 > DEBUG 包使用 `com.mmc.merimusicplayer.debug` 和橙色启动图标，名称带 `DEBUG` 标记，可与 Release 共存。
-> DEBUG 分享的一起听邀请使用 `neriplayer-debug://`，仍可在应用内粘贴普通邀请链接加入。
+> DEBUG 分享的一起听邀请使用 `memiplayer-debug://`，仍可在应用内粘贴普通邀请链接加入。
 > 完成引导后会提示 DEBUG 构建风险，确认后不再提醒，清除数据或重新安装后再次提示。
 
 在 Android Studio 中运行时选择 `app` 运行配置，并确认 Build Variants 中 `:app` 使用 `debug`。

@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "moe.ouom.neriplayer.core.download"
+    namespace = "com.mmc.merimusicplayer.core.download"
 }
 
 dependencies {

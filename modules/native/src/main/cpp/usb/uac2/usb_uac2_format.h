@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace neri::usb::uac2 {
+namespace memi::usb::uac2 {
 
 constexpr uint32_t kPcmFormatBit = 0x00000001;
 
@@ -127,4 +127,4 @@ const char* syncTypeName(uint8_t endpointAttributes);
 
 bool requiresFeedbackScheduler(uint8_t endpointAttributes);
 
-} // namespace neri::usb::uac2
+} // namespace memi::usb::uac2

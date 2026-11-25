@@ -208,11 +208,11 @@
 
 #### Android 客户端关键路径
 
-- `app/src/main/java/moe/ouom/neriplayer/NeriPlayerApplication.kt`
+- `app/src/main/java/com/mmc/merimusicplayer/NeriPlayerApplication.kt`
   - 应用初始化入口，负责语言、异常处理、`AppContainer`、
     Lyricon、全局下载管理和共享图片加载器。
 
-- `app/src/main/java/moe/ouom/neriplayer/activity/`
+- `app/src/main/java/com/mmc/merimusicplayer/activity/`
   - `MainActivity.kt` 是主界面与音频分享/深链入口，负责安全模式、启动流程、免责声明、
     启动引导、外部音频导入、一起听深链和顶层 Compose 宿主。
   - `activity/car/BluetoothMediaValidationActivity.kt` 是系统蓝牙媒体能力确认入口，
@@ -226,7 +226,7 @@
     `BiliWebLoginActivity.kt`、`BiliQrLoginActivity.kt` 与 `YouTubeWebLoginActivity.kt`
     是内部平台登录页。
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/NeriApp.kt`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/NeriApp.kt`
   - 顶层 Compose 应用骨架，负责 `NavHost`、动态底栏、
     `MiniPlayer`、`Now Playing` 覆盖层、Debug 路由、主题、缓存清理和播放服务同步。
   - 主标签页面由 `MainTabLayerHost.kt` 保留出场/入场双场景，
@@ -238,7 +238,7 @@
   - `ui/feedback/` 承载应用级 Snackbar/Toast 反馈策略；新增全局反馈前先确认
     `AppFeedback` 与 `ViewSnackbar` 是否已经覆盖所需场景。
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/component/lyrics/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/component/lyrics/`
   - `AdvancedLyricsView.kt` 与 `SyncedLyricsView.kt` 负责高级歌词排版、
     逐字/逐词高亮、翻译/音译显示、点击跳转和长按回调。
   - `LyricShareSheet.kt` 负责歌词行选择、复制、歌曲分享和歌词卡片生成。
@@ -246,17 +246,17 @@
   - 旧 `AppleMusicLyric` 名称只存在于 `ui/component/LyricsCompatibility.kt`
     的 `@Deprecated` 包装中，新代码统一使用 `SyncedLyricsView`。
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/component/playback/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/component/playback/`
   - `NeriMiniPlayer.kt` 负责底部迷你播放器、播放暂停和横向滑动切歌；
     睡眠定时器面板也在该目录；音效与倍速设置页位于 `ui/screen/tab/settings/audio/`。
   - `ui/component/` 根目录中的同名文件主要是旧包兼容入口，新增实现应放入
     `lyrics/`、`playback/`、`download/`、`navigation/` 等职责子包。
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/screen/tab/library/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/screen/tab/library/`
   - `LibraryScreen.kt` 负责媒体库顶层分类：本地内容可在歌单/歌手之间切换，收藏页展示歌单、已关注艺术家和热点歌单，并提供自建音乐服务器入口（预览版）。
   - `LocalArtistLibraryGrid.kt` 展示本地艺术家网格、空状态和艺术家卡片。
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/screen/playlist/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/screen/playlist/`
   - `LocalArtistDetailScreen.kt` 展示本地艺术家详情，支持播放全部、
     多选、导出歌单和批量下载可在线解析的歌曲。
   - `curation/` 是批量词图管理：`LocalCurationCoordinator` 持有进程级会话并通过
@@ -267,16 +267,16 @@
     `modules/local` 的 `data/local/media/curation/`；时间轴、现场版与 LRC 标签加权位于
     `:platform` 的 `LyricMatchSupplementalSignals.kt`。
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/screen/artist/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/screen/artist/`
   - 网易云艺术家详情页，展示艺术家信息、热门歌曲、分页专辑和关注状态。
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/viewmodel/artist/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/viewmodel/artist/`
   - 网易云艺术家摘要、JSON 解析和详情页状态管理。
 
-- `app/src/main/java/moe/ouom/neriplayer/ui/onboarding/`
+- `app/src/main/java/com/mmc/merimusicplayer/ui/onboarding/`
   - 首次启动引导，覆盖语言、平台账号、权限说明、播放控件、GitHub 同步和个性化设置。
 
-- `modules/platform/src/main/java/moe/ouom/neriplayer/platform/`
+- `modules/platform/src/main/java/com/mmc/merimusicplayer/platform/`
   - `netease/api`：网易云客户端、加密、请求参数和二维码认证协议。
   - `bilibili/api`：搜索、二维码登录、收藏夹、合集和播放信息；仓库与跳过规则位于同库 `platform/bilibili`。
     Explore 链接识别会保留分 P、`cid` 和 `season_id` 上下文，改动时同步检查 `ExploreLinkRecognizer` 与 `ExploreViewModel`。
@@ -288,12 +288,12 @@
   - `AppContainer` 组装客户端与路由，注入 HTTP、调试配置和实时设置 provider；库不读取应用容器或播放器单例。
   - 纯文本歌词时间轴转换位于 `modules/lyrics` 的 `PlainLyrics.kt`，播放器与匹配器共享同一实现。
 
-- `modules/platform/src/main/java/moe/ouom/neriplayer/platform/comments/`
+- `modules/platform/src/main/java/com/mmc/merimusicplayer/platform/comments/`
   - 评论来源、解析、分页和缓存；评论数据契约属于 `:model`；客户端 provider 与缓存由 `AppContainer` 组装注入。
   - 缓存实例的生命周期由宿主决定，库内不读取全局容器；仓库测试位于该模块，ViewModel 集成测试位于 `app`。
   - 歌曲来源标签属于 `:model`，Bilibili 历史播放身份解析属于同库 `platform/bilibili/playback/resolver`，无需引用播放器单例。
 
-- `modules/playback/runtime/src/main/java/moe/ouom/neriplayer/core/player/`
+- `modules/playback/runtime/src/main/java/com/mmc/merimusicplayer/core/player/`
   - `PlayerManager.kt`：Media3 ExoPlayer 的统一管理层，
     负责音源解析、播放队列、缓存、状态恢复、失败重试和播放策略。
   - `service/AudioPlayerService.kt`：前台播放服务、媒体通知、MediaSession 和媒体按钮。
@@ -353,7 +353,7 @@
     并已经包含 32-bit PCM、PCM float 软件转换、UAC2 显式反馈、
     协调式 AudioSink 重配置、动态传输缩放和背压卡顿恢复。
 
-- `modules/download/runtime/src/main/java/moe/ouom/neriplayer/core/download/`
+- `modules/download/runtime/src/main/java/com/mmc/merimusicplayer/core/download/`
   - `GlobalDownloadManager.kt` 维护全局下载任务与本地已下载列表。
   - `ManagedDownloadStorage.kt` 是应用目录/SAF 目录的外观入口；具体实现已拆到
     `storage/commit/`、`delete/`、`lookup/`、`migration/`、`recovery/`、
@@ -364,12 +364,12 @@
   - `naming/ManagedDownloadNaming.kt` 管理下载文件名模板和历史命名兼容。
   - `metadata/DownloadedAudioTagWriter.kt` 写入音频标签；`catalog/` 管理已下载歌曲目录的读写与投影。
 
-- `app/src/main/java/moe/ouom/neriplayer/core/startup/`
+- `app/src/main/java/com/mmc/merimusicplayer/core/startup/`
   - 启动阶段与决策已按 `app/`、`crash/`、`download/`、`logging/`、
     `permission/`、`player/`、`safemode/`、`sync/` 和 `theme/` 拆分；
     `MainActivity` 只负责协调这些组件与 UI 生命周期。
 
-- `modules/local/src/main/java/moe/ouom/neriplayer/data/`
+- `modules/local/src/main/java/com/mmc/merimusicplayer/data/`
   - `identity/`：歌曲身份转换；`SongIdentity` 与 `SongItem` 属于 `modules/model`。
   - `settings/`：`DataStore` 设置、KSP schema 和偏好映射；快照契约位于 `:model` 的 `settings` 包。
   - `auth/`：通用 Web 登录状态与 YouTube 凭据轮换 Worker；平台 Cookie / Auth 仓库位于 `:platform` 的 `data/auth` 和 `platform/youtube/auth`。
@@ -388,17 +388,17 @@
   - `sync/github/`、`sync/webdav/`：提供者后端与兼容 Worker 入口；`sync/work/` 维护 WorkManager、网络验证和通知适配。
   - app 不保留 `data/sync` 生产源码。
 
-- `modules/sync/src/main/java/moe/ouom/neriplayer/`
+- `modules/sync/src/main/java/com/mmc/merimusicplayer/`
   - `api/sync/`：GitHub/WebDAV 传输、响应读取和条件写入。
   - `data/sync/store/`：加密凭据、偏好、设备身份、因果计数器和删除状态。
   - `data/sync/merge/`：按 `engine`、`host`、`playlist`、`song`、`history`、`stats` 维护合并入口、宿主契约、冲突、排序和统计规则。
   - `data/sync/runtime/`、`codec/`、`sanitize/`、`change/`、`mapping/stats/`、`remote/`、`retry/` 和 `schedule/`：会话、兼容编解码、清洗、变化检测、统计映射、远端保护、重试与 Worker 策略。
   - 同步载荷和冲突模型位于 `:model` 的同步包。`verifyDomainDependencies` 保持传输与计算域各自的白名单，禁止直接引用 Android 仓库或播放器。
 
-- `modules/listentogether/src/main/java/moe/ouom/neriplayer/api/ltw/`
+- `modules/listentogether/src/main/java/com/mmc/merimusicplayer/api/ltw/`
   - HTTP、WebSocket、服务器地址校验和重连策略，依赖协议模型与注入的 HTTP 客户端。
 
-- `modules/listentogether/src/main/java/moe/ouom/neriplayer/data/ltw/`
+- `modules/listentogether/src/main/java/com/mmc/merimusicplayer/data/ltw/`
   - `ListenTogetherSessionManager` 组装会话组件；`playback/` 维护队列、权威播放候选和进度同步。
   - `control/`、`session/`、`invite/`、`mapping/`、`validation/` 分别维护控制、会话、邀请、歌曲映射和输入边界。
   - 房间、事件与传输模型位于 `modules/model` 的 `ltw` 包；`modules/listentogether` 内的 `api/ltw` 维护传输，`listentogether/protocol` 维护有界读取与消息编解码。
@@ -412,14 +412,14 @@
     拆分，对应 host 测试位于 `tests/usb/`；第三方 libusb 和 Android 配置位于
     `third_party/libusb/`。CMake 目标按职责链接，`lib_neri.so` 由 `:native` AAR 提供。
 
-- `modules/lyrics/src/main/java/moe/ouom/neriplayer/lyrics/lyricon/`
+- `modules/lyrics/src/main/java/com/mmc/merimusicplayer/lyrics/lyricon/`
   - 词幕适配（Lyricon Provider）与 SuperLyric 输出，同步歌曲、播放状态、进度、逐字歌词和翻译。
   - 同库 `lyrics/output/` 维护输出控制器、异步请求代次、取消与偏移快照；位置锚点和协调器保持内部可见。
 
-- `app/src/main/java/moe/ouom/neriplayer/navigation/`
+- `app/src/main/java/com/mmc/merimusicplayer/navigation/`
   - `LauncherShortcuts.kt` 负责桌面图标快捷方式到导航/播放请求的映射。
 
-- `app/src/main/java/moe/ouom/neriplayer/widget/`
+- `app/src/main/java/com/mmc/merimusicplayer/widget/`
   - 桌面播放小组件的 provider、状态快照、封面取色视觉和 RemoteViews 更新逻辑。
 
 ---
@@ -642,7 +642,7 @@
    `:sync` 中 `data/sync/codec/SyncDataSerializer.kt` 的兼容策略；共享载荷模型不得
    重新放回 GitHub provider 包。
 2. 同步对象包含歌单、收藏歌单、最近播放、删除记录、播放统计和独立歌词修改记录。
-   V4 使用 Protobuf 记录流、ZSTD 内容分块与根清单，发布点保留 `neriplayer-sync-v3.manifest` 文件名。
+   V4 使用 Protobuf 记录流、ZSTD 内容分块与根清单，发布点保留 `memiplayer-sync-v3.manifest` 文件名。
    V3 仅供读取迁移；仅清单不存在时读取旧 JSON、原始 GZIP 与 Base64。GitHub 二进制上传请求使用 Base64 传输封装，
    仓库内仍保存原始正文。歌词迁移完整保留旧数据，不再提供有损选择，详见 `modules/sync/LYRIC_SYNC.md`。
 3. `songOrderVersion=0` 表示旧版顺序，`songOrderVersion=1` 表示当前展示顺序；
@@ -728,7 +728,7 @@
 
 #### 12. 修改词幕适配
 
-1. 词幕 SDK 接入位于 `modules/lyrics/src/main/java/moe/ouom/neriplayer/lyrics/lyricon/`，输出控制器位于同库 `lyrics/output/`。播放器只提供歌词、偏好、进度与生命周期快照，不直接管理 SDK。
+1. 词幕 SDK 接入位于 `modules/lyrics/src/main/java/com/mmc/merimusicplayer/lyrics/lyricon/`，输出控制器位于同库 `lyrics/output/`。播放器只提供歌词、偏好、进度与生命周期快照，不直接管理 SDK。
 2. 开关状态由设置项 `lyricon_enabled` 控制，并由播放器生命周期同步。
 3. 歌词数据使用 `LyricEntry`，逐字信息来自 `WordTiming`；
    翻译行按时间容差匹配到原文行。

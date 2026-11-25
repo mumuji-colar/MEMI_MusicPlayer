@@ -370,7 +370,7 @@ fun KaraokeLyricsView(
     showTranslation: Boolean = true,
     showPhonetic: Boolean = true,
     animateViewportScroll: Boolean = false,
-    // NeriPlayer 侧用这个开关在「跟随播放自动滚动」时禁掉手动拖动，默认允许拖动
+    // MemiPlayer 侧用这个开关在「跟随播放自动滚动」时禁掉手动拖动，默认允许拖动
     userScrollEnabled: Boolean = true,
     focusedLineScale: Float = 1f,
     unfocusedLineScale: Float = 0.98f,

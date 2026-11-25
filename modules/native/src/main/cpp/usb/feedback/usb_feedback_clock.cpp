@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <limits>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 namespace {
 
 bool checkedPeriodProduct(int64_t periodNs, uint16_t periods, int64_t* output) {
@@ -343,4 +343,4 @@ void FeedbackClock::fail(FeedbackClockFailureReason reason) {
     consecutiveRelockStable_ = 0;
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

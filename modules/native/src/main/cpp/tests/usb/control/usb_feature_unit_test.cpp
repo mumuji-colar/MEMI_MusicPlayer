@@ -5,9 +5,9 @@
 
 namespace {
 
-using neri::usb::control::hardwareVolumeForFraction;
-using neri::usb::control::muteRestoreValue;
-using neri::usb::control::quantizeVolumeToResolution;
+using memi::usb::control::hardwareVolumeForFraction;
+using memi::usb::control::muteRestoreValue;
+using memi::usb::control::quantizeVolumeToResolution;
 
 void restoresUnmutedOriginalAfterVolumeMute() {
     // 原本未静音：音量键拉到 0 补上的静音必须在关闭时撤销

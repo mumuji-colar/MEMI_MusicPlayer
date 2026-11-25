@@ -9,18 +9,18 @@
 
 namespace {
 
-using neri::usb::feedback::CancelResult;
-using neri::usb::feedback::ExplicitFeedbackBackend;
-using neri::usb::feedback::ExplicitFeedbackEngine;
-using neri::usb::feedback::ExplicitFeedbackEngineConfig;
-using neri::usb::feedback::ExplicitFeedbackEngineResult;
-using neri::usb::feedback::ExplicitFeedbackEngineState;
-using neri::usb::feedback::ExplicitFeedbackFailureReason;
-using neri::usb::feedback::FeedbackPacketPlan;
-using neri::usb::feedback::FeedbackRawUnit;
-using neri::usb::feedback::TransferCompletionStatus;
-using neri::usb::feedback::TransferKind;
-using neri::usb::feedback::kQ32One;
+using memi::usb::feedback::CancelResult;
+using memi::usb::feedback::ExplicitFeedbackBackend;
+using memi::usb::feedback::ExplicitFeedbackEngine;
+using memi::usb::feedback::ExplicitFeedbackEngineConfig;
+using memi::usb::feedback::ExplicitFeedbackEngineResult;
+using memi::usb::feedback::ExplicitFeedbackEngineState;
+using memi::usb::feedback::ExplicitFeedbackFailureReason;
+using memi::usb::feedback::FeedbackPacketPlan;
+using memi::usb::feedback::FeedbackRawUnit;
+using memi::usb::feedback::TransferCompletionStatus;
+using memi::usb::feedback::TransferKind;
+using memi::usb::feedback::kQ32One;
 
 constexpr uint64_t kGeneration = 41;
 constexpr uint64_t kNominalRateQ32 = UINT64_C(6) * kQ32One;
@@ -582,13 +582,13 @@ void cleanupFailureStaysQuarantinedUntilRetry() {
 }
 
 void exposesStableNames() {
-    assert(std::string(neri::usb::feedback::explicitFeedbackEngineStateName(
+    assert(std::string(memi::usb::feedback::explicitFeedbackEngineStateName(
         ExplicitFeedbackEngineState::Quarantined
     )) == "quarantined");
-    assert(std::string(neri::usb::feedback::explicitFeedbackEngineResultName(
+    assert(std::string(memi::usb::feedback::explicitFeedbackEngineResultName(
         ExplicitFeedbackEngineResult::Draining
     )) == "draining");
-    assert(std::string(neri::usb::feedback::explicitFeedbackFailureReasonName(
+    assert(std::string(memi::usb::feedback::explicitFeedbackFailureReasonName(
         ExplicitFeedbackFailureReason::SubmitZeroBootstrap
     )) == "submit_zero_bootstrap");
 }

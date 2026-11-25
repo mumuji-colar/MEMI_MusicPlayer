@@ -17,12 +17,12 @@
 #include "usb/exclusive/usb_streaming_interface_lifecycle.h"
 #include "usb/feedback/usb_feedback_rate_math.h"
 
-#define LOG_TAG "NeriUsbExclusive"
+#define LOG_TAG "MemiUsbExclusive"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-namespace neri::usb::exclusive {
+namespace memi::usb::exclusive {
 
 std::mutex g_lastOpenErrorLock;
 std::string g_lastOpenError = "none";
@@ -55,7 +55,7 @@ void markInterfaceTransitionLocked() {
 
 namespace {
 
-using neri::usb::control::SampleRateReadback;
+using memi::usb::control::SampleRateReadback;
 
 void acceptSampleRateReadback(
     SampleRateReadback readback,
@@ -81,7 +81,7 @@ void acceptSampleRateReadback(
 }
 
 void waitForClockSettle(int attempt) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(neri::usb::control::sampleRateSettleDelayMs(attempt)));
+    std::this_thread::sleep_for(std::chrono::milliseconds(memi::usb::control::sampleRateSettleDelayMs(attempt)));
 }
 
 } // namespace
@@ -90,8 +90,8 @@ bool negotiateUac1SampleRate(
     libusb_device_handle* deviceHandle,
     uint8_t endpointAddress,
     int sampleRate,
-    const neri::usb::uac1::TypeIFormat& format,
-    const neri::usb::uac1::EndpointControls& controls,
+    const memi::usb::uac1::TypeIFormat& format,
+    const memi::usb::uac1::EndpointControls& controls,
     int* negotiatedSampleRate,
     std::string* status,
     std::string* error
@@ -183,7 +183,7 @@ bool negotiateUac1SampleRate(
             (static_cast<int>(verifiedBytes[1]) << 8) |
             (static_cast<int>(verifiedBytes[2]) << 16);
         const SampleRateReadback readback =
-            neri::usb::control::classifySampleRateReadback(sampleRate, verifiedRate, attempt);
+            memi::usb::control::classifySampleRateReadback(sampleRate, verifiedRate, attempt);
         if (readback == SampleRateReadback::Settle) {
             waitForClockSettle(attempt);
             continue;
@@ -203,7 +203,7 @@ bool readUac2SampleRateRanges(
     libusb_device_handle* deviceHandle,
     int audioControlInterface,
     int clockSourceId,
-    std::vector<neri::usb::uac2::SampleRateSubrange>* ranges,
+    std::vector<memi::usb::uac2::SampleRateSubrange>* ranges,
     std::string* status
 ) {
     if (deviceHandle == nullptr || ranges == nullptr ||
@@ -237,7 +237,7 @@ bool readUac2SampleRateRanges(
         return false;
     }
     std::string parseError;
-    if (!neri::usb::uac2::parseSampleRateRanges(
+    if (!memi::usb::uac2::parseSampleRateRanges(
             rangeBytes.data(),
             result,
             ranges,
@@ -259,7 +259,7 @@ bool negotiateUac2SampleRate(
     int audioControlInterface,
     int clockSourceId,
     int sampleRate,
-    neri::usb::uac2::ControlCapability sampleRateControl,
+    memi::usb::uac2::ControlCapability sampleRateControl,
     int* negotiatedSampleRate,
     std::string* status,
     std::string* error
@@ -272,7 +272,7 @@ bool negotiateUac2SampleRate(
         return false;
     }
 
-    if (sampleRateControl == neri::usb::uac2::ControlCapability::None) {
+    if (sampleRateControl == memi::usb::uac2::ControlCapability::None) {
         int currentSampleRate = 0;
         std::string currentStatus;
         if (!readUac2CurrentSampleRate(
@@ -300,7 +300,7 @@ bool negotiateUac2SampleRate(
         return true;
     }
 
-    if (sampleRateControl == neri::usb::uac2::ControlCapability::ReadOnly) {
+    if (sampleRateControl == memi::usb::uac2::ControlCapability::ReadOnly) {
         int currentSampleRate = 0;
         std::string currentStatus;
         if (!readUac2CurrentSampleRate(
@@ -328,14 +328,14 @@ bool negotiateUac2SampleRate(
         return true;
     }
 
-    if (sampleRateControl != neri::usb::uac2::ControlCapability::ReadWrite) {
+    if (sampleRateControl != memi::usb::uac2::ControlCapability::ReadWrite) {
         if (error != nullptr) {
             *error = "uac2_sample_rate_control_not_writable";
         }
         return false;
     }
 
-    std::vector<neri::usb::uac2::SampleRateSubrange> ranges;
+    std::vector<memi::usb::uac2::SampleRateSubrange> ranges;
     std::string rangeStatus;
     if (readUac2SampleRateRanges(
             deviceHandle,
@@ -347,7 +347,7 @@ bool negotiateUac2SampleRate(
         const bool rangeSupportsTarget = std::any_of(
             ranges.begin(),
             ranges.end(),
-            [sampleRate](const neri::usb::uac2::SampleRateSubrange& range) {
+            [sampleRate](const memi::usb::uac2::SampleRateSubrange& range) {
                 return range.supports(sampleRate);
             }
         );
@@ -410,7 +410,7 @@ bool negotiateUac2SampleRate(
             &getStatus
         ); ++attempt) {
         const SampleRateReadback readback =
-            neri::usb::control::classifySampleRateReadback(sampleRate, verifiedRate, attempt);
+            memi::usb::control::classifySampleRateReadback(sampleRate, verifiedRate, attempt);
         if (readback == SampleRateReadback::Settle) {
             waitForClockSettle(attempt);
             continue;
@@ -506,7 +506,7 @@ bool parkStreamingAlternate(
     if (handle == nullptr || handle->recovery.closing.load()) {
         return true;
     }
-    if (!neri::usb::canTransitionStreamingInterface(
+    if (!memi::usb::canTransitionStreamingInterface(
             handle->recovery.deviceOnline.load(),
             handle->recovery.detachBroadcastConfirmed.load(),
             handle->device.audioStreamingInterface,
@@ -578,7 +578,7 @@ bool activateStreamingAlternate(
     std::string* error
 ) {
     if (handle == nullptr || handle->device.devh == nullptr || handle->recovery.closing.load() ||
-        !neri::usb::canTransitionStreamingInterface(
+        !memi::usb::canTransitionStreamingInterface(
             handle->recovery.deviceOnline.load(),
             handle->recovery.detachBroadcastConfirmed.load(),
             handle->device.audioStreamingInterface,
@@ -589,8 +589,8 @@ bool activateStreamingAlternate(
         }
         return false;
     }
-    const neri::usb::StreamingInterfaceActivationPlan plan =
-        neri::usb::streamingInterfaceActivationPlan(handle->device.uacVersion);
+    const memi::usb::StreamingInterfaceActivationPlan plan =
+        memi::usb::streamingInterfaceActivationPlan(handle->device.uacVersion);
     if (!plan.supported) {
         if (error != nullptr) {
             *error = "stream_activation_unsupported_uac_version";
@@ -613,8 +613,8 @@ bool activateStreamingAlternate(
         }
     }
 
-    for (const neri::usb::StreamingInterfaceActivationStep step : plan.steps) {
-        if (step == neri::usb::StreamingInterfaceActivationStep::ActivateAlternate) {
+    for (const memi::usb::StreamingInterfaceActivationStep step : plan.steps) {
+        if (step == memi::usb::StreamingInterfaceActivationStep::ActivateAlternate) {
             const int rc = setStreamingAlternateLocked(
                 handle,
                 handle->device.alternateSetting,
@@ -975,7 +975,7 @@ void finishClosedUsbResources(UsbExclusiveHandle* handle) {
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeOpen(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeOpen(
     JNIEnv* env,
     jclass /*clazz*/,
     jint fd,
@@ -1343,7 +1343,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeReconfigurePlayerPcmOutput(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeReconfigurePlayerPcmOutput(
     JNIEnv* env,
     jclass /*clazz*/,
     jlong handleValue,
@@ -1386,7 +1386,7 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeLastOpenError(
+Java_com_mmc_merimusicplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nativeLastOpenError(
     JNIEnv* env,
     jclass /*clazz*/
 ) {
@@ -1402,4 +1402,4 @@ Java_moe_ouom_neriplayer_core_player_usb_transport_UsbExclusiveNativeBridge_nati
     }
 }
 
-} // namespace neri::usb::exclusive
+} // namespace memi::usb::exclusive

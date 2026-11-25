@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 using FeedbackRateQ32 = uint64_t;
 
@@ -82,4 +82,4 @@ const char* feedbackEstimateStatusName(FeedbackEstimateStatus status);
 const char* feedbackClockStateName(FeedbackClockState state);
 const char* feedbackClockFailureReasonName(FeedbackClockFailureReason reason);
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

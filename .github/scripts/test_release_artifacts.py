@@ -51,7 +51,7 @@ class ReleaseArtifactsTest(unittest.TestCase):
         with zipfile.ZipFile(self.apk, "w") as archive:
             archive.writestr("classes.dex", b"dex\n035\x00" + build_uuid.encode() + b"\x00")
             for abi in abis:
-                archive.writestr(f"lib/{abi}/libneriplayer.so", b"native fixture")
+                archive.writestr(f"lib/{abi}/libmemiplayer.so", b"native fixture")
 
     def run_script(self, *arguments, environment=None):
         return subprocess.run(

@@ -4,7 +4,7 @@
 #include <climits>
 #include <cmath>
 
-namespace neri::usb {
+namespace memi::usb {
 namespace {
 
 // 每侧 32 个过零点、Kaiser β=9：阻带约 -90 dB，44.1 kHz 时通带平坦到约 19 kHz
@@ -219,4 +219,4 @@ void PcmResampler::emitFrame(std::vector<float>* output) {
     }
 }
 
-} // namespace neri::usb
+} // namespace memi::usb

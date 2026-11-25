@@ -6,9 +6,9 @@
 
 ## 结构 / Layout
 
-源码位于 `src/main/java/moe/ouom/neriplayer/lyrics`。解析在 `parser`，嵌入歌词兼容在 `embedded`，偏移计算在 `offset`。模型来自 `:model`，共用工具来自 `:common`，基础解析库为 `:accompanist-lyrics-core`；歌词设置由 `:local` 保存。
+源码位于 `src/main/java/com/mmc/merimusicplayer/lyrics`。解析在 `parser`，嵌入歌词兼容在 `embedded`，偏移计算在 `offset`。模型来自 `:model`，共用工具来自 `:common`，基础解析库为 `:accompanist-lyrics-core`；歌词设置由 `:local` 保存。
 
-Sources are in `src/main/java/moe/ouom/neriplayer/lyrics`: `parser` for parsing, `embedded` for embedded lyric compatibility, and `offset` for offset calculations. Dependencies are `:model`, `:common`, and `:accompanist-lyrics-core`; `:local` persists lyric settings.
+Sources are in `src/main/java/com/mmc/merimusicplayer/lyrics`: `parser` for parsing, `embedded` for embedded lyric compatibility, and `offset` for offset calculations. Dependencies are `:model`, `:common`, and `:accompanist-lyrics-core`; `:local` persists lyric settings.
 
 ## 词幕 / Lyricon
 

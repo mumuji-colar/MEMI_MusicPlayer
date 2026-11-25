@@ -35,7 +35,7 @@ void* allocate(size_t bytes) {
     throw std::bad_alloc();
 }
 
-neri::usb::PcmPipelineConfig configFor(int inputRate = 44100, int outputRate = 48000) {
+memi::usb::PcmPipelineConfig configFor(int inputRate = 44100, int outputRate = 48000) {
     return { { outputRate, 2, 2, 16, 4 }, { inputRate, 2, 2 }, 250, 768, 6 };
 }
 
@@ -50,7 +50,7 @@ std::array<uint8_t, 1764> inputChunk() {
     return input;
 }
 
-void preparePipeline(neri::usb::PcmPipeline& pipeline, std::string& error, bool warmUp) {
+void preparePipeline(memi::usb::PcmPipeline& pipeline, std::string& error, bool warmUp) {
     error.reserve(128);
     assert(pipeline.configure(configFor(), &error));
     pipeline.setBitPerfect(true);
@@ -60,7 +60,7 @@ void preparePipeline(neri::usb::PcmPipeline& pipeline, std::string& error, bool 
     }
 }
 
-bool performOperation(neri::usb::PcmPipeline& pipeline, bool drain, std::string& error) {
+bool performOperation(memi::usb::PcmPipeline& pipeline, bool drain, std::string& error) {
     if (drain) {
         return pipeline.drainResampler(&error);
     }
@@ -68,7 +68,7 @@ bool performOperation(neri::usb::PcmPipeline& pipeline, bool drain, std::string&
     return pipeline.write(input.data(), input.size(), &error) == input.size();
 }
 
-std::vector<uint8_t> finishOutput(neri::usb::PcmPipeline& pipeline, std::string& error) {
+std::vector<uint8_t> finishOutput(memi::usb::PcmPipeline& pipeline, std::string& error) {
     const auto input = inputChunk();
     assert(pipeline.write(input.data(), input.size(), &error) == input.size());
     assert(pipeline.drainResampler(&error));
@@ -78,7 +78,7 @@ std::vector<uint8_t> finishOutput(neri::usb::PcmPipeline& pipeline, std::string&
 }
 
 size_t operationAllocations(bool drain, bool warmUp) {
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     std::string error;
     preparePipeline(pipeline, error, warmUp);
     allocationCount = 0;
@@ -89,13 +89,13 @@ size_t operationAllocations(bool drain, bool warmUp) {
 }
 
 void verifiesFailurePreservesRetryOutput(bool drain, bool warmUp, size_t failureIndex) {
-    neri::usb::PcmPipeline baseline;
+    memi::usb::PcmPipeline baseline;
     std::string error;
     preparePipeline(baseline, error, warmUp);
     assert(performOperation(baseline, drain, error));
     const auto expected = finishOutput(baseline, error);
 
-    neri::usb::PcmPipeline pipeline;
+    memi::usb::PcmPipeline pipeline;
     preparePipeline(pipeline, error, warmUp);
     const auto before = pipeline.snapshot();
     allocationFailed = false;
@@ -117,7 +117,7 @@ void verifiesFailurePreservesRetryOutput(bool drain, bool warmUp, size_t failure
 void verifiesSteadyWritesReuseAllocations() {
     for (const auto rates : { std::array<int, 2> { 44100, 48000 },
                              std::array<int, 2> { 192000, 48000 } }) {
-        neri::usb::PcmPipeline pipeline;
+        memi::usb::PcmPipeline pipeline;
         std::string error;
         assert(pipeline.configure(configFor(rates[0], rates[1]), &error));
         const auto input = inputChunk();

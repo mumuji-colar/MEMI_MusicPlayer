@@ -8,21 +8,21 @@
 
 namespace {
 
-using neri::usb::uac2::AudioFunctionClockGraph;
-using neri::usb::uac2::CandidateDecision;
-using neri::usb::uac2::CandidateRejectionCode;
-using neri::usb::uac2::ClockEntity;
-using neri::usb::uac2::ClockEntityKind;
-using neri::usb::uac2::ConfigurationSnapshot;
-using neri::usb::uac2::ControlCapability;
-using neri::usb::uac2::DeviceDescriptorIdentity;
-using neri::usb::uac2::EndpointSnapshot;
-using neri::usb::uac2::EndpointCapacitySource;
-using neri::usb::uac2::FeedbackResolverPolicy;
-using neri::usb::uac2::FormatTarget;
-using neri::usb::uac2::TypeIFormat;
-using neri::usb::uac2::Uac2CandidateInput;
-using neri::usb::uac2::Uac2CandidateRequest;
+using memi::usb::uac2::AudioFunctionClockGraph;
+using memi::usb::uac2::CandidateDecision;
+using memi::usb::uac2::CandidateRejectionCode;
+using memi::usb::uac2::ClockEntity;
+using memi::usb::uac2::ClockEntityKind;
+using memi::usb::uac2::ConfigurationSnapshot;
+using memi::usb::uac2::ControlCapability;
+using memi::usb::uac2::DeviceDescriptorIdentity;
+using memi::usb::uac2::EndpointSnapshot;
+using memi::usb::uac2::EndpointCapacitySource;
+using memi::usb::uac2::FeedbackResolverPolicy;
+using memi::usb::uac2::FormatTarget;
+using memi::usb::uac2::TypeIFormat;
+using memi::usb::uac2::Uac2CandidateInput;
+using memi::usb::uac2::Uac2CandidateRequest;
 
 constexpr uint8_t kAsyncData = 0x05;
 constexpr uint8_t kAdaptiveData = 0x09;
@@ -62,7 +62,7 @@ AudioFunctionClockGraph clockFunction() {
     source.id = 41;
     source.kind = ClockEntityKind::ClockSource;
     source.validityControlAdvertised = true;
-    source.validityState = neri::usb::uac2::ClockValidityState::Valid;
+    source.validityState = memi::usb::uac2::ClockValidityState::Valid;
 
     return AudioFunctionClockGraph { 5, { terminal, source } };
 }
@@ -80,15 +80,15 @@ Uac2CandidateInput baseInput(uint8_t syncAttributes) {
     input.audioControlAlternateSetting = 0;
     input.streamingInterface = 9;
     input.streamingAlternateSetting = 5;
-    input.interfaceProtocol = neri::usb::uac2::kUac2InterfaceProtocol;
-    input.busSpeed = neri::usb::uac2::UsbBusSpeed::High;
+    input.interfaceProtocol = memi::usb::uac2::kUac2InterfaceProtocol;
+    input.busSpeed = memi::usb::uac2::UsbBusSpeed::High;
     input.audioControlBindsStreaming = true;
     input.sampleRateExact = true;
     input.sampleRateControl = ControlCapability::ReadWrite;
     input.format = TypeIFormat {
         37,
         1,
-        neri::usb::uac2::kPcmFormatBit,
+        memi::usb::uac2::kPcmFormatBit,
         2,
         4,
         32
@@ -110,7 +110,7 @@ void addExplicitFeedback(Uac2CandidateInput* input, int interfaceNumber = 9, int
     EndpointSnapshot feedback = endpoint(interfaceNumber, alt, 0x86, kFeedback, 4);
     feedback.bInterval = 3;
     input->configuration = ConfigurationSnapshot { 7, { input->output, feedback } };
-    input->feedbackTiming = neri::usb::uac2::FeedbackTimingEvidence {
+    input->feedbackTiming = memi::usb::uac2::FeedbackTimingEvidence {
         true,
         input->output.endpointAddress,
         feedback.endpointAddress,
@@ -130,7 +130,7 @@ void buildsCompleteListAndKeepsAsyncFeatureOff() {
     adaptive.output.alternateSetting = 4;
     adaptive.configuration = ConfigurationSnapshot { 7, { adaptive.output } };
 
-    const auto result = neri::usb::uac2::buildUac2CandidateList(
+    const auto result = memi::usb::uac2::buildUac2CandidateList(
         { async, adaptive },
         requestWithTiming()
     );
@@ -154,7 +154,7 @@ void rejectsMissingFeedbackAndKeepsOtherCandidates() {
     valid.output.alternateSetting = 4;
     valid.configuration = ConfigurationSnapshot { 7, { valid.output } };
 
-    const auto result = neri::usb::uac2::buildUac2CandidateList(
+    const auto result = memi::usb::uac2::buildUac2CandidateList(
         { missing, valid },
         requestWithTiming()
     );
@@ -169,7 +169,7 @@ void rejectsTimingCapacityAndFormatErrors() {
     Uac2CandidateInput timing = baseInput(kAsyncData);
     addExplicitFeedback(&timing);
     timing.feedbackTiming.verified = false;
-    auto result = neri::usb::uac2::buildUac2CandidateList(
+    auto result = memi::usb::uac2::buildUac2CandidateList(
         { timing },
         requestWithTiming()
     );
@@ -178,7 +178,7 @@ void rejectsTimingCapacityAndFormatErrors() {
     Uac2CandidateInput capacity = baseInput(kSynchronousData);
     capacity.configuration = ConfigurationSnapshot { 7, { capacity.output } };
     capacity.capacityEvidence.maximumRequiredPacketBytes = 513;
-    result = neri::usb::uac2::buildUac2CandidateList(
+    result = memi::usb::uac2::buildUac2CandidateList(
         { capacity },
         requestWithTiming()
     );
@@ -187,7 +187,7 @@ void rejectsTimingCapacityAndFormatErrors() {
     Uac2CandidateInput format = baseInput(kSynchronousData);
     format.configuration = ConfigurationSnapshot { 7, { format.output } };
     format.format.bitsPerSample = 24;
-    result = neri::usb::uac2::buildUac2CandidateList(
+    result = memi::usb::uac2::buildUac2CandidateList(
         { format },
         requestWithTiming()
     );
@@ -198,7 +198,7 @@ void rejectsClockAmbiguityAndDuplicateIdentity() {
     Uac2CandidateInput first = baseInput(kSynchronousData);
     first.configuration = ConfigurationSnapshot { 7, { first.output } };
     Uac2CandidateInput second = first;
-    auto result = neri::usb::uac2::buildUac2CandidateList(
+    auto result = memi::usb::uac2::buildUac2CandidateList(
         { first, second },
         requestWithTiming()
     );
@@ -212,7 +212,7 @@ void rejectsClockAmbiguityAndDuplicateIdentity() {
     ClockEntity duplicate = function.entities.front();
     function.entities.push_back(duplicate);
     ambiguous.clockFunctions = { function };
-    result = neri::usb::uac2::buildUac2CandidateList(
+    result = memi::usb::uac2::buildUac2CandidateList(
         { ambiguous },
         requestWithTiming()
     );
@@ -223,9 +223,9 @@ void rejectsAdvertisedButUncheckedClockValidity() {
     Uac2CandidateInput input = baseInput(kSynchronousData);
     input.configuration = ConfigurationSnapshot { 7, { input.output } };
     input.clockFunctions.front().entities.back().validityState =
-        neri::usb::uac2::ClockValidityState::Unchecked;
+        memi::usb::uac2::ClockValidityState::Unchecked;
 
-    const auto result = neri::usb::uac2::buildUac2CandidateList(
+    const auto result = memi::usb::uac2::buildUac2CandidateList(
         { input },
         requestWithTiming()
     );
@@ -236,13 +236,13 @@ void rejectsAdvertisedButUncheckedClockValidity() {
 
 void rejectsPacketSizeInvalidForBusSpeed() {
     Uac2CandidateInput input = baseInput(kSynchronousData);
-    input.busSpeed = neri::usb::uac2::UsbBusSpeed::Full;
+    input.busSpeed = memi::usb::uac2::UsbBusSpeed::Full;
     input.output.rawMaxPacketSize = 1024;
     input.output.effectiveMaxPacketBytes = 1024;
     input.capacityEvidence.maximumRequiredPacketBytes = 1024;
     input.configuration = ConfigurationSnapshot { 7, { input.output } };
 
-    const auto result = neri::usb::uac2::buildUac2CandidateList(
+    const auto result = memi::usb::uac2::buildUac2CandidateList(
         { input },
         requestWithTiming()
     );
@@ -259,7 +259,7 @@ void rejectsSameInterfaceAlternateConflict() {
     Uac2CandidateRequest request = requestWithTiming();
     request.feedbackPolicy = policy;
 
-    const auto result = neri::usb::uac2::buildUac2CandidateList({ input }, request);
+    const auto result = memi::usb::uac2::buildUac2CandidateList({ input }, request);
     assert(result.candidates[0].rejection ==
         CandidateRejectionCode::InterfaceAlternateConflict);
     assert(result.candidates[0].reason == "feedback_same_interface_alt_conflict");
@@ -273,7 +273,7 @@ void rejectsCrossInterfaceWithoutAssociationEvidence() {
     Uac2CandidateRequest request = requestWithTiming();
     request.feedbackPolicy = policy;
 
-    const auto result = neri::usb::uac2::buildUac2CandidateList({ input }, request);
+    const auto result = memi::usb::uac2::buildUac2CandidateList({ input }, request);
     assert(result.candidates[0].rejection ==
         CandidateRejectionCode::FeedbackAssociationUnverified);
 }
@@ -285,7 +285,7 @@ void rejectsFeedbackOnAudioControlInterface() {
     request.feedbackPolicy.allowCrossInterfaceAssociation = true;
     request.feedbackPolicy.allowCrossAlternateAssociation = true;
 
-    const auto result = neri::usb::uac2::buildUac2CandidateList({ input }, request);
+    const auto result = memi::usb::uac2::buildUac2CandidateList({ input }, request);
     assert(result.candidates[0].rejection ==
         CandidateRejectionCode::InterfaceAlternateConflict);
     assert(result.candidates[0].reason ==
@@ -299,26 +299,26 @@ void requiresFunctionBindingForCrossInterfaceFeedback() {
     request.feedbackPolicy.allowCrossInterfaceAssociation = true;
     request.feedbackPolicy.allowCrossAlternateAssociation = true;
 
-    auto result = neri::usb::uac2::buildUac2CandidateList({ input }, request);
+    auto result = memi::usb::uac2::buildUac2CandidateList({ input }, request);
     assert(result.candidates[0].rejection == CandidateRejectionCode::ClaimPlanInvalid);
     assert(result.candidates[0].reason ==
         "feedback_audio_function_binding_unverified");
 
     input.feedbackInterfaceBoundToAudioFunction = true;
-    result = neri::usb::uac2::buildUac2CandidateList({ input }, request);
+    result = memi::usb::uac2::buildUac2CandidateList({ input }, request);
     assert(result.candidates[0].decision == CandidateDecision::FeatureDisabled);
     assert(result.candidates[0].claimPlan.size() == 3U);
 }
 
 void exposesStableNames() {
-    assert(std::string(neri::usb::uac2::candidateDecisionName(
+    assert(std::string(memi::usb::uac2::candidateDecisionName(
         CandidateDecision::FeatureDisabled
     )) == "feature_disabled");
-    assert(std::string(neri::usb::uac2::candidateRejectionCodeName(
+    assert(std::string(memi::usb::uac2::candidateRejectionCodeName(
         CandidateRejectionCode::CapacityInsufficient
     )) == "capacity_insufficient");
-    assert(std::string(neri::usb::uac2::candidateSyncModeName(
-        neri::usb::uac2::CandidateSyncMode::Adaptive
+    assert(std::string(memi::usb::uac2::candidateSyncModeName(
+        memi::usb::uac2::CandidateSyncMode::Adaptive
     )) == "adaptive");
 }
 
@@ -373,7 +373,7 @@ void deterministicMalformedInputsFailClosed() {
         }
     }
 
-    const auto result = neri::usb::uac2::buildUac2CandidateList(
+    const auto result = memi::usb::uac2::buildUac2CandidateList(
         malformed,
         requestWithTiming()
     );
@@ -392,7 +392,7 @@ void preservesZeroValuedDescriptorIdentityFields() {
     input.identity.bcdDevice = 0;
     input.configuration = ConfigurationSnapshot { 7, { input.output } };
 
-    const auto result = neri::usb::uac2::buildUac2CandidateList(
+    const auto result = memi::usb::uac2::buildUac2CandidateList(
         { input },
         requestWithTiming()
     );

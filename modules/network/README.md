@@ -4,9 +4,9 @@
 
 `:network` provides HTTP coroutine adapters, Cookie and Header parsing, ranged requests, proxy selection, host validation, and Web login helpers. Platform protocols belong to `:platform`; sync and Listen Together own their transports.
 
-源码在 `src/main/java/moe/ouom/neriplayer/network`，按 `http`、`range`、`proxy`、`security` 和 `weblogin` 分包。项目依赖只有 `:common`。`Call.awaitResponse` 传递取消并关闭响应，`nonReplayable` 阻止写请求自动重放。
+源码在 `src/main/java/com/mmc/merimusicplayer/network`，按 `http`、`range`、`proxy`、`security` 和 `weblogin` 分包。项目依赖只有 `:common`。`Call.awaitResponse` 传递取消并关闭响应，`nonReplayable` 阻止写请求自动重放。
 
-Sources are in `src/main/java/moe/ouom/neriplayer/network`, grouped into `http`, `range`, `proxy`, `security`, and `weblogin`. Its only project dependency is `:common`. `Call.awaitResponse` forwards cancellation and closes responses; `nonReplayable` prevents automatic replay of writes.
+Sources are in `src/main/java/com/mmc/merimusicplayer/network`, grouped into `http`, `range`, `proxy`, `security`, and `weblogin`. Its only project dependency is `:common`. `Call.awaitResponse` forwards cancellation and closes responses; `nonReplayable` prevents automatic replay of writes.
 
 ## 测试 / Tests
 

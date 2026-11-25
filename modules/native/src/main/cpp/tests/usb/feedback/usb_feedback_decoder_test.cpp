@@ -9,11 +9,11 @@
 
 namespace {
 
-using neri::usb::feedback::FeedbackDecodeInput;
-using neri::usb::feedback::FeedbackDecodeProfile;
-using neri::usb::feedback::FeedbackMathStatus;
-using neri::usb::feedback::FeedbackRawUnit;
-using neri::usb::feedback::kQ32One;
+using memi::usb::feedback::FeedbackDecodeInput;
+using memi::usb::feedback::FeedbackDecodeProfile;
+using memi::usb::feedback::FeedbackMathStatus;
+using memi::usb::feedback::FeedbackRawUnit;
+using memi::usb::feedback::kQ32One;
 
 void verifiesConfiguredThreeByteFixedPointVector() {
     constexpr std::array<uint8_t, 3> payload { 0x00, 0x00, 0x0C };
@@ -26,7 +26,7 @@ void verifiesConfiguredThreeByteFixedPointVector() {
         1,
         1
     };
-    const auto result = neri::usb::feedback::decodeFeedbackSample(
+    const auto result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput { payload.data(), payload.size(), 1000, 7 }
     );
@@ -48,7 +48,7 @@ void verifiesSourceAndAudioCadenceStayIndependent() {
         1,
         1
     };
-    const auto result = neri::usb::feedback::decodeFeedbackSample(
+    const auto result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput { payload.data(), payload.size(), 2000, 8 }
     );
@@ -67,31 +67,31 @@ void rejectsUnknownProfilesAndMalformedPayloads() {
         1,
         1
     };
-    auto result = neri::usb::feedback::decodeFeedbackSample(
+    auto result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput { validPayload.data(), validPayload.size(), 1, 1 }
     );
     assert(result.status == FeedbackMathStatus::UnsupportedProfile);
 
     profile.rawUnit = FeedbackRawUnit::FramesPerServiceInterval;
-    result = neri::usb::feedback::decodeFeedbackSample(
+    result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput { validPayload.data(), 2, 1, 1 }
     );
     assert(result.status == FeedbackMathStatus::PayloadLengthMismatch);
-    result = neri::usb::feedback::decodeFeedbackSample(
+    result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput { validPayload.data(), 5, 1, 1 }
     );
     assert(result.status == FeedbackMathStatus::PayloadLengthMismatch);
-    result = neri::usb::feedback::decodeFeedbackSample(
+    result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput { nullptr, 4, 1, 1 }
     );
     assert(result.status == FeedbackMathStatus::NullPayload);
 
     constexpr std::array<uint8_t, 4> zeroPayload {};
-    result = neri::usb::feedback::decodeFeedbackSample(
+    result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput { zeroPayload.data(), zeroPayload.size(), 1, 1 }
     );
@@ -102,7 +102,7 @@ void rejectsUnknownProfilesAndMalformedPayloads() {
         0xFF,
         0xFF
     };
-    result = neri::usb::feedback::decodeFeedbackSample(
+    result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput { allOnesPayload.data(), allOnesPayload.size(), 1, 1 }
     );
@@ -119,7 +119,7 @@ void rejectsUnknownProfilesAndMalformedPayloads() {
         0xFF
     };
     profile.payloadBytesExpected = 8;
-    result = neri::usb::feedback::decodeFeedbackSample(
+    result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput {
             allOnesWidePayload.data(),
@@ -151,12 +151,12 @@ void rejectsOverflowAndExposesStableStatusNames() {
         std::numeric_limits<uint32_t>::max(),
         1
     };
-    const auto result = neri::usb::feedback::decodeFeedbackSample(
+    const auto result = memi::usb::feedback::decodeFeedbackSample(
         profile,
         FeedbackDecodeInput { payload.data(), payload.size(), 1, 1 }
     );
     assert(result.status == FeedbackMathStatus::Overflow);
-    assert(std::string(neri::usb::feedback::feedbackMathStatusName(
+    assert(std::string(memi::usb::feedback::feedbackMathStatusName(
         result.status
     )) == "overflow");
 }
@@ -171,16 +171,16 @@ void rejectsProfilesThatCannotNormalize() {
         1,
         1
     };
-    assert(!neri::usb::feedback::isFeedbackDecodeProfileSupported(profile));
+    assert(!memi::usb::feedback::isFeedbackDecodeProfileSupported(profile));
 
     profile.fractionalBits = 16;
     profile.sourceIntervalsPerSecond = 8001;
-    assert(!neri::usb::feedback::isFeedbackDecodeProfileSupported(profile));
+    assert(!memi::usb::feedback::isFeedbackDecodeProfileSupported(profile));
 
     profile.payloadBytesExpected = 4;
     profile.sourceIntervalsPerSecond = 8000;
     profile.requiredZeroMask = UINT64_C(0xFFFFFFFF);
-    assert(!neri::usb::feedback::isFeedbackDecodeProfileSupported(profile));
+    assert(!memi::usb::feedback::isFeedbackDecodeProfileSupported(profile));
 }
 
 void acceptsThreeAndFourBytePayloadsInterchangeably() {
@@ -196,7 +196,7 @@ void acceptsThreeAndFourBytePayloadsInterchangeably() {
     };
     // 12 frames per microframe written as 10.14 in three bytes.
     constexpr std::array<uint8_t, 3> threeBytes { 0x00, 0x00, 0x03 };
-    auto result = neri::usb::feedback::decodeFeedbackSample(
+    auto result = memi::usb::feedback::decodeFeedbackSample(
         highSpeed,
         FeedbackDecodeInput { threeBytes.data(), threeBytes.size(), 1, 1 }
     );
@@ -214,7 +214,7 @@ void acceptsThreeAndFourBytePayloadsInterchangeably() {
         1
     };
     constexpr std::array<uint8_t, 4> fourBytes { 0x00, 0x00, 0x30, 0x00 };
-    result = neri::usb::feedback::decodeFeedbackSample(
+    result = memi::usb::feedback::decodeFeedbackSample(
         fullSpeed,
         FeedbackDecodeInput { fourBytes.data(), fourBytes.size(), 1, 1 }
     );
@@ -222,7 +222,7 @@ void acceptsThreeAndFourBytePayloadsInterchangeably() {
     assert(result.sample.normalized.rateQ32 == UINT64_C(192) * kQ32One);
 
     constexpr std::array<uint8_t, 4> reservedBits { 0x00, 0x00, 0x30, 0x10 };
-    result = neri::usb::feedback::decodeFeedbackSample(
+    result = memi::usb::feedback::decodeFeedbackSample(
         fullSpeed,
         FeedbackDecodeInput { reservedBits.data(), reservedBits.size(), 1, 1 }
     );
@@ -230,7 +230,7 @@ void acceptsThreeAndFourBytePayloadsInterchangeably() {
 }
 
 void detectsPowerOfTwoFeedbackFormatShifts() {
-    using neri::usb::feedback::FeedbackFormatShift;
+    using memi::usb::feedback::FeedbackFormatShift;
     const auto nominal = UINT64_C(12) * kQ32One;
 
     FeedbackFormatShift exact;

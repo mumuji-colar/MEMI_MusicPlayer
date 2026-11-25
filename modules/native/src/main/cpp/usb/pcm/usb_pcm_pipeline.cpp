@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace neri::usb {
+namespace memi::usb {
 namespace {
 
 constexpr int kGainRampDurationMs = 80;
@@ -897,4 +897,4 @@ PcmPipelineSnapshot PcmPipeline::snapshot() const {
     };
 }
 
-} // namespace neri::usb
+} // namespace memi::usb

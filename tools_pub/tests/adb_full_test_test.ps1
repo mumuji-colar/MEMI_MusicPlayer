@@ -21,16 +21,16 @@ function script:adb {
     $neriAdbTestCommands.Add($command)
     switch -Wildcard ($command) {
         "shell pm list packages *" { return "package:$neriAdbTestInstalledPackage" }
-        "shell cmd package resolve-activity *" { return "$neriAdbTestPackage/moe.ouom.neriplayer.activity.MainActivity" }
+        "shell cmd package resolve-activity *" { return "$neriAdbTestPackage/com.mmc.merimusicplayer.activity.MainActivity" }
         "shell pm list instrumentation" {
             if ($neriAdbTestBootstrapMode -eq "missing") { return "instrumentation:unrelated.test/unrelated.Runner" }
-            return "instrumentation:$neriAdbTestPackage.test/moe.ouom.neriplayer.testing.NeriPlayerInstrumentationTestRunner"
+            return "instrumentation:$neriAdbTestPackage.test/com.mmc.merimusicplayer.testing.NeriPlayerInstrumentationTestRunner"
         }
         "shell am instrument *" {
             switch ($neriAdbTestBootstrapMode) {
                 "failed" { return "INSTRUMENTATION_STATUS: performance_startup_ready=$neriAdbTestPackage`nFAILURES!!!" }
                 "no-marker" { return "OK (1 test)" }
-                "wrong-package" { return "INSTRUMENTATION_STATUS: performance_startup_ready=moe.ouom.neriplayer`nOK (1 test)" }
+                "wrong-package" { return "INSTRUMENTATION_STATUS: performance_startup_ready=com.mmc.merimusicplayer`nOK (1 test)" }
                 "command-failed" { throw "adb command failed" }
                 default { return "INSTRUMENTATION_STATUS: performance_startup_ready=$neriAdbTestPackage`nOK (1 test)" }
             }
@@ -78,11 +78,11 @@ function Invoke-ScriptScenario {
 
     $script:neriAdbTestCommands = [System.Collections.Generic.List[string]]::new()
     $script:neriAdbTestBootstrapMode = $BootstrapMode
-    $script:neriAdbTestPackage = if ($Variant -eq "debug") { "moe.ouom.neriplayer.debug" } else { "moe.ouom.neriplayer" }
+    $script:neriAdbTestPackage = if ($Variant -eq "debug") { "com.mmc.merimusicplayer.debug" } else { "com.mmc.merimusicplayer" }
     $script:neriAdbTestInstalledPackage = if ($MissingTarget) {
-        if ($Variant -eq "debug") { "moe.ouom.neriplayer" } else { "moe.ouom.neriplayer.debug" }
+        if ($Variant -eq "debug") { "com.mmc.merimusicplayer" } else { "com.mmc.merimusicplayer.debug" }
     } else { $script:neriAdbTestPackage }
-    $otherPackage = if ($Variant -eq "debug") { "moe.ouom.neriplayer" } else { "moe.ouom.neriplayer.debug" }
+    $otherPackage = if ($Variant -eq "debug") { "com.mmc.merimusicplayer" } else { "com.mmc.merimusicplayer.debug" }
     $expectedState = if ($PlaybackFromOtherPackage) { $null } else { "state=PlaybackState {state=PLAYING(3)" }
     if ($ConcurrentSessions) {
         $targetState = if ($PlaybackFromOtherPackage) { "PAUSED(2)" } else { "PLAYING(3)" }
@@ -135,7 +135,7 @@ function Invoke-ScriptScenario {
     Assert-Command "install -r $apkName"
     Assert-Command "shell pm grant $package android.permission.POST_NOTIFICATIONS"
     Assert-Command "shell am force-stop $package"
-    Assert-Command "shell am start -W -n $package/moe.ouom.neriplayer.activity.MainActivity"
+    Assert-Command "shell am start -W -n $package/com.mmc.merimusicplayer.activity.MainActivity"
     Assert-Command "shell dumpsys gfxinfo $package reset"
     Assert-Command "shell dumpsys meminfo $package"
     $expectedPlaying = -not ($PlaybackFromOtherPackage -or $TargetStateNull)
@@ -147,13 +147,13 @@ function Invoke-ScriptScenario {
     }
     if ($Variant -eq "debug") {
         Assert-Command "install -r debug-androidTest.apk"
-        $bootstrapCommand = "shell am instrument -w -r -e class moe.ouom.neriplayer.testing.PerformanceStartupBootstrapTest -e preparePerformanceStartup true $package.test/moe.ouom.neriplayer.testing.NeriPlayerInstrumentationTestRunner"
+        $bootstrapCommand = "shell am instrument -w -r -e class com.mmc.merimusicplayer.testing.PerformanceStartupBootstrapTest -e preparePerformanceStartup true $package.test/com.mmc.merimusicplayer.testing.NeriPlayerInstrumentationTestRunner"
         Assert-Command $bootstrapCommand
         $bootstrapIndex = $script:neriAdbTestCommands.IndexOf($bootstrapCommand)
         $firstLaunchIndex = $script:neriAdbTestCommands.IndexOf("shell am force-stop $package")
         if ($bootstrapIndex -ge $firstLaunchIndex) { throw "metrics started before startup readiness was verified" }
-        Assert-Command "shell am broadcast -a moe.ouom.neriplayer.debug.CLEAR_AUTH -n $package/moe.ouom.neriplayer.testing.DebugCookieImportReceiver --es platform all"
-        $imports = @($script:neriAdbTestCommands | Where-Object { $_ -like "shell am broadcast -a moe.ouom.neriplayer.debug.IMPORT_AUTH -n $package/moe.ouom.neriplayer.testing.DebugCookieImportReceiver *" })
+        Assert-Command "shell am broadcast -a com.mmc.merimusicplayer.debug.CLEAR_AUTH -n $package/com.mmc.merimusicplayer.testing.DebugCookieImportReceiver --es platform all"
+        $imports = @($script:neriAdbTestCommands | Where-Object { $_ -like "shell am broadcast -a com.mmc.merimusicplayer.debug.IMPORT_AUTH -n $package/com.mmc.merimusicplayer.testing.DebugCookieImportReceiver *" })
         if ($imports.Count -ne 3) { throw "debug cookie imports targeted the wrong component" }
     } elseif (@($script:neriAdbTestCommands | Where-Object { $_ -like "shell am instrument *" -or $_ -like "*neriplayer.debug.*_AUTH*" }).Count -gt 0) {
         throw "release variant invoked debug-only helpers"

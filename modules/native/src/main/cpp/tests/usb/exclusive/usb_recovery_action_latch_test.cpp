@@ -5,9 +5,9 @@
 
 namespace {
 
-using neri::usb::UsbRecoveryActionAckStatus;
-using neri::usb::UsbRecoveryActionLatch;
-using neri::usb::UsbRuntimeRecoveryAction;
+using memi::usb::UsbRecoveryActionAckStatus;
+using memi::usb::UsbRecoveryActionLatch;
+using memi::usb::UsbRuntimeRecoveryAction;
 
 void resetSelectsCurrentGeneration() {
     UsbRecoveryActionLatch latch;
@@ -60,7 +60,7 @@ void resetRetiresPreviousAction() {
 }
 
 void exposesStableAckNames() {
-    assert(std::string(neri::usb::usbRecoveryActionAckStatusName(
+    assert(std::string(memi::usb::usbRecoveryActionAckStatusName(
         UsbRecoveryActionAckStatus::GenerationMismatch
     )) == "GENERATION_MISMATCH");
 }

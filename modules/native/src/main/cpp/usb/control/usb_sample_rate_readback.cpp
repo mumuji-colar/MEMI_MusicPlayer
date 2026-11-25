@@ -1,6 +1,6 @@
 #include "usb/control/usb_sample_rate_readback.h"
 
-namespace neri::usb::control {
+namespace memi::usb::control {
 namespace {
 
 constexpr int kSettleDelaysMs[] = { 5, 10, 20 };
@@ -19,4 +19,4 @@ int sampleRateSettleDelayMs(int attempt) {
     return attempt < kSettleAttempts ? kSettleDelaysMs[attempt] : kSettleDelaysMs[kSettleAttempts - 1];
 }
 
-} // namespace neri::usb::control
+} // namespace memi::usb::control

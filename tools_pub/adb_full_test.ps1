@@ -10,11 +10,11 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$packageName = if ($BuildVariant -eq "debug") { "moe.ouom.neriplayer.debug" } else { "moe.ouom.neriplayer" }
-$mainActivity = "moe.ouom.neriplayer.activity.MainActivity"
-$receiverComponent = "$packageName/moe.ouom.neriplayer.testing.DebugCookieImportReceiver"
-$instrumentationRunner = "$packageName.test/moe.ouom.neriplayer.testing.NeriPlayerInstrumentationTestRunner"
-$startupBootstrapClass = "moe.ouom.neriplayer.testing.PerformanceStartupBootstrapTest"
+$packageName = if ($BuildVariant -eq "debug") { "com.mmc.merimusicplayer.debug" } else { "com.mmc.merimusicplayer" }
+$mainActivity = "com.mmc.merimusicplayer.activity.MainActivity"
+$receiverComponent = "$packageName/com.mmc.merimusicplayer.testing.DebugCookieImportReceiver"
+$instrumentationRunner = "$packageName.test/com.mmc.merimusicplayer.testing.NeriPlayerInstrumentationTestRunner"
+$startupBootstrapClass = "com.mmc.merimusicplayer.testing.PerformanceStartupBootstrapTest"
 $reportDir = Join-Path $repoRoot ".report"
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $reportPath = Join-Path $reportDir "adb-$BuildVariant-perf-$timestamp.json"
@@ -157,7 +157,7 @@ function Import-Cookies {
     $cookieBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($cookie))
     $output = Invoke-Adb -Args @(
         "shell", "am", "broadcast",
-        "-a", "moe.ouom.neriplayer.debug.IMPORT_AUTH",
+        "-a", "com.mmc.merimusicplayer.debug.IMPORT_AUTH",
         "-n", $receiverComponent,
         "--es", "platform", $Platform,
         "--es", "cookie_base64", $cookieBase64
@@ -337,7 +337,7 @@ $imports = @()
 if ($BuildVariant -eq "debug") {
     Invoke-Adb -Args @(
         "shell", "am", "broadcast",
-        "-a", "moe.ouom.neriplayer.debug.CLEAR_AUTH",
+        "-a", "com.mmc.merimusicplayer.debug.CLEAR_AUTH",
         "-n", $receiverComponent,
         "--es", "platform", "all"
     ) | Out-Null

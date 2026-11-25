@@ -1,0 +1,10 @@
+package com.mmc.merimusicplayer.data.ltw.session.state
+
+import com.mmc.merimusicplayer.data.model.ltw.room.ListenTogetherRoomState
+
+internal fun latestListenTogetherAcceptedRoomVersion(
+    lastAppliedRoomVersion: Long,
+    currentState: ListenTogetherRoomState?
+): Long {
+    return maxOf(lastAppliedRoomVersion, currentState?.version ?: -1L)
+}

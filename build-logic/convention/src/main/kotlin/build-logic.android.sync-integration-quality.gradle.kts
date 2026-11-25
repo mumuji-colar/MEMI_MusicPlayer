@@ -17,7 +17,7 @@ val syncIntegrationTest = tasks.register<Test>("testSyncIntegration") {
     testClassesDirs = files(repositoryTests.map { it.testClassesDirs })
     classpath = files(repositoryTests.map { it.classpath })
     javaLauncher.set(repositoryTests.flatMap { it.javaLauncher })
-    filter.includeTestsMatching("moe.ouom.neriplayer.data.sync.*")
+    filter.includeTestsMatching("com.mmc.merimusicplayer.data.sync.*")
 }
 val syncIntegrationExecution = syncIntegrationTest.map {
     it.extensions.getByType<JacocoTaskExtension>().destinationFile
@@ -44,7 +44,7 @@ val generateSyncIntegrationScope = tasks.register("generateSyncIntegrationScope"
     outputs.file(syncIntegrationScope)
     doLast {
         val definition = JsonSlurper().parse(rootProject.file("config/quality/crap-scope.json")) as Map<*, *>
-        val prefix = "moe/ouom/neriplayer/data/sync/"
+        val prefix = "com/mmc/merimusicplayer/data/sync/"
         val patterns = (definition["source_patterns"] as List<*>).map { it as String }.filter { it.startsWith(prefix) }
         check("$prefix**/*.kt" in patterns) { "Sync integration must retain whole-directory complexity coverage" }
         val methods = (definition["method_scopes"] as List<*>).filter {

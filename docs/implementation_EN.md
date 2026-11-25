@@ -49,7 +49,7 @@ Playback policy covers nine leaf packages: `audio`, `command`, `offload`, `pendi
 
 Shared contracts live in `modules/model`, retaining existing packages such as `data.model.<business>`. Screen-local state stays with UI, Room entities with the database, and private algorithm records with their implementation. Module directories and Kotlin packages express different scopes. Packages match their internal source directories. Class renames require checking actual save and read paths: persisted Workers, JNI exports, and Android component entry points must remain compatible, while fields, storage keys, and historical schemas remain unchanged.
 
-Modules own tests, resources, and consumer R8 rules; host integration tests stay in app. `:local` owns Room business mappings and local repository orchestration, while platform cache adapters belong to `:platform`. Historical schemas live in `modules/database/schemas`. Settings KSP runs in `:local`; Compose settings rendering stays in [app settings screens](../app/src/main/java/moe/ouom/neriplayer/ui/screen/tab/settings/). App has no production `data` directory; download upgrades and dependency assembly use `core/startup/legacy` and `core/integration`.
+Modules own tests, resources, and consumer R8 rules; host integration tests stay in app. `:local` owns Room business mappings and local repository orchestration, while platform cache adapters belong to `:platform`. Historical schemas live in `modules/database/schemas`. Settings KSP runs in `:local`; Compose settings rendering stays in [app settings screens](../app/src/main/java/com/mmc/merimusicplayer/ui/screen/tab/settings/). App has no production `data` directory; download upgrades and dependency assembly use `core/startup/legacy` and `core/integration`.
 
 Run `./gradlew verifyModularization` for structural boundaries, JVM tests, combined CRAP coverage, domain dependencies, and lint. `:native` participates in registration, structural checks, and lint. This pure-native module produces no JaCoCo data; coverage remains complete for existing JVM modules. Native host tests and all four ABI builds use the independent CI and module tasks documented in the [:native README](../modules/native/README.md). Each module README lists focused tasks, for example:
 
@@ -68,7 +68,7 @@ Independent and aggregate gates retain the same scopes and threshold: a scoped C
 
 - `MainActivity` is the main UI entry point. It handles startup, notification
   permission, external audio imports, USB attach events, and
-  `neriplayer://listen-together/join` links.
+  `memiplayer://listen-together/join` links.
   Web sign-in uses separate Activities; Bluetooth validation and `CarMediaBrowserService`
   handle car capability validation and library browsing respectively.
 - If the previous launch ended with a JVM/native crash or system ANR, the app

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <limits>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 
 FeedbackMathStatus FeedbackPacketScheduler::configure(
     FeedbackRateQ32 initialRateQ32,
@@ -161,4 +161,4 @@ FeedbackMathStatus FeedbackPacketScheduler::validateRate(
     return FeedbackMathStatus::Ok;
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback

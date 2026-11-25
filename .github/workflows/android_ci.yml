@@ -152,8 +152,8 @@ jobs:
             app_test_arguments: >-
               -Pandroid.testInstrumentationRunnerArguments.numShards=4
               -Pandroid.testInstrumentationRunnerArguments.shardIndex=0
-              -Pandroid.testInstrumentationRunnerArguments.notClass=moe.ouom.neriplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
-              -Pandroid.testInstrumentationRunnerArguments.neriplayerAdditionalExcludedClass=moe.ouom.neriplayer.activity.MainActivityRotationContinuityTest
+              -Pandroid.testInstrumentationRunnerArguments.notClass=com.mmc.merimusicplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
+              -Pandroid.testInstrumentationRunnerArguments.neriplayerAdditionalExcludedClass=com.mmc.merimusicplayer.activity.MainActivityRotationContinuityTest
           - shard: 1
             test_group: shard 1
             # 该分片在 SwiftShader 宿主上重复掉线，用 ANGLE 路径隔离图形后端影响
@@ -163,8 +163,8 @@ jobs:
             app_test_arguments: >-
               -Pandroid.testInstrumentationRunnerArguments.numShards=4
               -Pandroid.testInstrumentationRunnerArguments.shardIndex=1
-              -Pandroid.testInstrumentationRunnerArguments.notClass=moe.ouom.neriplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
-              -Pandroid.testInstrumentationRunnerArguments.neriplayerAdditionalExcludedClass=moe.ouom.neriplayer.activity.MainActivityRotationContinuityTest
+              -Pandroid.testInstrumentationRunnerArguments.notClass=com.mmc.merimusicplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
+              -Pandroid.testInstrumentationRunnerArguments.neriplayerAdditionalExcludedClass=com.mmc.merimusicplayer.activity.MainActivityRotationContinuityTest
           - shard: 2
             test_group: shard 2
             emulator_gpu: swiftshader
@@ -173,8 +173,8 @@ jobs:
             app_test_arguments: >-
               -Pandroid.testInstrumentationRunnerArguments.numShards=4
               -Pandroid.testInstrumentationRunnerArguments.shardIndex=2
-              -Pandroid.testInstrumentationRunnerArguments.notClass=moe.ouom.neriplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
-              -Pandroid.testInstrumentationRunnerArguments.neriplayerAdditionalExcludedClass=moe.ouom.neriplayer.activity.MainActivityRotationContinuityTest
+              -Pandroid.testInstrumentationRunnerArguments.notClass=com.mmc.merimusicplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
+              -Pandroid.testInstrumentationRunnerArguments.neriplayerAdditionalExcludedClass=com.mmc.merimusicplayer.activity.MainActivityRotationContinuityTest
           - shard: 3
             test_group: shard 3
             emulator_gpu: swiftshader
@@ -183,8 +183,8 @@ jobs:
             app_test_arguments: >-
               -Pandroid.testInstrumentationRunnerArguments.numShards=4
               -Pandroid.testInstrumentationRunnerArguments.shardIndex=3
-              -Pandroid.testInstrumentationRunnerArguments.notClass=moe.ouom.neriplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
-              -Pandroid.testInstrumentationRunnerArguments.neriplayerAdditionalExcludedClass=moe.ouom.neriplayer.activity.MainActivityRotationContinuityTest
+              -Pandroid.testInstrumentationRunnerArguments.notClass=com.mmc.merimusicplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
+              -Pandroid.testInstrumentationRunnerArguments.neriplayerAdditionalExcludedClass=com.mmc.merimusicplayer.activity.MainActivityRotationContinuityTest
           # 完整宿主触摸回归使用独立的新 AVD，隔离套件间图形状态并保留全部断言
           - shard: 4
             test_group: External Lyrics host
@@ -192,7 +192,7 @@ jobs:
             build_tasks: ":app:assembleDebug :app:assembleDebugAndroidTest"
             module_tests: ""
             app_test_arguments: >-
-              -Pandroid.testInstrumentationRunnerArguments.class=moe.ouom.neriplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
+              -Pandroid.testInstrumentationRunnerArguments.class=com.mmc.merimusicplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest
           # 真实 Activity 旋转单独运行，避免共享图形宿主的状态影响连续性回归
           - shard: 5
             test_group: Player rotation host
@@ -200,7 +200,7 @@ jobs:
             build_tasks: ":app:assembleDebug :app:assembleDebugAndroidTest"
             module_tests: ""
             app_test_arguments: >-
-              -Pandroid.testInstrumentationRunnerArguments.class=moe.ouom.neriplayer.activity.MainActivityRotationContinuityTest
+              -Pandroid.testInstrumentationRunnerArguments.class=com.mmc.merimusicplayer.activity.MainActivityRotationContinuityTest
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -285,8 +285,8 @@ jobs:
           from pathlib import Path
           import xml.etree.ElementTree as ET
 
-          rotation_class = "moe.ouom.neriplayer.activity.MainActivityRotationContinuityTest"
-          external_lyrics_class = "moe.ouom.neriplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest"
+          rotation_class = "com.mmc.merimusicplayer.activity.MainActivityRotationContinuityTest"
+          external_lyrics_class = "com.mmc.merimusicplayer.ui.screen.tab.settings.component.floating.SettingsExternalLyricsPageTouchTest"
           cases = [
               case
               for report in Path("app/build/outputs/androidTest-results/connected").rglob("TEST-*.xml")

@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-namespace neri::usb::feedback {
+namespace memi::usb::feedback {
 namespace {
 
 uint64_t readLittleEndian(const uint8_t* payload, uint8_t payloadBytes) {
@@ -137,4 +137,4 @@ FeedbackDecodeResult decodeFeedbackSample(
     return result;
 }
 
-} // namespace neri::usb::feedback
+} // namespace memi::usb::feedback
