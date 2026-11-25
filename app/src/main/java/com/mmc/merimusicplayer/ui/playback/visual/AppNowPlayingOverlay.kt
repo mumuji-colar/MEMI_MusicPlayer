@@ -213,14 +213,14 @@ internal fun AppNowPlayingOverlay(
     AnimatedVisibility(
         visible = visible,
         enter = slideInVertically(
-            animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
+            animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
             initialOffsetY = { fullHeight -> fullHeight }
-        ) + fadeIn(animationSpec = tween(durationMillis = 210)),
+        ) + fadeIn(animationSpec = tween(durationMillis = 240)),
         exit = slideOutVertically(
-            // 进出统一 350ms; 淡出比滑动略短, 避免整段过渡都处于半透明状态
-            animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
+            // 进出统一 400ms, 与手机关闭时长对齐; 淡出比滑动略短, 避免整段过渡都处于半透明状态
+            animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing),
             targetOffsetY = { fullHeight -> fullHeight }
-        ) + fadeOut(animationSpec = tween(durationMillis = 245))
+        ) + fadeOut(animationSpec = tween(durationMillis = 280))
     ) {
         overlayBody()
     }

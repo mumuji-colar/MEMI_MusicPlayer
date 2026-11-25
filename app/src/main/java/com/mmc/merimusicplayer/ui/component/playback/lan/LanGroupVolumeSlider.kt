@@ -3,7 +3,6 @@ package com.mmc.merimusicplayer.ui.component.playback.lan
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.Slider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -17,13 +16,14 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import com.mmc.merimusicplayer.ui.screen.tab.settings.miuix.MiuixSettingsSlider
 import kotlin.math.abs
 
 @Composable
 internal fun LanGroupVolumeSlider(value: Float, enabled: Boolean, commit: (Float) -> Unit) {
     val mayCommit by rememberUpdatedState(enabled)
     if (!enabled) {
-        Slider(value = value, onValueChange = {}, enabled = false)
+        MiuixSettingsSlider(value = value, onValueChange = {}, enabled = false)
         return
     }
     var applied by remember(value) { mutableFloatStateOf(value) }
@@ -40,7 +40,7 @@ internal fun LanGroupVolumeSlider(value: Float, enabled: Boolean, commit: (Float
     }
 
     Box {
-        Slider(
+        MiuixSettingsSlider(
             value = displayed,
             onValueChange = { draft = it },
             onValueChangeFinished = finish

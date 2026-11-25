@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.*
+import com.mmc.merimusicplayer.ui.screen.tab.settings.miuix.MiuixSettingsSlider
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -160,7 +161,12 @@ private fun RoomVolumeSlider(value: Float, commit: (Float) -> Unit) {
     var draft by remember { mutableFloatStateOf(value) }
     var dragging by remember { mutableStateOf(false) }
     LaunchedEffect(value) { if (!dragging) draft = value }
-    Slider(value = draft, onValueChange = { dragging = true; draft = it }, onValueChangeFinished = { dragging = false; commit(draft) })
+    MiuixSettingsSlider(
+        value = draft,
+        onValueChange = { dragging = true; draft = it },
+        onValueChangeFinished = { dragging = false; commit(draft) },
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 @Composable
 internal fun LanPermissionsRow(permissions: LanPermissions, change: (LanPermissions) -> Unit) {
