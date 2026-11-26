@@ -53,6 +53,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -1749,28 +1750,84 @@ fun NowPlayingScreen(
                                     )
                                 }
                             } else if (tabletPortrait) {
-                                Box(modifier = contentModifier) {
-                                    NowPlayingTabletPortraitLayout(
-                                        controlsAtBottom = nowPlayingControlsAtBottom,
-                                        progressAtBottom = nowPlayingProgressAtBottom,
-                                        lyricsVisible = embeddedLyricsVisible,
-                                        topBar = coverTopBar,
-                                        cover = coverPanel,
-                                        identity = { trackIdentity(false) },
-                                        progress = nowPlayingProgressSection,
-                                        controls = mainPlaybackControls,
-                                        toolbar = { coverToolbar(false) },
-                                        lyrics = {
-                                            NowPlayingEmbeddedLyricsContent(
-                                                content = embeddedLyricContent,
-                                                style = embeddedLyricStyle,
-                                                playback = embeddedLyricPlayback,
-                                                actions = embeddedLyricActions,
-                                                modifier = Modifier.fillMaxSize()
+                                // 平板竖屏：上半屏唱片 + 歌词，下半屏 Coverflow + 迷你播放条。
+                                // 横屏仍走上面的 NowPlayingWideLayout 左右分栏。
+                                Column(
+                                    modifier = contentModifier
+                                        .fillMaxSize()
+                                        .padding(horizontal = 20.dp)
+                                ) {
+                                    coverTopBar()
+                                    Row(
+                                        modifier = Modifier
+                                            .weight(1.02f)
+                                            .fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.weight(0.44f),
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            NowPlayingVinylDisc(
+                                                song = currentSong,
+                                                isPlaying = isPlaying,
+                                                modifier = Modifier.fillMaxWidth(0.82f)
                                             )
-                                        },
-                                        modifier = Modifier.fillMaxSize()
-                                    )
+                                            Spacer(Modifier.height(10.dp))
+                                            Box(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                trackIdentity(true)
+                                            }
+                                            Box(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                coverToolbar(false)
+                                            }
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(0.56f)
+                                                .fillMaxHeight()
+                                                .padding(start = 8.dp)
+                                        ) {
+                                            if (embeddedLyricsVisible) {
+                                                NowPlayingEmbeddedLyricsContent(
+                                                    content = embeddedLyricContent,
+                                                    style = embeddedLyricStyle,
+                                                    playback = embeddedLyricPlayback,
+                                                    actions = embeddedLyricActions,
+                                                    modifier = Modifier.fillMaxSize()
+                                                )
+                                            }
+                                        }
+                                    }
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(0.98f)
+                                            .fillMaxWidth()
+                                    ) {
+                                        NowPlayingCoverflow(
+                                            songs = displayedQueue,
+                                            currentIndex = currentIndexInDisplay,
+                                            onSelect = { index -> PlayerManager.playFromQueue(index) },
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .fillMaxWidth()
+                                        )
+                                        Spacer(Modifier.height(10.dp))
+                                        NowPlayingCompactTransportBar(
+                                            title = currentSong?.name.orEmpty(),
+                                            artist = currentSong?.artist.orEmpty(),
+                                            isPlaying = isPlaying,
+                                            onPrevious = { PlayerManager.previous() },
+                                            onPlayPause = { PlayerManager.togglePlayPause() },
+                                            onNext = { PlayerManager.next() }
+                                        )
+                                        Spacer(Modifier.height(12.dp))
+                                    }
                                 }
                             } else if (immersiveMode || useCompactPortraitLayout) {
                                 NowPlayingImmersivePortraitLayout(
