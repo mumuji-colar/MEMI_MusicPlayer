@@ -42,18 +42,26 @@ class NowPlayingOrientationPolicyTest {
     }
 
     @Test
-    fun tabletsAreLockedToLandscapeInEveryPlayerState() {
-        for (state in listOf(NowPlayingOrientationState(), NowPlayingOrientationState(playerOpen = true),
-            NowPlayingOrientationState(playerOpen = true, portraitRequested = true))) {
-            assertEquals(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE, state.requestedOrientation(600))
-            assertEquals(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE, state.requestedOrientation(800))
-        }
+    fun tabletsStayLandscapeOutsidePlayerAndRotateInsidePlayer() {
+        // 平板主界面锁横屏（侧边栏、三列列表只在横屏成立）
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
+            NowPlayingOrientationState().requestedOrientation(600))
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
+            NowPlayingOrientationState().requestedOrientation(800))
+        // 播放页放开旋转：竖屏有上下分区版式，横屏是左右分栏，两种朝向都成立
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_FULL_USER,
+            NowPlayingOrientationState(playerOpen = true).requestedOrientation(600))
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_FULL_USER,
+            NowPlayingOrientationState(playerOpen = true).requestedOrientation(800))
     }
 
     @Test
-    fun tabletsNeverFallBackToPortraitFromPhoneOnlyFlows() {
-        // 回到竖屏入口只挂在手机横屏页上，即便状态被置位也不能把平板掰回竖屏
+    fun tabletPlayerIgnoresPhoneOnlyPortraitRequest() {
+        // 回到竖屏入口只挂在手机横屏页上；即便状态被置位，平板播放页仍保持可旋转，
+        // 退出播放页后回到横屏
         val portrait = NowPlayingOrientationState().onPlayerOpenChanged(true).returnToPortrait()
-        assertEquals(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE, portrait.requestedOrientation(1200))
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_FULL_USER, portrait.requestedOrientation(1200))
+        assertEquals(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE,
+            portrait.onPlayerOpenChanged(false).requestedOrientation(1200))
     }
 }

@@ -4,6 +4,7 @@ import android.app.Application
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import com.mmc.merimusicplayer.core.player.persistence.RestoredPlayerStatePreload
 import com.mmc.merimusicplayer.core.player.persistence.RestoredPlayerStateSnapshot
 import com.mmc.merimusicplayer.data.model.settings.playback.PlaybackPreferenceSnapshot
 import org.junit.Assert.assertEquals
@@ -25,7 +26,7 @@ class PlayerPreloadedInitializerTest {
         )
         val restored = restoredSnapshot()
         val events = mutableListOf<String>()
-        var initializedWith: Triple<Application, PlaybackPreferenceSnapshot, RestoredPlayerStateSnapshot?>? = null
+        var initializedWith: Triple<Application, PlaybackPreferenceSnapshot, RestoredPlayerStatePreload>? = null
         val initializer = PlayerPreloadedInitializer(
             app = app,
             ioDispatcher = ioDispatcher,
@@ -37,7 +38,7 @@ class PlayerPreloadedInitializerTest {
             preloadState = { _, readPreferences ->
                 events += "preload@${currentDispatcherName(ioDispatcher)}:" +
                     "${readPreferences.keepLastPlaybackProgress}/${readPreferences.keepPlaybackModeState}"
-                restored
+                RestoredPlayerStatePreload.Completed(restored)
             },
             initializePlayer = { application, readPreferences, restoredState ->
                 events += "init"
@@ -54,19 +55,20 @@ class PlayerPreloadedInitializerTest {
         )
         assertSame(app, initializedWith?.first)
         assertSame(preferences, initializedWith?.second)
-        assertSame(restored, initializedWith?.third)
+        assertEquals(RestoredPlayerStatePreload.Completed(restored), initializedWith?.third)
     }
 
     @Test
     fun `missing restored state still initializes the player`() = runTest {
         val app = mock(Application::class.java)
-        var initializedState: RestoredPlayerStateSnapshot? = restoredSnapshot()
+        var initializedState: RestoredPlayerStatePreload? =
+            RestoredPlayerStatePreload.Completed(restoredSnapshot())
         var initCalls = 0
         val initializer = PlayerPreloadedInitializer(
             app = app,
             ioDispatcher = StandardTestDispatcher(testScheduler),
             readPreferences = { PlaybackPreferenceSnapshot() },
-            preloadState = { _, _ -> null },
+            preloadState = { _, _ -> RestoredPlayerStatePreload.Completed(null) },
             initializePlayer = { _, _, restoredState ->
                 initCalls += 1
                 initializedState = restoredState
@@ -76,7 +78,7 @@ class PlayerPreloadedInitializerTest {
         initializer.initialize()
 
         assertEquals(1, initCalls)
-        assertEquals(null, initializedState)
+        assertEquals(RestoredPlayerStatePreload.Completed(null), initializedState)
     }
 
     private suspend fun currentDispatcherName(ioDispatcher: CoroutineDispatcher): String {

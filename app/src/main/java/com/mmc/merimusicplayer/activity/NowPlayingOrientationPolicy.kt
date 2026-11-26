@@ -15,12 +15,20 @@ internal data class NowPlayingOrientationState(
     fun returnToPortrait(): NowPlayingOrientationState = copy(portraitRequested = playerOpen)
 
     fun requestedOrientation(smallestScreenWidthDp: Int): Int = when {
-        // 平板整机锁定横屏：播放页左右分栏、侧边导航栏、三列歌曲列表都只在横屏成立，
-        // 跟随系统转成竖屏会退化成手机单列版式，等于白做一套平板布局。
-        // 用 SENSOR_LANDSCAPE 而不是 LANDSCAPE：只禁竖屏，仍允许 180° 翻转，
-        // 平板倒过来拿（接口朝左/朝右）也能正着看。
+        // 平板分两段：主界面锁横屏，播放页放开旋转。
+        //
+        // 主界面锁横屏：侧边导航栏、三列歌曲列表都只在横屏成立，跟随系统转成竖屏
+        // 会退化成手机单列版式，等于白做一套平板布局。用 SENSOR_LANDSCAPE 而不是
+        // LANDSCAPE：只禁竖屏，仍允许 180° 翻转，平板倒过来拿也能正着看。
+        //
+        // 播放页放开：竖屏有一套专门的上下分区版式（上半唱片 + 歌词，下半 Coverflow
+        // + 迷你条），横屏仍是左右分栏，两种朝向都有对应布局，没有理由再锁死。
+        // 主界面不参与这条例外，退出播放页时立即回到横屏。
         smallestScreenWidthDp >= PHONE_SMALLEST_SCREEN_WIDTH_DP ->
-            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            if (playerOpen) ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+            else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        // 手机：主界面竖屏；播放页放开旋转（横屏有独立版式），
+        // 但从横屏播放页返回时先转回竖屏，避免主界面横着。
         playerOpen && !portraitRequested -> ActivityInfo.SCREEN_ORIENTATION_FULL_USER
         else -> ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }

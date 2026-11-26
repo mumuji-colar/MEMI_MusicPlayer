@@ -1756,6 +1756,8 @@ fun NowPlayingScreen(
                                     modifier = contentModifier
                                         .fillMaxSize()
                                         .padding(horizontal = 20.dp)
+                                        // 沿用原平板竖屏布局的标签，UI 测试据此判定版式
+                                        .testTag("nowPlayingTabletPortraitLayout")
                                 ) {
                                     coverTopBar()
                                     Row(
