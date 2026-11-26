@@ -1259,7 +1259,14 @@ fun NowPlayingScreen(
                                 isLyricsMode -> { { onShowLyricsScreenChange(false) } }
                                 else -> onNavigateUp
                             }
-                            val horizontalPadding = if (isLandscape) 16.dp else 20.dp
+                            // 平板竖屏不再整页留左右边距：Coverflow 需要铺到屏幕边缘，
+                            // 否则 Pager 比屏幕窄 40dp，封面滑到距边框 20dp 处就被裁，
+                            // 看起来像两侧各压了一条遮挡。边距由顶栏/上半屏/迷你条各自补。
+                            val horizontalPadding = when {
+                                tabletPortrait -> 0.dp
+                                isLandscape -> 16.dp
+                                else -> 20.dp
+                            }
                             val verticalPadding = if (isLandscape) 8.dp else 12.dp
                             // 手机横屏已隐藏状态栏（见 shouldHideNowPlayingStatusBar）：
                             // 顶部不再有可见系统栏，若继续吃 statusBars 内边距会把整页往下挤，
@@ -1763,17 +1770,21 @@ fun NowPlayingScreen(
                                 Column(
                                     modifier = contentModifier
                                         .fillMaxSize()
-                                        .padding(horizontal = 20.dp)
+                                        // 刻意不在外层留左右 padding：Coverflow 要一直铺到屏幕边缘。
+                                        // 否则 Pager 比屏幕窄 40dp，封面滑到距边框 20dp 处就被裁，
+                                        // 看上去像两侧各压了一条遮挡。
+                                        // 需要边距的元素（顶栏、上半屏、迷你条）各自加 padding。
                                         // 沿用原平板竖屏布局的标签，UI 测试据此判定版式
                                         .testTag("nowPlayingTabletPortraitLayout")
                                 ) {
-                                    coverTopBar()
+                                    Box(Modifier.padding(horizontal = 20.dp)) { coverTopBar() }
                                     // 上半屏：黑胶放大贴左上、向左探出屏幕，歌词取与黑胶同高的范围。
                                     // 歌名、歌手和控件按钮按需求隐去，只留迷你条负责播放控制。
                                     BoxWithConstraints(
                                         modifier = Modifier
                                             .weight(1.06f)
                                             .fillMaxWidth()
+                                            .padding(horizontal = 20.dp)
                                             // 整体略下移，与顶栏拉开一点呼吸感
                                             .padding(top = 8.dp)
                                     ) {
@@ -1822,14 +1833,16 @@ fun NowPlayingScreen(
                                                 .fillMaxWidth()
                                         )
                                         Spacer(Modifier.height(10.dp))
-                                        NowPlayingCompactTransportBar(
-                                            title = currentSong?.name.orEmpty(),
-                                            artist = currentSong?.artist.orEmpty(),
-                                            isPlaying = isPlaying,
-                                            onPrevious = { PlayerManager.previous() },
-                                            onPlayPause = { PlayerManager.togglePlayPause() },
-                                            onNext = { PlayerManager.next() }
-                                        )
+                                        Box(Modifier.padding(horizontal = 20.dp)) {
+                                            NowPlayingCompactTransportBar(
+                                                title = currentSong?.name.orEmpty(),
+                                                artist = currentSong?.artist.orEmpty(),
+                                                isPlaying = isPlaying,
+                                                onPrevious = { PlayerManager.previous() },
+                                                onPlayPause = { PlayerManager.togglePlayPause() },
+                                                onNext = { PlayerManager.next() }
+                                            )
+                                        }
                                         // 迷你条整体上移，底部留白
                                         Spacer(Modifier.height(32.dp))
                                     }
