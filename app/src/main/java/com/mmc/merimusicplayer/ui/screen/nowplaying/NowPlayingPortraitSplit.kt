@@ -9,6 +9,7 @@ package com.mmc.merimusicplayer.ui.screen.nowplaying
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
@@ -58,7 +59,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
@@ -156,6 +156,12 @@ internal fun NowPlayingVinylDisc(
 /** 浏览态空转多久后自动复位（毫秒） */
 private const val BrowseIdleTimeoutMs = 4_000L
 
+/** 切歌时先等这么久，让封面/歌词/背景的重组落定，再启动横向滚动（毫秒） */
+private const val CoverflowSwitchDelayMs = 100L
+
+/** 切歌时 Coverflow 横向滑动的时长（毫秒），比手动滑动的 spring 更慢更稳 */
+private const val CoverflowSwitchDurationMs = 520
+
 @Composable
 internal fun NowPlayingCoverflow(
     songs: List<SongItem>,
@@ -184,11 +190,17 @@ internal fun NowPlayingCoverflow(
             // 外部切歌（迷你条、自动续播）直接复位，不留在浏览态
             browsing = false
             // 切歌会让封面、歌词、背景色同时重组。直接启动横向滚动的话，
-            // 动画的第一帧和这一大波重组挤在同一帧里，表现就是顿一下。
-            // 先让出两帧，等重组落定再滚，动画就顺了。
-            withFrameNanos { }
-            withFrameNanos { }
-            pagerState.animateScrollToPage(currentIndex)
+            // 动画的第一帧和这波重组挤在同一帧里，表现就是顿一下。
+            // 先等重组落定，再用更慢的曲线滚过去：时长拉长后单帧的位移变小，
+            // 即使偶有掉帧也看不出顿感。
+            delay(CoverflowSwitchDelayMs)
+            pagerState.animateScrollToPage(
+                page = currentIndex,
+                animationSpec = tween(
+                    durationMillis = CoverflowSwitchDurationMs,
+                    easing = FastOutSlowInEasing
+                )
+            )
         }
     }
     // 滑动后一段时间没有新的操作就自动复位：
