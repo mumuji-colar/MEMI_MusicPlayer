@@ -45,6 +45,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
@@ -166,9 +168,10 @@ internal fun NowPlayingCoverflow(
             }
             return@BoxWithConstraints
         }
-        // 「3 整 + 两侧各半截」的尺寸上限就是 25%：
-        // 3×25% 的完整位 + 2×12.5% 的半截位 = 100%，再大就摆不下完整的三张
-        val itemWidth = maxWidth * 0.25f
+        // 不再要求两侧露出「半截」：最外侧那张会被模糊成贴边残影，
+        // 因此中间三张可以放大到 30%，三个完整位合计 90%，
+        // 剩余 10% 留给两端各一条模糊边缘
+        val itemWidth = maxWidth * 0.30f
         val sidePadding = (maxWidth - itemWidth) / 2
         // 封面固定正方形，否则窄页宽会被拉成竖条；高度不足时以高度为准
         val coverSize = minOf(itemWidth, maxHeight)
@@ -181,6 +184,9 @@ internal fun NowPlayingCoverflow(
             val offset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
             val depth = abs(offset).coerceIn(0f, 2f)
             val song = songs[page]
+            // 只有最外侧（depth > 1.15）才模糊：它在屏幕上只露一条边，
+            // 糊开后像雾里的封面残影，不再是被硬切的半张
+            val edgeBlur = ((depth - 1.15f) * 14f).coerceIn(0f, 14f)
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -188,6 +194,16 @@ internal fun NowPlayingCoverflow(
                 Box(
                     modifier = Modifier
                         .size(coverSize)
+                        .then(
+                            if (edgeBlur > 0.5f) {
+                                Modifier.blur(
+                                    radius = edgeBlur.dp,
+                                    edgeTreatment = BlurredEdgeTreatment.Rectangle
+                                )
+                            } else {
+                                Modifier
+                            }
+                        )
                         .graphicsLayer {
                             // 倾斜加大到 24°（最外侧 48°）让透视更明显；
                             // 同时靠 scale 补偿投影损失：侧边几乎不缩小，
@@ -198,7 +214,10 @@ internal fun NowPlayingCoverflow(
                             val shrink = 1f - depth * 0.05f
                             scaleX = shrink.coerceAtLeast(0.85f)
                             scaleY = shrink.coerceAtLeast(0.85f)
-                            alpha = (1f - depth * 0.22f).coerceIn(0.45f, 1f)
+                            // 被模糊的边缘封面再压淡一层：API 31 以下 blur 无效，
+                            // 靠这一步退化成「淡出」而不是「被硬切的窄条」
+                            alpha = if (edgeBlur > 0.5f) 0.32f
+                            else (1f - depth * 0.22f).coerceIn(0.45f, 1f)
                         }
                         .clickable {
                             if (page != pagerState.currentPage) {
