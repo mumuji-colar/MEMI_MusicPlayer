@@ -147,10 +147,11 @@ internal fun NowPlayingCoverflow(
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (songs.isEmpty()) return
     val scope = rememberCoroutineScope()
+    // 空队列时 coerceIn(0, -1) 会抛 IllegalArgumentException，先把起始页夹到合法下界
+    val initialPage = if (songs.isEmpty()) 0 else currentIndex.coerceIn(0, songs.lastIndex)
     val pagerState = rememberPagerState(
-        initialPage = currentIndex.coerceIn(0, songs.lastIndex),
+        initialPage = initialPage,
         pageCount = { songs.size }
     )
     LaunchedEffect(currentIndex, songs.size) {
@@ -159,6 +160,18 @@ internal fun NowPlayingCoverflow(
         }
     }
     BoxWithConstraints(modifier) {
+        if (songs.isEmpty()) {
+            // 队列还没就绪时也要占住高度，否则下半屏会整个塌陷、迷你条贴到顶部
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Outlined.MusicNote,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f),
+                    modifier = Modifier.fillMaxSize(0.12f)
+                )
+            }
+            return@BoxWithConstraints
+        }
         val itemWidth = maxWidth * 0.54f
         val sidePadding = (maxWidth - itemWidth) / 2
         HorizontalPager(

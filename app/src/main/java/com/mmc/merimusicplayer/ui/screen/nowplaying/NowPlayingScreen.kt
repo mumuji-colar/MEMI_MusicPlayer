@@ -951,6 +951,13 @@ fun NowPlayingScreen(
         }
     }
 
+    // 布局判定前置：队列快照、歌词页策略和后续自适应布局都要用
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val phoneLandscape = isNowPlayingPhoneLandscape(isLandscape, configuration.smallestScreenWidthDp)
+    val tabletLandscape = isLandscape && !phoneLandscape
+    val tabletPortrait = isNowPlayingTabletPortrait(isLandscape, configuration.smallestScreenWidthDp)
+
     val phoneticLyrics =
         remember(rawPhoneticLyricsText, remotePhoneticLyrics, embeddedPhoneticLyrics) {
             resolveEffectivePhoneticLyrics(rawPhoneticLyricsText, remotePhoneticLyrics, embeddedPhoneticLyrics)
@@ -971,7 +978,10 @@ fun NowPlayingScreen(
     var lyricShareInitialLine by remember(currentSong?.stableKey()) {
         mutableStateOf<LyricEntry?>(null)
     }
-    val queueDisplayState = if (showQueueSheet || showMoreOptions || lyricShareInitialLine != null) {
+    // 平板竖屏的 Coverflow 需要常驻队列快照；其余场景仍只在弹层打开时计算，省掉每次重组开销
+    val queueDisplayState = if (
+        showQueueSheet || showMoreOptions || lyricShareInitialLine != null || tabletPortrait
+    ) {
         remember(queue, currentSong, shuffleEnabled, queueDisplayRevision) {
             PlayerManager.currentQueueDisplaySnapshot()
         }
@@ -982,15 +992,13 @@ fun NowPlayingScreen(
     val displayedQueue = remember(displayedQueueItems) { displayedQueueItems.map { it.song } }
     val currentIndexInDisplay = queueDisplayState.currentDisplayIndex
 
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val phoneLandscape = isNowPlayingPhoneLandscape(isLandscape, configuration.smallestScreenWidthDp)
-    val tabletLandscape = isLandscape && !phoneLandscape
-    // 平板横屏始终同时呈现封面与完整歌词；手机横屏只保留整屏歌词页。
-    // 两者都只改变当前朝向下的呈现，不改写用户原本停在封面页还是歌词页。
+    // 平板横屏始终同时呈现封面与完整歌词；手机横屏只保留整屏歌词页；
+    // 平板竖屏右侧已有内嵌歌词，不再提供整屏歌词页。
+    // 三者都只改变当前朝向下的呈现，不改写用户原本停在封面页还是歌词页。
     val effectiveShowLyricsScreen = when {
         tabletLandscape -> false
         phoneLandscape -> true
+        tabletPortrait -> false
         else -> showLyricsScreen
     }
 
@@ -1047,7 +1055,6 @@ fun NowPlayingScreen(
     // 自适应布局判断
     val windowInfo = LocalWindowInfo.current
     val density = LocalDensity.current
-    val tabletPortrait = isNowPlayingTabletPortrait(isLandscape, configuration.smallestScreenWidthDp)
     val windowWidthDp = with(density) { windowInfo.containerSize.width.toDp() }
     val windowHeightDp = with(density) { windowInfo.containerSize.height.toDp() }
     val useWideLandscapeLayout = isLandscape
@@ -1284,8 +1291,8 @@ fun NowPlayingScreen(
                             }
 
                             // 手机横屏只剩整屏歌词页，不再提供左右滑动切页；
-                            // 竖屏保留右滑进入歌词页
-                            if (!useWideLandscapeLayout && lyrics.isNotEmpty()) {
+                            // 竖屏手机保留右滑进入歌词页；平板竖屏右侧已有内嵌歌词，不再切页
+                            if (!useWideLandscapeLayout && !tabletPortrait && lyrics.isNotEmpty()) {
                                 contentModifier = contentModifier.pointerInput(lyrics) {
                                     detectHorizontalDragGestures { _, dragAmount ->
                                         if (dragAmount < -20) onShowLyricsScreenChange(true)
@@ -1504,7 +1511,7 @@ fun NowPlayingScreen(
                                     onSwitchPage = { onShowLyricsScreenChange(!showLyricsScreen) }
                                 ),
                                 onAddToPlaylist = { showAddSheet = true },
-                                lyricsVisible = !phoneLandscape
+                                lyricsVisible = !phoneLandscape && !tabletPortrait
                             )
 
                             val coverTopBar: @Composable () -> Unit = {
@@ -1561,7 +1568,7 @@ fun NowPlayingScreen(
                                         onLyrics = { onShowLyricsScreenChange(!showLyricsScreen) },
                                         onAddToPlaylist = { showAddSheet = true },
                                         onMoreOptions = onCoverMoreOptions,
-                                        lyricsVisible = !phoneLandscape
+                                        lyricsVisible = !phoneLandscape && !tabletPortrait
                                     )
                                 )
                             }
