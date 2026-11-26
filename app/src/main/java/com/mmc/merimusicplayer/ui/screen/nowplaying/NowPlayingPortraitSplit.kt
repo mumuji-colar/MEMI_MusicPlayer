@@ -8,22 +8,32 @@ package com.mmc.merimusicplayer.ui.screen.nowplaying
  */
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,9 +50,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
@@ -150,11 +163,28 @@ internal fun NowPlayingCoverflow(
         initialPage = initialPage,
         pageCount = { songs.size }
     )
+    // 浏览态：手指拖过 Coverflow、但还没点中间那张确认播放。
+    // 只认真正的拖拽（DragInteraction.Start），程序滚动到当前歌不算，
+    // 否则外部切歌时整行会莫名上移一下。
+    var browsing by remember { mutableStateOf(false) }
+    LaunchedEffect(pagerState) {
+        pagerState.interactionSource.interactions.collect { interaction ->
+            if (interaction is DragInteraction.Start) browsing = true
+        }
+    }
     LaunchedEffect(currentIndex, songs.size) {
         if (currentIndex in songs.indices && pagerState.currentPage != currentIndex) {
+            // 外部切歌（迷你条、自动续播）直接复位，不留在浏览态
+            browsing = false
             pagerState.animateScrollToPage(currentIndex)
         }
     }
+    // 浏览时整行上移，把底部让给歌名
+    val rowShift by animateDpAsState(
+        targetValue = if (browsing) 38.dp else 0.dp,
+        animationSpec = tween(260),
+        label = "coverflowRowShift"
+    )
     BoxWithConstraints(modifier) {
         if (songs.isEmpty()) {
             // 队列还没就绪时也要占住高度，否则下半屏会整个塌陷、迷你条贴到顶部
@@ -168,7 +198,7 @@ internal fun NowPlayingCoverflow(
             }
             return@BoxWithConstraints
         }
-        // 27%：三个完整位 81%，两端各留 9.5%（约 65dp）给最外侧的半截。
+        // 27%：三个完整位 81%，两端各留 9.5% 给最外侧的半截。
         // 再大就会把两侧挤成一条看不见的边（30% 时只剩 26dp），
         // 尺寸和「两侧可见」在这个排布里是互斥的，27% 是两者的平衡点
         val itemWidth = maxWidth * 0.27f
@@ -179,14 +209,21 @@ internal fun NowPlayingCoverflow(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = sidePadding),
             pageSpacing = 4.dp,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .offset(y = -rowShift)
         ) { page ->
             val offset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
             val depth = abs(offset).coerceIn(0f, 2f)
             val song = songs[page]
-            // 模糊从 depth 0.85 就开始缓慢爬升，到最外侧也只有 9dp：
-            // 起始更早、半径更小，过渡才柔和，不会突然糊成一块色斑
-            val edgeBlur = ((depth - 0.85f) * 9f).coerceIn(0f, 9f)
+            // 模糊半径收到 7dp：9dp 时边缘那圈糊得有点重
+            val edgeBlur = ((depth - 0.85f) * 7f).coerceIn(0f, 7f)
+            // 浏览态下停在中间的那张再放大一档，带缩放动画
+            val selectedBoost by animateFloatAsState(
+                targetValue = if (browsing && page == pagerState.currentPage) 1.1f else 1f,
+                animationSpec = tween(240),
+                label = "coverflowSelectedBoost"
+            )
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -205,29 +242,65 @@ internal fun NowPlayingCoverflow(
                             }
                         )
                         .graphicsLayer {
-                            // 倾斜加大到 24°（最外侧 48°）让透视更明显；
-                            // 同时靠 scale 补偿投影损失：侧边几乎不缩小，
-                            // 否则大角度会把它压成一条细线
+                            // 倾斜 24°（最外侧 48°）让透视更明显；
+                            // 同时靠 scale 补偿投影损失，否则大角度会把它压成一条细线
                             rotationY = offset * 24f
                             cameraDistance = 16f * density
                             transformOrigin = TransformOrigin.Center
-                            val shrink = 1f - depth * 0.05f
-                            scaleX = shrink.coerceAtLeast(0.85f)
-                            scaleY = shrink.coerceAtLeast(0.85f)
-                            // 按 Android 12+ 设计，不再为低版本做 alpha 降级；
-                            // 连续衰减配合模糊，越远越像退到雾里
+                            val scale = (1f - depth * 0.05f) * selectedBoost
+                            scaleX = scale.coerceAtLeast(0.85f)
+                            scaleY = scale.coerceAtLeast(0.85f)
+                            // 按 Android 12+ 设计，连续衰减配合模糊，越远越像退到雾里
                             alpha = (1f - depth * 0.26f).coerceIn(0.4f, 1f)
                         }
                         .clickable {
                             if (page != pagerState.currentPage) {
                                 scope.launch { pagerState.animateScrollToPage(page) }
                             } else {
+                                // 先复位：整行下移、封面缩回、歌名淡出，再交给播放
+                                browsing = false
                                 onSelect(page)
                             }
                         },
                     contentAlignment = Alignment.Center
                 ) {
                     NowPlayingCoverflowArtwork(song)
+                }
+            }
+        }
+        // 选中封面的歌名/歌手，落在整行上移后空出来的底部
+        songs.getOrNull(pagerState.currentPage)?.let { selected ->
+            AnimatedVisibility(
+                visible = browsing,
+                enter = fadeIn(tween(200)) + slideInVertically(tween(220)) { it / 3 },
+                exit = fadeOut(tween(140)) + slideOutVertically(tween(160)) { it / 3 },
+                // 跟着封面底部走：封面居中后再减去整行上移量，歌名贴在它下面 12dp，
+                // 否则固定在容器底部会和封面之间空出一大块
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = (maxHeight - coverSize) / 2 + coverSize - rowShift + 12.dp)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth(0.72f)
+                        .padding(horizontal = 8.dp)
+                ) {
+                    Text(
+                        text = selected.name,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = selected.artist,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }
