@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -124,13 +125,6 @@ internal fun NowPlayingVinylDisc(
                     modifier = Modifier.fillMaxSize(0.4f)
                 )
             }
-            // 唱片中心孔
-            Box(
-                Modifier
-                    .fillMaxSize(0.14f)
-                    .clip(CircleShape)
-                    .background(Color(0xFF101014))
-            )
         }
     }
 }
@@ -172,39 +166,50 @@ internal fun NowPlayingCoverflow(
             }
             return@BoxWithConstraints
         }
-        val itemWidth = maxWidth * 0.54f
+        // 一行看到 3 个完整封面 + 两侧各半截：中心 24%、左右各 24%，
+        // 剩下的约 28% 被最外两张各分一半，正好露出半张
+        val itemWidth = maxWidth * 0.24f
         val sidePadding = (maxWidth - itemWidth) / 2
+        // 封面固定正方形，否则窄页宽会被拉成竖条；高度不足时以高度为准
+        val coverSize = minOf(itemWidth, maxHeight)
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = sidePadding),
-            pageSpacing = 8.dp,
+            pageSpacing = 6.dp,
             modifier = Modifier.fillMaxSize()
         ) { page ->
             val offset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
             val depth = abs(offset).coerceIn(0f, 2f)
             val song = songs[page]
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        rotationY = offset * 38f
-                        cameraDistance = 14f * density
-                        transformOrigin = TransformOrigin.Center
-                        val shrink = 1f - depth * 0.16f
-                        scaleX = shrink.coerceAtLeast(0.6f)
-                        scaleY = shrink.coerceAtLeast(0.6f)
-                        alpha = (1f - depth * 0.42f).coerceIn(0.25f, 1f)
-                    }
-                    .clickable {
-                        if (page != pagerState.currentPage) {
-                            scope.launch { pagerState.animateScrollToPage(page) }
-                        } else {
-                            onSelect(page)
-                        }
-                    },
+                modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                NowPlayingCoverflowArtwork(song)
+                Box(
+                    modifier = Modifier
+                        .size(coverSize)
+                        .graphicsLayer {
+                            // 页宽变窄后，大角度旋转会把侧边压成一条线，
+                            // 因此透视收敛到 16°，缩放差也放缓，保证两侧封面可辨认
+                            rotationY = offset * 16f
+                            cameraDistance = 16f * density
+                            transformOrigin = TransformOrigin.Center
+                            val shrink = 1f - depth * 0.10f
+                            scaleX = shrink.coerceAtLeast(0.72f)
+                            scaleY = shrink.coerceAtLeast(0.72f)
+                            alpha = (1f - depth * 0.34f).coerceIn(0.3f, 1f)
+                        }
+                        .clickable {
+                            if (page != pagerState.currentPage) {
+                                scope.launch { pagerState.animateScrollToPage(page) }
+                            } else {
+                                onSelect(page)
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    NowPlayingCoverflowArtwork(song)
+                }
             }
         }
     }
@@ -216,8 +221,8 @@ private fun NowPlayingCoverflowArtwork(song: SongItem) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 6.dp)
-            .clip(MochiRoundedRectangle(18.dp))
+            .padding(3.dp)
+            .clip(MochiRoundedRectangle(12.dp))
             .background(MaterialTheme.colorScheme.surfaceContainerHighest),
         contentAlignment = Alignment.Center
     ) {

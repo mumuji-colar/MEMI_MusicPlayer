@@ -57,6 +57,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -1767,40 +1768,30 @@ fun NowPlayingScreen(
                                         .testTag("nowPlayingTabletPortraitLayout")
                                 ) {
                                     coverTopBar()
-                                    Row(
+                                    // 上半屏：黑胶放大贴左上、向左探出屏幕，歌词取与黑胶同高的范围。
+                                    // 歌名、歌手和控件按钮按需求隐去，只留迷你条负责播放控制。
+                                    BoxWithConstraints(
                                         modifier = Modifier
-                                            .weight(1.02f)
-                                            .fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
+                                            .weight(1.06f)
+                                            .fillMaxWidth()
                                     ) {
-                                        Column(
-                                            modifier = Modifier.weight(0.44f),
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-                                            NowPlayingVinylDisc(
-                                                song = currentSong,
-                                                isPlaying = isPlaying,
-                                                modifier = Modifier.fillMaxWidth(0.82f)
-                                            )
-                                            Spacer(Modifier.height(10.dp))
-                                            Box(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                trackIdentity(true)
-                                            }
-                                            Box(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                coverToolbar(false)
-                                            }
-                                        }
+                                        // 直径取「可用高度」与「宽度的 60%」较小者：
+                                        // 尽量大，又不至于把右侧歌词压住
+                                        val discSize = minOf(maxHeight * 0.99f, maxWidth * 0.60f)
+                                        NowPlayingVinylDisc(
+                                            song = currentSong,
+                                            isPlaying = isPlaying,
+                                            modifier = Modifier
+                                                .size(discSize)
+                                                .align(Alignment.TopStart)
+                                                // 向左探出屏幕，超出部分由屏幕自然裁掉
+                                                .offset(x = -discSize * 0.16f)
+                                        )
                                         Box(
                                             modifier = Modifier
-                                                .weight(0.56f)
-                                                .fillMaxHeight()
-                                                .padding(start = 8.dp)
+                                                .align(Alignment.TopEnd)
+                                                .fillMaxWidth(0.48f)
+                                                .height(discSize)
                                         ) {
                                             if (embeddedLyricsVisible) {
                                                 NowPlayingEmbeddedLyricsContent(
