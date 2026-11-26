@@ -219,11 +219,11 @@ internal fun NowPlayingCoverflow(
         // 封面固定正方形，否则窄页宽会被拉成竖条；高度不足时以高度为准
         val coverSize = minOf(itemWidth, maxHeight)
         // 默认的 PagerSnapDistance.atMost(1) 会让快速一扫也只翻一页，
-        // 手感像被瞬间刹停。放宽到 4 页，快扫一次会顺着衰减惯性再冲几格，
+        // 手感像被瞬间刹停。放宽到 6 页，快扫一次会顺着衰减惯性再冲几格，
         // 然后吸附到最近的封面。
         val flingBehavior = PagerDefaults.flingBehavior(
             state = pagerState,
-            pagerSnapDistance = PagerSnapDistance.atMost(4)
+            pagerSnapDistance = PagerSnapDistance.atMost(6)
         )
         HorizontalPager(
             state = pagerState,
