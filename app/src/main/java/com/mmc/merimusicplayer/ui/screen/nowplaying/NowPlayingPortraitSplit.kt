@@ -58,6 +58,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
@@ -68,13 +69,10 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.mmc.merimusicplayer.common.R as CoreCommonR
 import com.mmc.merimusicplayer.data.identity.stableKey
 import com.mmc.merimusicplayer.data.model.SongItem
@@ -185,14 +183,12 @@ internal fun NowPlayingCoverflow(
         if (currentIndex in songs.indices && pagerState.currentPage != currentIndex) {
             // 外部切歌（迷你条、自动续播）直接复位，不留在浏览态
             browsing = false
-            val distance = abs(pagerState.currentPage - currentIndex)
-            if (distance > 3) {
-                // 跨太多页时不做滚动动画：中间每一页都要加载封面、算 3D 变换，
-                // 一路滚过去必然掉帧。隔了好几首，补间也看不出来，直接跳更干净
-                pagerState.scrollToPage(currentIndex)
-            } else {
-                pagerState.animateScrollToPage(currentIndex)
-            }
+            // 切歌会让封面、歌词、背景色同时重组。直接启动横向滚动的话，
+            // 动画的第一帧和这一大波重组挤在同一帧里，表现就是顿一下。
+            // 先让出两帧，等重组落定再滚，动画就顺了。
+            withFrameNanos { }
+            withFrameNanos { }
+            pagerState.animateScrollToPage(currentIndex)
         }
     }
     // 滑动后一段时间没有新的操作就自动复位：
@@ -234,8 +230,6 @@ internal fun NowPlayingCoverflow(
         val sidePadding = (maxWidth - itemWidth) / 2
         // 封面固定正方形，否则窄页宽会被拉成竖条；高度不足时以高度为准
         val coverSize = minOf(itemWidth, maxHeight)
-        // 告诉 Coil 按卡片实际像素解码，别拿原图硬塞
-        val artworkPx = with(LocalDensity.current) { coverSize.roundToPx() }.coerceAtLeast(1)
         // 默认的 PagerSnapDistance.atMost(1) 会让快速一扫也只翻一页，
         // 手感像被瞬间刹停。放宽到 6 页，快扫一次会顺着衰减惯性再冲几格，
         // 然后吸附到最近的封面。
@@ -255,14 +249,8 @@ internal fun NowPlayingCoverflow(
             val offset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
             val depth = abs(offset).coerceIn(0f, 2f)
             val song = songs[page]
-            // 模糊半径收到 7dp：9dp 时边缘那圈糊得有点重。
-            // 滚动中直接关掉：RenderEffect 每帧重算，是滑动掉帧的主要来源；
-            // 停下后恢复，观感上只差「落定瞬间变糊」一下
-            val edgeBlur = if (pagerState.isScrollInProgress) {
-                0f
-            } else {
-                ((depth - 0.85f) * 7f).coerceIn(0f, 7f)
-            }
+            // 模糊半径收到 7dp：9dp 时边缘那圈糊得有点重
+            val edgeBlur = ((depth - 0.85f) * 7f).coerceIn(0f, 7f)
             // 浏览态下停在中间的那张再放大一档，带缩放动画
             val selectedBoost by animateFloatAsState(
                 targetValue = if (browsing && page == pagerState.currentPage) 1.1f else 1f,
@@ -311,7 +299,7 @@ internal fun NowPlayingCoverflow(
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    NowPlayingCoverflowArtwork(song, artworkPx)
+                    NowPlayingCoverflowArtwork(song)
                 }
             }
         }
@@ -355,9 +343,8 @@ internal fun NowPlayingCoverflow(
 }
 
 @Composable
-private fun NowPlayingCoverflowArtwork(song: SongItem, targetSizePx: Int) {
+private fun NowPlayingCoverflowArtwork(song: SongItem) {
     val coverUrl = rememberSongDisplayCoverUrl(song)
-    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -368,12 +355,7 @@ private fun NowPlayingCoverflowArtwork(song: SongItem, targetSizePx: Int) {
     ) {
         if (coverUrl != null) {
             AsyncImage(
-                // 按目标像素解码：卡片的尺寸是已知的，
-                // 让 Coil 直接解到对应大小，省掉一次大图缩放和一份大 bitmap
-                model = ImageRequest.Builder(context)
-                    .data(coverUrl)
-                    .size(targetSizePx)
-                    .build(),
+                model = coverUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
