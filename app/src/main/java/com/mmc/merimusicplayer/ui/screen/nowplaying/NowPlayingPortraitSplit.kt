@@ -37,6 +37,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -77,6 +79,7 @@ import com.mmc.merimusicplayer.ui.haptic.HapticIconButton
 import com.mmc.merimusicplayer.ui.theme.MemiDesign
 import com.mmc.merimusicplayer.ui.util.rememberSongDisplayCoverUrl
 import kotlin.math.abs
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ui.feice.mochi.shape.MochiRoundedRectangle
 
@@ -149,6 +152,9 @@ internal fun NowPlayingVinylDisc(
  *
  * 点击非居中项先滚到中间，点居中项才真正切歌，避免误触。
  */
+/** 浏览态空转多久后自动复位（毫秒） */
+private const val BrowseIdleTimeoutMs = 4_000L
+
 @Composable
 internal fun NowPlayingCoverflow(
     songs: List<SongItem>,
@@ -179,6 +185,13 @@ internal fun NowPlayingCoverflow(
             pagerState.animateScrollToPage(currentIndex)
         }
     }
+    // 滑动后一段时间没有新的操作就自动复位：
+    // 每滑到新的一页 key 变化会重启计时，点击封面时 browsing 变 false 直接取消
+    LaunchedEffect(browsing, pagerState.currentPage) {
+        if (!browsing) return@LaunchedEffect
+        delay(BrowseIdleTimeoutMs)
+        browsing = false
+    }
     // 浏览时整行上移，把底部让给歌名
     val rowShift by animateDpAsState(
         targetValue = if (browsing) 38.dp else 0.dp,
@@ -205,10 +218,18 @@ internal fun NowPlayingCoverflow(
         val sidePadding = (maxWidth - itemWidth) / 2
         // 封面固定正方形，否则窄页宽会被拉成竖条；高度不足时以高度为准
         val coverSize = minOf(itemWidth, maxHeight)
+        // 默认的 PagerSnapDistance.atMost(1) 会让快速一扫也只翻一页，
+        // 手感像被瞬间刹停。放宽到 4 页，快扫一次会顺着衰减惯性再冲几格，
+        // 然后吸附到最近的封面。
+        val flingBehavior = PagerDefaults.flingBehavior(
+            state = pagerState,
+            pagerSnapDistance = PagerSnapDistance.atMost(4)
+        )
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = sidePadding),
             pageSpacing = 4.dp,
+            flingBehavior = flingBehavior,
             modifier = Modifier
                 .fillMaxSize()
                 .offset(y = -rowShift)
