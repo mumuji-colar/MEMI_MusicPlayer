@@ -1774,6 +1774,8 @@ fun NowPlayingScreen(
                                         modifier = Modifier
                                             .weight(1.06f)
                                             .fillMaxWidth()
+                                            // 整体略下移，与顶栏拉开一点呼吸感
+                                            .padding(top = 8.dp)
                                     ) {
                                         // 直径取「可用高度」与「宽度的 60%」较小者：
                                         // 尽量大，又不至于把右侧歌词压住
@@ -1785,12 +1787,14 @@ fun NowPlayingScreen(
                                                 .size(discSize)
                                                 .align(Alignment.TopStart)
                                                 // 向左探出屏幕，超出部分由屏幕自然裁掉
-                                                .offset(x = -discSize * 0.16f)
+                                                .offset(x = -discSize * 0.24f)
                                         )
                                         Box(
                                             modifier = Modifier
                                                 .align(Alignment.TopEnd)
-                                                .fillMaxWidth(0.48f)
+                                                // 55% 宽度让歌词起点越过上半屏中线，
+                                                // 黑胶同步左移后两者右缘刚好不打架
+                                                .fillMaxWidth(0.55f)
                                                 .height(discSize)
                                         ) {
                                             if (embeddedLyricsVisible) {
@@ -1826,7 +1830,8 @@ fun NowPlayingScreen(
                                             onPlayPause = { PlayerManager.togglePlayPause() },
                                             onNext = { PlayerManager.next() }
                                         )
-                                        Spacer(Modifier.height(12.dp))
+                                        // 迷你条整体上移，底部留白
+                                        Spacer(Modifier.height(32.dp))
                                     }
                                 }
                             } else if (immersiveMode || useCompactPortraitLayout) {

@@ -166,16 +166,16 @@ internal fun NowPlayingCoverflow(
             }
             return@BoxWithConstraints
         }
-        // 一行看到 3 个完整封面 + 两侧各半截：中心 24%、左右各 24%，
-        // 剩下的约 28% 被最外两张各分一半，正好露出半张
-        val itemWidth = maxWidth * 0.24f
+        // 「3 整 + 两侧各半截」的尺寸上限就是 25%：
+        // 3×25% 的完整位 + 2×12.5% 的半截位 = 100%，再大就摆不下完整的三张
+        val itemWidth = maxWidth * 0.25f
         val sidePadding = (maxWidth - itemWidth) / 2
         // 封面固定正方形，否则窄页宽会被拉成竖条；高度不足时以高度为准
         val coverSize = minOf(itemWidth, maxHeight)
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = sidePadding),
-            pageSpacing = 6.dp,
+            pageSpacing = 4.dp,
             modifier = Modifier.fillMaxSize()
         ) { page ->
             val offset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
@@ -189,15 +189,16 @@ internal fun NowPlayingCoverflow(
                     modifier = Modifier
                         .size(coverSize)
                         .graphicsLayer {
-                            // 页宽变窄后，大角度旋转会把侧边压成一条线，
-                            // 因此透视收敛到 16°，缩放差也放缓，保证两侧封面可辨认
-                            rotationY = offset * 16f
+                            // 倾斜加大到 24°（最外侧 48°）让透视更明显；
+                            // 同时靠 scale 补偿投影损失：侧边几乎不缩小，
+                            // 否则大角度会把它压成一条细线
+                            rotationY = offset * 24f
                             cameraDistance = 16f * density
                             transformOrigin = TransformOrigin.Center
-                            val shrink = 1f - depth * 0.10f
-                            scaleX = shrink.coerceAtLeast(0.72f)
-                            scaleY = shrink.coerceAtLeast(0.72f)
-                            alpha = (1f - depth * 0.34f).coerceIn(0.3f, 1f)
+                            val shrink = 1f - depth * 0.05f
+                            scaleX = shrink.coerceAtLeast(0.85f)
+                            scaleY = shrink.coerceAtLeast(0.85f)
+                            alpha = (1f - depth * 0.22f).coerceIn(0.45f, 1f)
                         }
                         .clickable {
                             if (page != pagerState.currentPage) {
