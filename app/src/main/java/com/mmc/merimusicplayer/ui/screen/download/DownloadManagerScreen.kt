@@ -922,7 +922,7 @@ private fun DownloadedSongCover(resolvedCover: String?, offlineMode: Boolean) {
                 .size(48.dp)
                 .clip(neriRoundedShape(12.dp)),
             contentScale = ContentScale.Crop,
-            error = painterResource(id = R.drawable.ic_launcher_foreground)
+            error = painterResource(id = R.drawable.ic_launcher_foreground_material)
         )
     } else {
         // 显示默认音乐图标
